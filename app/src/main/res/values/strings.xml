@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">Shhh!</string>
+
+    <string name="settings_master_switch_title">Enable service</string>
+    <string name="settings_master_switch_summary">Show notification when media volume is on.</string>
+    <string name="settings_enable_on_headset_title">Enable when headset is connected</string>
+    <string name="settings_enable_on_headset_summary">Warn about media volume even when headset(wired or bluetooth) is connected.</string>
+    <string name="settings_show_volume_level_in_noti_icon_title">Show volume level in notification icon</string>
+    <string name="settings_show_volume_level_in_noti_icon_summary">Show current volume level in notification icon in status bar.</string>
+
+    <string name="notification_channel_foreground_service">Foreground service (Disable this)</string>
+    <string name="notification_channel_current_volume">Current volume</string>
+
+    <string name="notification_foreground_service_title">Foreground service is up and running.</string>
+    <string name="notification_foreground_service_text">Click here to hide this notification.</string>
+
+    <string name="notification_action_stop_service">Stop service</string>
+    <string name="notification_action_mute_volume">Mute volume</string>
+
+    <string name="notification_media_volume_on_title">Volume is on.</string>
+    <string name="notification_media_volume_on_text">"Current output device : %s / Volume level : %d"</string>
+
+    <string name="output_speaker">Speaker</string>
+    <string name="output_headset">Headset</string>
+</resources>

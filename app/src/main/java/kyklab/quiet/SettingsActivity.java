@@ -230,8 +230,10 @@ public class SettingsActivity extends AppCompatActivity {
                 boolean value =
                         preference.getSharedPreferences().getBoolean(preference.getKey(), false);
                 if (value) {
+                    Prefs.get().setAutoStartOnBoot(true);
                     startService();
                 } else {
+                    Prefs.get().setAutoStartOnBoot(false);
                     stopService();
                 }
             } else if (preference == findPreference(Prefs.Key.ENABLE_ON_HEADSET)) {

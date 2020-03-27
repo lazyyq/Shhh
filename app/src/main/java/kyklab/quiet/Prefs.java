@@ -55,6 +55,14 @@ public class Prefs {
         editor.putBoolean(Key.VOLUME_LEVEL_IN_NOTI_ICON, b);
     }
 
+    public boolean getAutoStartOnBoot() {
+        return pref.getBoolean(Key.AUTOSTART_ON_BOOT, false);
+    }
+
+    public void setAutoStartOnBoot(boolean b) {
+        editor.putBoolean(Key.AUTOSTART_ON_BOOT, b).apply();
+    }
+
     public void removePref(String pref) {
         editor.remove(pref).apply();
     }
@@ -68,5 +76,6 @@ public class Prefs {
         public static final String MASTER_SWITCH = "master_switch";
         public static final String ENABLE_ON_HEADSET = "enable_on_headset";
         public static final String VOLUME_LEVEL_IN_NOTI_ICON = "volume_level_in_noti_icon";
+        public static final String AUTOSTART_ON_BOOT = "autostart_on_boot";
     }
 }

@@ -10,10 +10,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.ColorFilter;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Typeface;
@@ -29,10 +27,7 @@ import android.widget.Toast;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.DrawableRes;
-import androidx.annotation.IdRes;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 
@@ -57,6 +52,105 @@ public class VolumeWatcherService extends Service {
     private boolean mEnableOnHeadset, mVolumeLevelInNotiIcon;
 
     public VolumeWatcherService() {
+    }
+
+    private static boolean isHeadsetConnected(Context context) {
+        return isWiredHeadsetConnected(context) || isBluetoothHeadsetConnected(context);
+    }
+
+    private static boolean isWiredHeadsetConnected(Context context) {
+        AudioManager audioManager =
+                (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+        if (audioManager == null) {
+            Toast.makeText(context, "isWiredHeadsetConnected(): audioManager is null",
+                    Toast.LENGTH_SHORT).show();
+        }
+        return audioManager != null && audioManager.isWiredHeadsetOn();
+    }
+
+    private static boolean isBluetoothHeadsetConnected(Context context) {
+        AudioManager audioManager =
+                (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+        if (audioManager == null) {
+            Toast.makeText(context, "isBluetoothHeadsetConnected(): audioManager is null",
+                    Toast.LENGTH_SHORT).show();
+        }
+        return audioManager != null && audioManager.isBluetoothA2dpOn();
+    }
+
+    private static boolean isCallActive(Context context) {
+        TelephonyManager telephonyManager =
+                (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+        if (telephonyManager == null) {
+            Toast.makeText(context, "isCallActive(): telephonyManager is null",
+                    Toast.LENGTH_SHORT).show();
+        }
+        return telephonyManager != null &&
+                telephonyManager.getCallState() == TelephonyManager.CALL_STATE_OFFHOOK;
+    }
+
+    private static int getStreamVolume(Context context, int streamType) {
+        AudioManager audioManager =
+                (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+        if (audioManager != null) {
+            return audioManager.getStreamVolume(streamType);
+        } else {
+            Toast.makeText(context, "getStreamVolume(): audioManager is null",
+                    Toast.LENGTH_SHORT).show();
+            return -1;
+        }
+    }
+
+    private static void muteStreamVolume(Context context, int streamType) {
+        AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+        if (audioManager == null) {
+            return;
+        }
+        audioManager.setStreamVolume(streamType, 0, AudioManager.FLAG_SHOW_UI);
+    }
+
+    private static boolean isDarkMode(Context context) {
+        return (context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK)
+                == Configuration.UI_MODE_NIGHT_YES;
+    }
+
+    @Nullable
+    private static Bitmap getBitmapWithText(Context context, int width, int height,
+                                            @DrawableRes int bgVectorDrawableId, @ColorInt int bgColor,
+                                            String text, float textSize, @ColorInt int textColor) {
+        // Draw vector drawable on canvas
+        Drawable drawable = ContextCompat.getDrawable(context, bgVectorDrawableId);
+        if (drawable == null) {
+            Log.e(TAG, "getBitmapWithText(): drawable is null");
+            return null;
+        }
+        Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        drawable.setTint(bgColor); // 40% opacity
+        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+        drawable.draw(canvas);
+
+        // Text options
+        Paint textPaint = new Paint();
+        textPaint.setStyle(Paint.Style.FILL);
+        textPaint.setColor(textColor);
+        textPaint.setTextSize(getPxFromDp(context, textSize));
+        textPaint.setTypeface(Typeface.DEFAULT_BOLD);
+        textPaint.setTextAlign(Paint.Align.CENTER);
+        textPaint.setAntiAlias(true);
+
+        // Draw text on canvas
+        Rect rect = new Rect();
+        textPaint.getTextBounds(text, 0, text.length(), rect);
+        canvas.drawText(text, bitmap.getWidth() / 2f,
+                (bitmap.getHeight() + Math.abs(rect.top - rect.bottom)) / 2f, textPaint);
+
+        return bitmap;
+    }
+
+    private static float getPxFromDp(Context context, float dp) {
+        return TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP, dp, context.getResources().getDisplayMetrics());
     }
 
     @Override
@@ -180,7 +274,7 @@ public class VolumeWatcherService extends Service {
         mVolumeLevelInNotiIcon = intent.getBooleanExtra(
                 SettingsActivity.INTENT_EXTRA_VOLUME_LEVEL_IN_NOTI_ICON, false);
         Toast.makeText(this, "Starting service, enable_on_headset: " + mEnableOnHeadset
-                 + ", volume_level_in_noti_icon: " + mVolumeLevelInNotiIcon, Toast.LENGTH_SHORT).show();
+                + ", volume_level_in_noti_icon: " + mVolumeLevelInNotiIcon, Toast.LENGTH_SHORT).show();
 
         // Start foreground service
         startForeground(SettingsActivity.NOTI_ID_ONGOING, mForegroundNotiBuilder.build());
@@ -266,105 +360,6 @@ public class VolumeWatcherService extends Service {
         NotificationManagerCompat.from(this).cancel(SettingsActivity.NOTI_ID_STATE);
         Toast.makeText(this, "Stopping service", Toast.LENGTH_SHORT).show();
         super.onDestroy();
-    }
-
-    private static boolean isHeadsetConnected(Context context) {
-        return isWiredHeadsetConnected(context) || isBluetoothHeadsetConnected(context);
-    }
-
-    private static boolean isWiredHeadsetConnected(Context context) {
-        AudioManager audioManager =
-                (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-        if (audioManager == null) {
-            Toast.makeText(context, "isWiredHeadsetConnected(): audioManager is null",
-                    Toast.LENGTH_SHORT).show();
-        }
-        return audioManager != null && audioManager.isWiredHeadsetOn();
-    }
-
-    private static boolean isBluetoothHeadsetConnected(Context context) {
-        AudioManager audioManager =
-                (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-        if (audioManager == null) {
-            Toast.makeText(context, "isBluetoothHeadsetConnected(): audioManager is null",
-                    Toast.LENGTH_SHORT).show();
-        }
-        return audioManager != null && audioManager.isBluetoothA2dpOn();
-    }
-
-    private static boolean isCallActive(Context context) {
-        TelephonyManager telephonyManager =
-                (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-        if (telephonyManager == null) {
-            Toast.makeText(context, "isCallActive(): telephonyManager is null",
-                    Toast.LENGTH_SHORT).show();
-        }
-        return telephonyManager != null &&
-                telephonyManager.getCallState() == TelephonyManager.CALL_STATE_OFFHOOK;
-    }
-
-    private static int getStreamVolume(Context context, int streamType) {
-        AudioManager audioManager =
-                (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-        if (audioManager != null) {
-            return audioManager.getStreamVolume(streamType);
-        } else {
-            Toast.makeText(context, "getStreamVolume(): audioManager is null",
-                    Toast.LENGTH_SHORT).show();
-            return -1;
-        }
-    }
-
-    private static void muteStreamVolume(Context context, int streamType) {
-        AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-        if (audioManager == null) {
-            return;
-        }
-        audioManager.setStreamVolume(streamType, 0, AudioManager.FLAG_SHOW_UI);
-    }
-
-    private static boolean isDarkMode(Context context) {
-        return (context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK)
-                == Configuration.UI_MODE_NIGHT_YES;
-    }
-
-    @Nullable
-    private static Bitmap getBitmapWithText(Context context, int width, int height,
-                                            @DrawableRes int bgVectorDrawableId, @ColorInt int bgColor,
-                                            String text, float textSize, @ColorInt int textColor) {
-        // Draw vector drawable on canvas
-        Drawable drawable = ContextCompat.getDrawable(context, bgVectorDrawableId);
-        if (drawable == null) {
-            Log.e(TAG, "getBitmapWithText(): drawable is null");
-            return null;
-        }
-        Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bitmap);
-        drawable.setTint(bgColor); // 40% opacity
-        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
-        drawable.draw(canvas);
-
-        // Text options
-        Paint textPaint = new Paint();
-        textPaint.setStyle(Paint.Style.FILL);
-        textPaint.setColor(textColor);
-        textPaint.setTextSize(getPxFromDp(context, textSize));
-        textPaint.setTypeface(Typeface.DEFAULT_BOLD);
-        textPaint.setTextAlign(Paint.Align.CENTER);
-        textPaint.setAntiAlias(true);
-
-        // Draw text on canvas
-        Rect rect = new Rect();
-        textPaint.getTextBounds(text, 0, text.length(), rect);
-        canvas.drawText(text, bitmap.getWidth() / 2f,
-                (bitmap.getHeight()+Math.abs(rect.top - rect.bottom))/2f, textPaint);
-
-        return bitmap;
-    }
-
-    private static float getPxFromDp(Context context, float dp) {
-        return TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_DIP, dp, context.getResources().getDisplayMetrics());
     }
 
     @Override

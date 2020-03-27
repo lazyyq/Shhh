@@ -3,7 +3,6 @@ package kyklab.quiet;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
-import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
@@ -154,7 +153,6 @@ public class SettingsActivity extends AppCompatActivity {
             mServiceIntent = new Intent(App.getContext(), VolumeWatcherService.class);
             mServiceIntent.putExtra(INTENT_EXTRA_ENABLE_ON_HEADSET, Prefs.get().getEnableOnHeadset());
             mServiceIntent.putExtra(INTENT_EXTRA_VOLUME_LEVEL_IN_NOTI_ICON, Prefs.get().getVolumeLevelInNotiIcon());
-
 
 
             mReceiver = new BroadcastReceiver() {

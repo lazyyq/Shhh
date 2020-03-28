@@ -1,7 +1,6 @@
 package kyklab.quiet;
 
 import android.app.Activity;
-import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -20,18 +19,6 @@ import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreferenceCompat;
 
 public class SettingsActivity extends AppCompatActivity {
-    // Permanent notification for foreground service
-    public static final String NOTI_CHANNEL_ONGOING = "NotificationChannelOngoing";
-    public static final int NOTI_ID_ONGOING = 1;
-    // Permanent notification for showing whether volume is currently on
-    public static final String NOTI_CHANNEL_STATE = "NotificationChannelState";
-    public static final int NOTI_ID_STATE = 2;
-
-    public static final String INTENT_EXTRA_ENABLE_ON_HEADSET = "enable_on_headset";
-    public static final String INTENT_EXTRA_NOTIFICATION_CLICKED = "notification_clicked";
-    public static final String INTENT_EXTRA_VOLUME_LEVEL_IN_NOTI_ICON = "volume_level_in_noti_icon";
-
-    public static final String INTENT_SWITCH_OFF = "switch_off";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,7 +38,7 @@ public class SettingsActivity extends AppCompatActivity {
 
     private void createNotificationChannel() {
         NotificationChannel channel =
-                new NotificationChannel(NOTI_CHANNEL_ONGOING,
+                new NotificationChannel(Const.Notification.CHANNEL_ONGOING,
                         getString(R.string.notification_channel_foreground_service),
                         NotificationManager.IMPORTANCE_LOW); // IMPORTANCE_LOW : no sound
 
@@ -61,7 +48,7 @@ public class SettingsActivity extends AppCompatActivity {
             return;
         }
         notificationManager.createNotificationChannel(channel);
-        channel = new NotificationChannel(NOTI_CHANNEL_STATE,
+        channel = new NotificationChannel(Const.Notification.CHANNEL_STATE,
                 getString(R.string.notification_channel_current_volume),
                 NotificationManager.IMPORTANCE_LOW);
         notificationManager.createNotificationChannel(channel);
@@ -78,10 +65,10 @@ public class SettingsActivity extends AppCompatActivity {
         super.onNewIntent(intent);
 
         boolean isNotificationClicked =
-                intent.getBooleanExtra(INTENT_EXTRA_NOTIFICATION_CLICKED, false);
+                intent.getBooleanExtra(Const.Intent.EXTRA_NOTIFICATION_CLICKED, false);
         if (isNotificationClicked) {
             showNotificationHelp();
-            getIntent().removeExtra(INTENT_EXTRA_NOTIFICATION_CLICKED);
+            getIntent().removeExtra(Const.Intent.EXTRA_NOTIFICATION_CLICKED);
         }
     }
 
@@ -90,13 +77,14 @@ public class SettingsActivity extends AppCompatActivity {
         super.onResume();
 
         Log.e("SettingsActivity", "onResume called");
-        Log.e("SettingsActivity", "intent:" + getIntent().getBooleanExtra(INTENT_EXTRA_NOTIFICATION_CLICKED, false));
+        Log.e("SettingsActivity", "intent:" +
+                getIntent().getBooleanExtra(Const.Intent.EXTRA_NOTIFICATION_CLICKED, false));
 
         boolean isNotificationClicked =
-                getIntent().getBooleanExtra(INTENT_EXTRA_NOTIFICATION_CLICKED, false);
+                getIntent().getBooleanExtra(Const.Intent.EXTRA_NOTIFICATION_CLICKED, false);
         if (isNotificationClicked) {
             showNotificationHelp();
-            getIntent().removeExtra(INTENT_EXTRA_NOTIFICATION_CLICKED);
+            getIntent().removeExtra(Const.Intent.EXTRA_NOTIFICATION_CLICKED);
         }
     }
 
@@ -108,14 +96,14 @@ public class SettingsActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         Intent intent = new Intent();
-                        intent.setAction("android.settings.APP_NOTIFICATION_SETTINGS");
+                        intent.setAction(Const.Intent.ACTION_APP_NOTIFICATION_SETTINGS);
 
                         //for Android 5-7
                         //intent.putExtra("app_package", getPackageName());
                         //intent.putExtra("app_uid", getApplicationInfo().uid);
 
                         // for Android 8 and above
-                        intent.putExtra("android.provider.extra.APP_PACKAGE", App.getContext().getPackageName());
+                        intent.putExtra(Const.Intent.EXTRA_APP_PACKAGE, App.getContext().getPackageName());
 
                         startActivity(intent);
                     }
@@ -133,17 +121,6 @@ public class SettingsActivity extends AppCompatActivity {
 
         private Intent mServiceIntent;
 
-        private static boolean isServiceRunning(Class<?> serviceClass) {
-            ActivityManager manager =
-                    (ActivityManager) App.getContext().getSystemService(Context.ACTIVITY_SERVICE);
-            for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-                if (serviceClass.getName().equals(service.service.getClassName())) {
-                    return true;
-                }
-            }
-            return false;
-        }
-
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             setPreferencesFromResource(R.xml.root_preferences, rootKey);
@@ -151,14 +128,16 @@ public class SettingsActivity extends AppCompatActivity {
             mMasterSwitch = findPreference(Prefs.Key.MASTER_SWITCH);
 
             mServiceIntent = new Intent(App.getContext(), VolumeWatcherService.class);
-            mServiceIntent.putExtra(INTENT_EXTRA_ENABLE_ON_HEADSET, Prefs.get().getEnableOnHeadset());
-            mServiceIntent.putExtra(INTENT_EXTRA_VOLUME_LEVEL_IN_NOTI_ICON, Prefs.get().getVolumeLevelInNotiIcon());
+            mServiceIntent.putExtra(Const.Intent.EXTRA_ENABLE_ON_HEADSET,
+                    Prefs.get().getEnableOnHeadset());
+            mServiceIntent.putExtra(Const.Intent.EXTRA_VOLUME_LEVEL_IN_NOTI_ICON,
+                    Prefs.get().getVolumeLevelInNotiIcon());
 
 
             mReceiver = new BroadcastReceiver() {
                 @Override
                 public void onReceive(Context context, Intent intent) {
-                    if (TextUtils.equals(intent.getAction(), INTENT_SWITCH_OFF)) {
+                    if (TextUtils.equals(intent.getAction(), Const.Intent.ACTION_SWITCH_OFF)) {
                         mMasterSwitch.setOnPreferenceClickListener(null);
                         mMasterSwitch.setChecked(false);
                         mMasterSwitch.setOnPreferenceClickListener(SettingsFragment.this);
@@ -182,14 +161,14 @@ public class SettingsActivity extends AppCompatActivity {
             super.onResume();
 
             mMasterSwitch.setOnPreferenceClickListener(null);
-            if (isServiceRunning(VolumeWatcherService.class)) {
+            if (Utils.isServiceRunning(VolumeWatcherService.class)) {
                 mMasterSwitch.setChecked(true);
             } else {
                 mMasterSwitch.setChecked(false);
             }
             mMasterSwitch.setOnPreferenceClickListener(this);
 
-            IntentFilter intentFilter = new IntentFilter(INTENT_SWITCH_OFF);
+            IntentFilter intentFilter = new IntentFilter(Const.Intent.ACTION_SWITCH_OFF);
             Activity activity = getActivity();
             if (activity != null) {
                 activity.registerReceiver(mReceiver, intentFilter);
@@ -237,17 +216,17 @@ public class SettingsActivity extends AppCompatActivity {
             } else if (preference == findPreference(Prefs.Key.ENABLE_ON_HEADSET)) {
                 boolean value =
                         preference.getSharedPreferences().getBoolean(preference.getKey(), false);
-                mServiceIntent.putExtra(INTENT_EXTRA_ENABLE_ON_HEADSET, value);
+                mServiceIntent.putExtra(Const.Intent.EXTRA_ENABLE_ON_HEADSET, value);
                 // If the service is already running, pass data to service
-                if (isServiceRunning(VolumeWatcherService.class)) {
+                if (Utils.isServiceRunning(VolumeWatcherService.class)) {
                     startService();
                 }
             } else if (preference == findPreference(Prefs.Key.VOLUME_LEVEL_IN_NOTI_ICON)) {
                 boolean value =
                         preference.getSharedPreferences().getBoolean(preference.getKey(), false);
-                mServiceIntent.putExtra(INTENT_EXTRA_VOLUME_LEVEL_IN_NOTI_ICON, value);
+                mServiceIntent.putExtra(Const.Intent.EXTRA_VOLUME_LEVEL_IN_NOTI_ICON, value);
                 // If the service is already running, pass data to service
-                if (isServiceRunning(VolumeWatcherService.class)) {
+                if (Utils.isServiceRunning(VolumeWatcherService.class)) {
                     startService();
                 }
             }

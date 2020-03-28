@@ -10,7 +10,7 @@ public class NotificationActionReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
-        if (TextUtils.equals(action, VolumeWatcherService.ACTION_MUTE_VOLUME)) {
+        if (TextUtils.equals(action, Const.Intent.ACTION_MUTE_VOLUME)) {
             AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
             if (audioManager == null) {
                 return;

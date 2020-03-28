@@ -52,7 +52,7 @@ public class Prefs {
     }
 
     public void setVolumeLevelInNotiIcon(boolean b) {
-        editor.putBoolean(Key.VOLUME_LEVEL_IN_NOTI_ICON, b);
+        editor.putBoolean(Key.VOLUME_LEVEL_IN_NOTI_ICON, b).apply();
     }
 
     public boolean getAutoStartOnBoot() {

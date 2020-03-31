@@ -3,21 +3,21 @@
     <SwitchPreferenceCompat
         app:defaultValue="false"
         app:iconSpaceReserved="false"
-        app:key="master_switch"
+        app:key="service_enabled"
         app:summary="@string/settings_master_switch_summary"
         app:title="@string/settings_master_switch_title" />
 
     <SwitchPreferenceCompat
         app:defaultValue="false"
-        app:dependency="master_switch"
+        app:dependency="service_enabled"
         app:iconSpaceReserved="false"
-        app:key="enable_on_headset"
+        app:key="@string/app_name"
         app:summary="@string/settings_enable_on_headset_summary"
         app:title="@string/settings_enable_on_headset_title" />
 
     <SwitchPreferenceCompat
         app:defaultValue="false"
-        app:dependency="master_switch"
+        app:dependency="service_enabled"
         app:iconSpaceReserved="false"
         app:key="volume_level_in_noti_icon"
         app:summary="@string/settings_show_volume_level_in_noti_icon_summary"

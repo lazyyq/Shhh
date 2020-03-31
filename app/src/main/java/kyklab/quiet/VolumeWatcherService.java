@@ -144,6 +144,7 @@ public class VolumeWatcherService extends Service {
         if (TextUtils.equals(action, Const.Intent.ACTION_STOP_SERVICE)) {
             // Stop service button in notification clicked
             Log.e(TAG, "Stopping service on notification click");
+            Prefs.get().setServiceEnabled(false);
             sendBroadcast(new Intent(Const.Intent.ACTION_SWITCH_OFF));
             stopForeground(true);
             stopSelf();

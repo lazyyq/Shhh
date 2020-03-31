@@ -71,10 +71,10 @@ public class Prefs {
         static final Prefs INSTANCE = new Prefs();
     }
 
-    public class Key {
-        public static final String FIRST_LAUNCH = "first_launch";
-        public static final String SERVICE_ENABLED = "service_enabled";
-        public static final String ENABLE_ON_HEADSET = "enable_on_headset";
-        public static final String VOLUME_LEVEL_IN_NOTI_ICON = "volume_level_in_noti_icon";
+    public static class Key {
+        public static final String FIRST_LAUNCH = App.getContext().getString(R.string.pref_key_first_launch);
+        public static final String SERVICE_ENABLED = App.getContext().getString(R.string.pref_key_service_enabled);
+        public static final String ENABLE_ON_HEADSET = App.getContext().getString(R.string.pref_key_enable_on_headset);
+        public static final String VOLUME_LEVEL_IN_NOTI_ICON = App.getContext().getString(R.string.pref_key_volume_level_in_noti_icon);
     }
 }

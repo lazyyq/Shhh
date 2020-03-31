@@ -1,0 +1,6 @@
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+    <string name="pref_key_first_launch">first_launch</string>
+    <string name="pref_key_service_enabled">service_enabled</string>
+    <string name="pref_key_enable_on_headset">enable_on_headset</string>
+    <string name="pref_key_volume_level_in_noti_icon">volume_level_in_noti_icon</string>
+</resources>

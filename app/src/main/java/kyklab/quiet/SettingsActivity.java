@@ -117,7 +117,7 @@ public class SettingsActivity extends AppCompatActivity {
             implements Preference.OnPreferenceClickListener {
         private BroadcastReceiver mReceiver;
 
-        private SwitchPreferenceCompat mMasterSwitch;
+        private SwitchPreferenceCompat mServiceEnabled;
 
         private Intent mServiceIntent;
 
@@ -125,31 +125,43 @@ public class SettingsActivity extends AppCompatActivity {
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             setPreferencesFromResource(R.xml.root_preferences, rootKey);
 
-            mMasterSwitch = findPreference(Prefs.Key.MASTER_SWITCH);
+            // Service enabled switch
+            mServiceEnabled = findPreference(Prefs.Key.SERVICE_ENABLED);
+            if (mServiceEnabled != null) {
+                mServiceEnabled.setOnPreferenceClickListener(this);
+            }
 
+            // Set intents for service
             mServiceIntent = new Intent(App.getContext(), VolumeWatcherService.class);
             mServiceIntent.putExtra(Const.Intent.EXTRA_ENABLE_ON_HEADSET,
                     Prefs.get().getEnableOnHeadset());
             mServiceIntent.putExtra(Const.Intent.EXTRA_VOLUME_LEVEL_IN_NOTI_ICON,
                     Prefs.get().getVolumeLevelInNotiIcon());
 
+            // Resume service if it was originally running
+            if (Prefs.get().getServiceEnabled() && !Utils.isServiceRunning(VolumeWatcherService.class)) {
+                startService();
+            }
+
 
             mReceiver = new BroadcastReceiver() {
                 @Override
                 public void onReceive(Context context, Intent intent) {
                     if (TextUtils.equals(intent.getAction(), Const.Intent.ACTION_SWITCH_OFF)) {
-                        mMasterSwitch.setOnPreferenceClickListener(null);
-                        mMasterSwitch.setChecked(false);
-                        mMasterSwitch.setOnPreferenceClickListener(SettingsFragment.this);
+                        mServiceEnabled.setOnPreferenceClickListener(null);
+                        mServiceEnabled.setChecked(false);
+                        mServiceEnabled.setOnPreferenceClickListener(SettingsFragment.this);
                     }
                 }
             };
 
+            // Enable on headset switch
             SwitchPreferenceCompat enableOnHeadsetSwitch = findPreference(Prefs.Key.ENABLE_ON_HEADSET);
             if (enableOnHeadsetSwitch != null) {
                 enableOnHeadsetSwitch.setOnPreferenceClickListener(this);
             }
 
+            // Show volume level in notification icon switch
             SwitchPreferenceCompat volumeLevelInNotiIconSwitch = findPreference(Prefs.Key.VOLUME_LEVEL_IN_NOTI_ICON);
             if (volumeLevelInNotiIconSwitch != null) {
                 volumeLevelInNotiIconSwitch.setOnPreferenceClickListener(this);
@@ -160,20 +172,13 @@ public class SettingsActivity extends AppCompatActivity {
         public void onResume() {
             super.onResume();
 
-            mMasterSwitch.setOnPreferenceClickListener(null);
-            if (Utils.isServiceRunning(VolumeWatcherService.class)) {
-                mMasterSwitch.setChecked(true);
-            } else {
-                mMasterSwitch.setChecked(false);
-            }
-            mMasterSwitch.setOnPreferenceClickListener(this);
-
             IntentFilter intentFilter = new IntentFilter(Const.Intent.ACTION_SWITCH_OFF);
             Activity activity = getActivity();
             if (activity != null) {
                 activity.registerReceiver(mReceiver, intentFilter);
                 Log.e("SettingsFragment", "Registered receiver");
             }
+
         }
 
         @Override
@@ -203,14 +208,12 @@ public class SettingsActivity extends AppCompatActivity {
 
         @Override
         public boolean onPreferenceClick(Preference preference) {
-            if (preference == findPreference(Prefs.Key.MASTER_SWITCH)) {
+            if (preference == findPreference(Prefs.Key.SERVICE_ENABLED)) {
                 boolean value =
                         preference.getSharedPreferences().getBoolean(preference.getKey(), false);
                 if (value) {
-                    Prefs.get().setAutoStartOnBoot(true);
                     startService();
                 } else {
-                    Prefs.get().setAutoStartOnBoot(false);
                     stopService();
                 }
             } else if (preference == findPreference(Prefs.Key.ENABLE_ON_HEADSET)) {

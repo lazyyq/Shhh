@@ -11,7 +11,7 @@
         app:defaultValue="false"
         app:dependency="service_enabled"
         app:iconSpaceReserved="false"
-        app:key="@string/app_name"
+        app:key="enable_on_headset"
         app:summary="@string/settings_enable_on_headset_summary"
         app:title="@string/settings_enable_on_headset_title" />
 

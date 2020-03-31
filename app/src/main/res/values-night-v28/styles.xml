@@ -3,6 +3,7 @@
     <style name="AppTheme" parent="Theme.MaterialComponents.DayNight">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">?colorSurface</item>
+        <item name="colorAccent">@color/colorAccent</item>
 
         <item name="android:navigationBarColor">?colorSurface</item>
         <item name="android:navigationBarDividerColor">?colorControlHighlight</item>

@@ -12,12 +12,12 @@ public class BootCompletedReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         if (TextUtils.equals(intent.getAction(), Intent.ACTION_BOOT_COMPLETED)) {
             // Start service on boot complete
-            if (Prefs.get().getServiceEnabled()) {
+            if (Prefs.get().getBoolean(Prefs.Key.SERVICE_ENABLED)) {
                 Intent serviceIntent = new Intent(context, VolumeWatcherService.class);
                 serviceIntent.putExtra(Const.Intent.EXTRA_ENABLE_ON_HEADSET,
-                        Prefs.get().getEnableOnHeadset());
+                        Prefs.get().getBoolean(Prefs.Key.ENABLE_ON_HEADSET));
                 serviceIntent.putExtra(Const.Intent.EXTRA_VOLUME_LEVEL_IN_NOTI_ICON,
-                        Prefs.get().getVolumeLevelInNotiIcon());
+                        Prefs.get().getBoolean(Prefs.Key.VOLUME_LEVEL_IN_NOTI_ICON));
                 context.startForegroundService(serviceIntent);
             }
         }

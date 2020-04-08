@@ -1,6 +1,13 @@
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
     <string name="pref_key_first_launch">first_launch</string>
+    <bool name="pref_key_first_launch_default">true</bool>
+
     <string name="pref_key_service_enabled">service_enabled</string>
+    <bool name="pref_key_service_enabled_default">false</bool>
+
     <string name="pref_key_enable_on_headset">enable_on_headset</string>
+    <bool name="pref_key_enable_on_headset_default">false</bool>
+
     <string name="pref_key_volume_level_in_noti_icon">volume_level_in_noti_icon</string>
+    <bool name="pref_key_volume_level_in_noti_icon_default">false</bool>
 </resources>

@@ -31,7 +31,7 @@ public class SettingsActivity extends AppCompatActivity {
 
         // Create notification channel if first launch
         if (true/*Prefs.get().getFirstLaunch()*/) {
-            Prefs.get().setFirstLaunch(false);
+            Prefs.get().setBoolean(Prefs.Key.FIRST_LAUNCH, false);
             createNotificationChannel();
         }
     }
@@ -134,12 +134,12 @@ public class SettingsActivity extends AppCompatActivity {
             // Set intents for service
             mServiceIntent = new Intent(App.getContext(), VolumeWatcherService.class);
             mServiceIntent.putExtra(Const.Intent.EXTRA_ENABLE_ON_HEADSET,
-                    Prefs.get().getEnableOnHeadset());
+                    Prefs.get().getBoolean(Prefs.Key.ENABLE_ON_HEADSET));
             mServiceIntent.putExtra(Const.Intent.EXTRA_VOLUME_LEVEL_IN_NOTI_ICON,
-                    Prefs.get().getVolumeLevelInNotiIcon());
+                    Prefs.get().getBoolean(Prefs.Key.VOLUME_LEVEL_IN_NOTI_ICON));
 
             // Resume service if it was originally running
-            if (Prefs.get().getServiceEnabled() && !Utils.isServiceRunning(VolumeWatcherService.class)) {
+            if (Prefs.get().getBoolean(Prefs.Key.SERVICE_ENABLED) && !Utils.isServiceRunning(VolumeWatcherService.class)) {
                 startService();
             }
 

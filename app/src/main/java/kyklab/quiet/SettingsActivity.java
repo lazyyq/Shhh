@@ -119,8 +119,6 @@ public class SettingsActivity extends AppCompatActivity {
 
         private SwitchPreferenceCompat mServiceEnabled;
 
-        private Intent mServiceIntent;
-
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             setPreferencesFromResource(R.xml.root_preferences, rootKey);
@@ -130,13 +128,6 @@ public class SettingsActivity extends AppCompatActivity {
             if (mServiceEnabled != null) {
                 mServiceEnabled.setOnPreferenceClickListener(this);
             }
-
-            // Set intents for service
-            mServiceIntent = new Intent(App.getContext(), VolumeWatcherService.class);
-            mServiceIntent.putExtra(Const.Intent.EXTRA_ENABLE_ON_HEADSET,
-                    Prefs.get().getBoolean(Prefs.Key.ENABLE_ON_HEADSET));
-            mServiceIntent.putExtra(Const.Intent.EXTRA_VOLUME_LEVEL_IN_NOTI_ICON,
-                    Prefs.get().getBoolean(Prefs.Key.VOLUME_LEVEL_IN_NOTI_ICON));
 
             // Resume service if it was originally running
             if (Prefs.get().getBoolean(Prefs.Key.SERVICE_ENABLED) && !Utils.isServiceRunning(VolumeWatcherService.class)) {
@@ -194,14 +185,25 @@ public class SettingsActivity extends AppCompatActivity {
         private void startService() {
             Activity activity = getActivity();
             if (activity != null) {
-                activity.startForegroundService(mServiceIntent);
+                Intent intent = new Intent(activity, VolumeWatcherService.class);
+                intent.setAction(Const.Intent.ACTION_START_SERVICE);
+                activity.startForegroundService(intent);
+            }
+        }
+
+        private void startService(Intent intent) {
+            Activity activity = getActivity();
+            if (activity != null) {
+                activity.startForegroundService(intent);
             }
         }
 
         private void stopService() {
             Activity activity = getActivity();
             if (activity != null) {
-                activity.stopService(mServiceIntent);
+                Intent serviceIntent = new Intent(activity, VolumeWatcherService.class);
+                serviceIntent.setAction(Const.Intent.ACTION_STOP_SERVICE);
+                activity.startForegroundService(serviceIntent);
             }
         }
 
@@ -217,20 +219,28 @@ public class SettingsActivity extends AppCompatActivity {
                     stopService();
                 }
             } else if (preference == findPreference(Prefs.Key.ENABLE_ON_HEADSET)) {
-                boolean value =
-                        preference.getSharedPreferences().getBoolean(preference.getKey(), false);
-                mServiceIntent.putExtra(Const.Intent.EXTRA_ENABLE_ON_HEADSET, value);
                 // If the service is already running, pass data to service
                 if (Utils.isServiceRunning(VolumeWatcherService.class)) {
-                    startService();
+                    Activity activity = getActivity();
+                    if (activity != null) {
+                        Intent intent = new Intent(activity, VolumeWatcherService.class);
+                        intent.setAction(Const.Intent.ACTION_UPDATE_SETTINGS);
+                        intent.putExtra(Const.Intent.EXTRA_ENABLE_ON_HEADSET,
+                                Prefs.get().getBoolean(Prefs.Key.ENABLE_ON_HEADSET));
+                        startService(intent);
+                    }
                 }
             } else if (preference == findPreference(Prefs.Key.VOLUME_LEVEL_IN_NOTI_ICON)) {
-                boolean value =
-                        preference.getSharedPreferences().getBoolean(preference.getKey(), false);
-                mServiceIntent.putExtra(Const.Intent.EXTRA_VOLUME_LEVEL_IN_NOTI_ICON, value);
                 // If the service is already running, pass data to service
                 if (Utils.isServiceRunning(VolumeWatcherService.class)) {
-                    startService();
+                    Activity activity = getActivity();
+                    if (activity != null) {
+                        Intent intent = new Intent(activity, VolumeWatcherService.class);
+                        intent.setAction(Const.Intent.ACTION_UPDATE_SETTINGS);
+                        intent.putExtra(Const.Intent.EXTRA_VOLUME_LEVEL_IN_NOTI_ICON,
+                                Prefs.get().getBoolean(Prefs.Key.VOLUME_LEVEL_IN_NOTI_ICON));
+                        startService(intent);
+                    }
                 }
             }
             return false;

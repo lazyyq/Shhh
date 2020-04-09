@@ -17,7 +17,9 @@ public class Const {
     public class Intent {
 
         // Actions
+        public static final String ACTION_START_SERVICE = "kyklab.quiet.action.start_service";
         public static final String ACTION_STOP_SERVICE = "kyklab.quiet.action.stop_service";
+        public static final String ACTION_UPDATE_SETTINGS = "kyklab.quiet.action.update_settings";
         public static final String ACTION_SWITCH_OFF = "kyklab.quiet.action.switch_off";
         public static final String ACTION_MUTE_VOLUME = "kyklab.quite.action.mute_volume";
 

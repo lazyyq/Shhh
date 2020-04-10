@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="switch_bg_color">#1affffff</color>
+    <color name="switch_text_color">#80ffffff</color>
+    <color name="switch_tint_color">#ff2e7d32</color>
+</resources>

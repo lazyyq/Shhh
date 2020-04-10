@@ -1,8 +1,11 @@
 <resources>
     <string name="app_name">쉿!</string>
 
-    <string name="settings_master_switch_title">서비스 활성화</string>
-    <string name="settings_master_switch_summary">미디어 볼륨이 켜져 있으면 알림을 표시합니다.</string>
+    <string name="service_status_on">쉿!이 실행 중입니다.</string>
+    <string name="service_status_off">쉿!이 꺼져 있습니다.</string>
+    <string name="service_desc_on">쉿!이 기기의 미디어 볼륨을 감시 중입니다. 미디어 볼륨이 켜지면 알림을 표시합니다.</string>
+    <string name="service_desc_off">쉿!이 기기의 지금은 기기의 미디어 볼륨을 감시 중이지 않습니다.</string>
+
     <string name="settings_enable_on_headset_title">헤드셋이 연결되어 있을 때도 활성화</string>
     <string name="settings_enable_on_headset_summary">헤드셋(유선이나 블루투스)이 연결되어 있을 때도 볼륨이 켜져 있으면 경고합니다.</string>
     <string name="settings_show_volume_level_in_noti_icon_title">알림 아이콘에 볼륨 크기를 표시합니다</string>

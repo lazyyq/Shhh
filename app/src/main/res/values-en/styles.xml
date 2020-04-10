@@ -1,0 +1,7 @@
+<resources>
+
+    <style name="AppThemeBase" parent="Theme.MaterialComponents.DayNight">
+        <item name="fontFamily">@font/googlesans_regular</item>
+    </style>
+
+</resources>

@@ -2,7 +2,7 @@ package kyklab.quiet;
 
 public class Const {
 
-    public class Notification {
+    public static class Notification {
 
         // Permanent notification for foreground service
         public static final String CHANNEL_ONGOING = "NotificationChannelOngoing";
@@ -14,7 +14,7 @@ public class Const {
 
     }
 
-    public class Intent {
+    public static class Intent {
 
         // Actions
         public static final String ACTION_START_SERVICE = "kyklab.quiet.action.start_service";

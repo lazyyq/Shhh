@@ -27,9 +27,13 @@ public class Utils {
         return BuildConfig.DEBUG;
     }
 
-    public static boolean isServiceRunning(Class<?> serviceClass) {
+    public static boolean isServiceRunning(Context context, Class<?> serviceClass) {
         ActivityManager manager =
-                (ActivityManager) App.getContext().getSystemService(Context.ACTIVITY_SERVICE);
+                (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        if (manager == null) {
+            Toast.makeText(context, "Failed to get running services", Toast.LENGTH_SHORT).show();
+            return false;
+        }
         for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
             if (serviceClass.getName().equals(service.service.getClassName())) {
                 return true;

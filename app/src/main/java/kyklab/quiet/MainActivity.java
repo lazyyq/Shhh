@@ -5,14 +5,11 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.View;
-import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
@@ -35,44 +32,33 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Create notification channel if first launch
-        if (true/*Prefs.get().getFirstLaunch()*/) {
-            Prefs.get().setBoolean(Prefs.Key.FIRST_LAUNCH, false);
-            createNotificationChannel();
-        }
+        // Create notification channel
+        createNotificationChannel();
 
         tvServiceStatus = findViewById(R.id.tv_service_status);
         tvServiceDesc = findViewById(R.id.tv_service_desc);
 
         final SwitchButton switchButton = findViewById(R.id.switchButton);
-        switchButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    startWatcherService();
-                    setServiceStatusText(true);
-                    Prefs.get().setBoolean(Prefs.Key.SERVICE_ENABLED, true);
-                } else {
-                    stopWatcherService();
-                    setServiceStatusText(false);
-                    Prefs.get().setBoolean(Prefs.Key.SERVICE_ENABLED, false);
-                }
+        switchButton.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
+                startWatcherService();
+                setServiceStatusText(true);
+                Prefs.get().setBoolean(Prefs.Key.SERVICE_ENABLED, true);
+            } else {
+                stopWatcherService();
+                setServiceStatusText(false);
+                Prefs.get().setBoolean(Prefs.Key.SERVICE_ENABLED, false);
             }
         });
 
         ConstraintLayout mainLayout = findViewById(R.id.mainLayout);
-        mainLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                switchButton.toggle();
-            }
-        });
+        mainLayout.setOnClickListener(v -> switchButton.toggle());
 
         // Resume service if it was originally running
         if (Prefs.get().getBoolean(Prefs.Key.SERVICE_ENABLED)) {
             switchButton.setCheckedNoEvent(true);
             setServiceStatusText(true);
-            if (!Utils.isServiceRunning(VolumeWatcherService.class)) {
+            if (!Utils.isServiceRunning(this, VolumeWatcherService.class)) {
                 startWatcherService();
             }
         }
@@ -184,21 +170,18 @@ public class MainActivity extends AppCompatActivity {
         AlertDialog dialog = new AlertDialog.Builder(this)
                 .setTitle(R.string.hide_foreground_service_notification_dialog_title)
                 .setMessage(R.string.hide_foreground_service_notification_dialog_text)
-                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        Intent intent = new Intent();
-                        intent.setAction(Const.Intent.ACTION_APP_NOTIFICATION_SETTINGS);
+                .setPositiveButton(android.R.string.ok, (dialog1, which) -> {
+                    Intent intent = new Intent();
+                    intent.setAction(Const.Intent.ACTION_APP_NOTIFICATION_SETTINGS);
 
-                        //for Android 5-7
-                        //intent.putExtra("app_package", getPackageName());
-                        //intent.putExtra("app_uid", getApplicationInfo().uid);
+                    //for Android 5-7
+                    //intent.putExtra("app_package", getPackageName());
+                    //intent.putExtra("app_uid", getApplicationInfo().uid);
 
-                        // for Android 8 and above
-                        intent.putExtra(Const.Intent.EXTRA_APP_PACKAGE, App.getContext().getPackageName());
+                    // for Android 8 and above
+                    intent.putExtra(Const.Intent.EXTRA_APP_PACKAGE, App.getContext().getPackageName());
 
-                        startActivity(intent);
-                    }
+                    startActivity(intent);
                 })
                 .create();
         dialog.show();
@@ -235,7 +218,7 @@ public class MainActivity extends AppCompatActivity {
 
             if (preference == findPreference(Prefs.Key.ENABLE_ON_HEADSET)) {
                 // If the service is already running, pass data to service
-                if (Utils.isServiceRunning(VolumeWatcherService.class)) {
+                if (Utils.isServiceRunning(activity, VolumeWatcherService.class)) {
                     Bundle bundle = new Bundle();
                     bundle.putBoolean(Const.Intent.EXTRA_ENABLE_ON_HEADSET,
                             Prefs.get().getBoolean(Prefs.Key.ENABLE_ON_HEADSET));
@@ -243,7 +226,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             } else if (preference == findPreference(Prefs.Key.VOLUME_LEVEL_IN_NOTI_ICON)) {
                 // If the service is already running, pass data to service
-                if (Utils.isServiceRunning(VolumeWatcherService.class)) {
+                if (Utils.isServiceRunning(activity, VolumeWatcherService.class)) {
                     Bundle bundle = new Bundle();
                     bundle.putBoolean(Const.Intent.EXTRA_VOLUME_LEVEL_IN_NOTI_ICON,
                             Prefs.get().getBoolean(Prefs.Key.VOLUME_LEVEL_IN_NOTI_ICON));

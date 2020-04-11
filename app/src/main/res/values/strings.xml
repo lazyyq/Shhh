@@ -9,13 +9,18 @@
     <string name="service_desc_on">Shhh! is monitoring the device\'s media volume. We will show you a notification when it is on.</string>
     <string name="service_desc_off">Shhh! is not monitoring the device\'s media volume at the moment.</string>
 
+    <string name="settings_category_notification">Notification</string>
+
     <string name="settings_enable_on_headset_title">Enable when headset is connected</string>
     <string name="settings_enable_on_headset_summary">Warn about media volume even when headset(wired or bluetooth) is connected.</string>
-    <string name="settings_show_volume_level_in_noti_icon_title">Show volume level in notification icon</string>
-    <string name="settings_show_volume_level_in_noti_icon_summary">Show current volume level in notification icon in status bar.</string>
+    <string name="settings_show_noti_output_device_title">Show volume output device</string>
+    <string name="settings_show_noti_output_device_summary">Show current volume output device(Speaker/Headset) in notification icon in status bar.</string>
+    <string name="settings_show_noti_vol_level_title">Show volume level</string>
+    <string name="settings_show_noti_vol_level_summary">Show current media volume level in notification icon in status bar.</string>
 
     <string name="notification_channel_foreground_service">Foreground service (Disable this)</string>
-    <string name="notification_channel_current_volume">Current volume</string>
+    <string name="notification_channel_output_device">Output device</string>
+    <string name="notification_channel_volume_level">Volume level</string>
 
     <string name="notification_foreground_service_title">Foreground service is up and running.</string>
     <string name="notification_foreground_service_text">Click here to hide this notification.</string>
@@ -23,8 +28,11 @@
     <string name="notification_action_stop_service">Stop service</string>
     <string name="notification_action_mute_volume">Mute volume</string>
 
-    <string name="notification_media_volume_on_title">Volume is on.</string>
-    <string name="notification_media_volume_on_text">"Current output device : %s / Volume level : %d"</string>
+    <string name="notification_output_device_title">"Output device is %s."</string>
+    <string name="notification_output_device_text">"Current output device : %s"</string>
+    <string name="notification_volume_level_title">Volume is on.</string>
+    <string name="notification_volume_level_text">"Media volume level : %d"</string>
+    <string name="notification_unified_text">"Current output device : %s / Volume level : %d"</string>
 
     <string name="hide_foreground_service_notification_dialog_title">Hide foreground service notification</string>
     <string name="hide_foreground_service_notification_dialog_text">To hide this notification, you can manually disable \'Foreground service\' notification in the settings window.</string>

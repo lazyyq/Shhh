@@ -9,13 +9,18 @@
     <string name="service_desc_on">쉿!이 기기의 미디어 볼륨을 감시 중입니다. 미디어 볼륨이 켜져 있으면 알림을 표시해 드릴 겁니다.</string>
     <string name="service_desc_off">쉿!이 지금은 기기의 미디어 볼륨을 감시하고 있지 않습니다.</string>
 
+    <string name="settings_category_notification">알림</string>
+
     <string name="settings_enable_on_headset_title">헤드셋이 연결되어 있을 때도 활성화</string>
     <string name="settings_enable_on_headset_summary">헤드셋(유선이나 블루투스)이 연결되어 있을 때도 볼륨이 켜져 있으면 경고합니다.</string>
-    <string name="settings_show_volume_level_in_noti_icon_title">알림 아이콘에 볼륨 크기를 표시합니다</string>
-    <string name="settings_show_volume_level_in_noti_icon_summary">상태 표시줄의 알림 아이콘에 현재 볼륨 크기를 표시합니다.</string>
+    <string name="settings_show_noti_output_device_title">볼륨 출력 장치 표시</string>
+    <string name="settings_show_noti_output_device_summary">상태표시줄의 알림 아이콘에 현재 볼륨 출력 장치(스피커/헤드셋)를 표시합니다.</string>
+    <string name="settings_show_noti_vol_level_title">볼륨 크기 표시</string>
+    <string name="settings_show_noti_vol_level_summary">상태표시줄의 알림 아이콘에 현재 미디어 볼륨 크기를 표시합니다.</string>
 
     <string name="notification_channel_foreground_service">포어그라운드 서비스 (알림을 꺼주세요)</string>
-    <string name="notification_channel_current_volume">현재 볼륨</string>
+    <string name="notification_channel_output_device">출력 장치</string>
+    <string name="notification_channel_volume_level">볼륨 크기</string>
 
     <string name="notification_foreground_service_title">서비스가 실행 중입니다.</string>
     <string name="notification_foreground_service_text">이 알림을 숨기려면 클릭하세요.</string>
@@ -23,8 +28,11 @@
     <string name="notification_action_stop_service">서비스 중지</string>
     <string name="notification_action_mute_volume">볼륨 끄기</string>
 
-    <string name="notification_media_volume_on_title">볼륨이 켜져 있습니다.</string>
-    <string name="notification_media_volume_on_text">"현재 출력 장치 : %s / 볼륨 크기 : %d"</string>
+    <string name="notification_output_device_title">"출력 장치는 %s입니다."</string>
+    <string name="notification_output_device_text">"현재 출력 장치 : %s"</string>
+    <string name="notification_volume_level_title">볼륨이 켜져 있습니다.</string>
+    <string name="notification_volume_level_text">"미디어 볼륨 크기 : %d"</string>
+    <string name="notification_unified_text">"현재 출력 장치 : %s / 미디어 볼륨 크기 : %d"</string>
 
     <string name="hide_foreground_service_notification_dialog_title">서비스 실행 중 알림 숨기기</string>
     <string name="hide_foreground_service_notification_dialog_text">이 알림을 숨기시려면, 설정 창에서 \'포어그라운드 서비스\' 알림을 꺼주세요.</string>

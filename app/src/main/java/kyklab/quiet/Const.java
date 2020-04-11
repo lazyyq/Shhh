@@ -8,9 +8,13 @@ public class Const {
         public static final String CHANNEL_ONGOING = "NotificationChannelOngoing";
         public static final int ID_ONGOING = 1;
 
-        // Permanent notification for showing whether volume is currently on
-        public static final String CHANNEL_STATE = "NotificationChannelState";
-        public static final int ID_STATE = 2;
+        // Permanent notification for current output device
+        public static final String CHANNEL_OUTPUT_DEVICE = "NotificationChannelOutputDevice";
+        public static final int ID_OUTPUT_DEVICE = 3;
+
+        // Permanent notification for current volume level
+        public static final String CHANNEL_VOLUME_LEVEL = "NotificationChannelVolumeLevel";
+        public static final int ID_VOLUME_LEVEL = 4;
 
     }
 
@@ -32,7 +36,8 @@ public class Const {
         // Extras
         public static final String EXTRA_ENABLE_ON_HEADSET = "enable_on_headset";
         public static final String EXTRA_NOTIFICATION_CLICKED = "notification_clicked";
-        public static final String EXTRA_VOLUME_LEVEL_IN_NOTI_ICON = "volume_level_in_noti_icon";
+        public static final String EXTRA_SHOW_NOTI_OUTPUT_DEVICE = "show_noti_output_device";
+        public static final String EXTRA_SHOW_NOTI_VOLUME_LEVEL = "show_noti_volume_level";
 
         public static final String EXTRA_APP_PACKAGE = "android.provider.extra.APP_PACKAGE";
 

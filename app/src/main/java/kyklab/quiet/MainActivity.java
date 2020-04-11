@@ -17,6 +17,7 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreferenceCompat;
@@ -77,27 +78,23 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void createNotificationChannel() {
-        NotificationChannel channel =
-                new NotificationChannel(Const.Notification.CHANNEL_ONGOING,
-                        getString(R.string.notification_channel_foreground_service),
-                        NotificationManager.IMPORTANCE_LOW); // IMPORTANCE_LOW : no sound
+        NotificationChannel channel;
+        NotificationManagerCompat manager = NotificationManagerCompat.from(this);
 
-        NotificationManager notificationManager =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        if (notificationManager == null) {
-            return;
-        }
-        notificationManager.createNotificationChannel(channel);
-        channel = new NotificationChannel(Const.Notification.CHANNEL_STATE,
-                getString(R.string.notification_channel_current_volume),
+        channel = new NotificationChannel(Const.Notification.CHANNEL_ONGOING,
+                getString(R.string.notification_channel_foreground_service),
+                NotificationManager.IMPORTANCE_LOW); // IMPORTANCE_LOW : no sound
+        manager.createNotificationChannel(channel);
+
+        channel = new NotificationChannel(Const.Notification.CHANNEL_OUTPUT_DEVICE,
+                getString(R.string.notification_channel_output_device),
                 NotificationManager.IMPORTANCE_LOW);
-        notificationManager.createNotificationChannel(channel);
+        manager.createNotificationChannel(channel);
 
-        // NotificationManagerCompat.from(getApplicationContext()).createNotificationChannel(channel);
-
-        //NotificationManager manager =
-        //        (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        //manager.createNotificationChannel(channel);
+        channel = new NotificationChannel(Const.Notification.CHANNEL_VOLUME_LEVEL,
+                getString(R.string.notification_channel_volume_level),
+                NotificationManager.IMPORTANCE_LOW);
+        manager.createNotificationChannel(channel);
     }
 
     private void startWatcherService() {
@@ -220,10 +217,16 @@ public class MainActivity extends AppCompatActivity {
                 enableOnHeadsetSwitch.setOnPreferenceClickListener(this);
             }
 
+            // Show output device in notification icon switch
+            SwitchPreferenceCompat showNotiOutputDevice = findPreference(Prefs.Key.SHOW_NOTI_OUTPUT_DEVICE);
+            if (showNotiOutputDevice != null) {
+                showNotiOutputDevice.setOnPreferenceClickListener(this);
+            }
+
             // Show volume level in notification icon switch
-            SwitchPreferenceCompat volumeLevelInNotiIconSwitch = findPreference(Prefs.Key.VOLUME_LEVEL_IN_NOTI_ICON);
-            if (volumeLevelInNotiIconSwitch != null) {
-                volumeLevelInNotiIconSwitch.setOnPreferenceClickListener(this);
+            SwitchPreferenceCompat showNotiVolumeLevel = findPreference(Prefs.Key.SHOW_NOTI_VOL_LEVEL);
+            if (showNotiVolumeLevel != null) {
+                showNotiVolumeLevel.setOnPreferenceClickListener(this);
             }
         }
 
@@ -243,12 +246,21 @@ public class MainActivity extends AppCompatActivity {
                             Prefs.get().getBoolean(Prefs.Key.ENABLE_ON_HEADSET));
                     activity.startWatcherService(Const.Intent.ACTION_UPDATE_SETTINGS, bundle);
                 }
-            } else if (preference == findPreference(Prefs.Key.VOLUME_LEVEL_IN_NOTI_ICON)) {
+            } else if (preference == findPreference(Prefs.Key.SHOW_NOTI_OUTPUT_DEVICE)) {
                 // If the service is already running, pass data to service
                 if (Utils.isServiceRunning(activity, VolumeWatcherService.class)) {
                     Bundle bundle = new Bundle();
-                    bundle.putBoolean(Const.Intent.EXTRA_VOLUME_LEVEL_IN_NOTI_ICON,
-                            Prefs.get().getBoolean(Prefs.Key.VOLUME_LEVEL_IN_NOTI_ICON));
+                    bundle.putBoolean(Const.Intent.EXTRA_SHOW_NOTI_OUTPUT_DEVICE,
+                            Prefs.get().getBoolean(Prefs.Key.SHOW_NOTI_OUTPUT_DEVICE));
+                    activity.startWatcherService(Const.Intent.ACTION_UPDATE_SETTINGS, bundle);
+                }
+            }
+            if (preference == findPreference(Prefs.Key.SHOW_NOTI_VOL_LEVEL)) {
+                // If the service is already running, pass data to service
+                if (Utils.isServiceRunning(activity, VolumeWatcherService.class)) {
+                    Bundle bundle = new Bundle();
+                    bundle.putBoolean(Const.Intent.EXTRA_SHOW_NOTI_VOLUME_LEVEL,
+                            Prefs.get().getBoolean(Prefs.Key.SHOW_NOTI_VOL_LEVEL));
                     activity.startWatcherService(Const.Intent.ACTION_UPDATE_SETTINGS, bundle);
                 }
             }

@@ -21,7 +21,7 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
 public class Utils {
-    static final String TAG = "Utils";
+    private static final String TAG = "Utils";
 
     public static boolean isServiceRunning(Class<?> serviceClass) {
         ActivityManager manager =

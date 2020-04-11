@@ -23,6 +23,9 @@
     <string name="notification_media_volume_on_title">볼륨이 켜져 있습니다.</string>
     <string name="notification_media_volume_on_text">"현재 출력 장치 : %s / 볼륨 크기 : %d"</string>
 
+    <string name="hide_foreground_service_notification_dialog_title">서비스 실행 중 알림 숨기기</string>
+    <string name="hide_foreground_service_notification_dialog_text">이 알림을 숨기시려면, 설정 창에서 \'포어그라운드 서비스\' 알림을 꺼주세요.</string>
+
     <string name="output_speaker">스피커</string>
     <string name="output_headset">헤드셋</string>
 </resources>

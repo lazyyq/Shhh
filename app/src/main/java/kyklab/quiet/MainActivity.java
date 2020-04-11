@@ -181,10 +181,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void showNotificationHelp() {
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this)
-                .setTitle("제목")
-                .setMessage("메시지")
-                .setPositiveButton("긍정", new DialogInterface.OnClickListener() {
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle(R.string.hide_foreground_service_notification_dialog_title)
+                .setMessage(R.string.hide_foreground_service_notification_dialog_text)
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         Intent intent = new Intent();
@@ -199,9 +199,9 @@ public class MainActivity extends AppCompatActivity {
 
                         startActivity(intent);
                     }
-                });
-        AlertDialog alertDialog = dialogBuilder.create();
-        alertDialog.show();
+                })
+                .create();
+        dialog.show();
     }
 
 

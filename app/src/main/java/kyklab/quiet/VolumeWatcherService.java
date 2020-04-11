@@ -79,7 +79,7 @@ public class VolumeWatcherService extends Service {
          * Foreground service notification
          */
         // Notification for foreground service
-        Intent notificationIntent = new Intent(this, SettingsActivity.class);
+        Intent notificationIntent = new Intent(this, MainActivity.class);
         //notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         notificationIntent.putExtra(Const.Intent.EXTRA_NOTIFICATION_CLICKED, true);
         PendingIntent pendingIntent =

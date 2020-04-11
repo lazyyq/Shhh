@@ -3,4 +3,7 @@
     <color name="colorPrimary">#008577</color>
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">#D81B60</color>
+    <color name="switch_bg_color">#33000000</color>
+    <color name="switch_text_color">#66000000</color>
+    <color name="switch_tint_color">#ff388e3c</color>
 </resources>

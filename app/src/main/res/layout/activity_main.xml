@@ -1,0 +1,75 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/mainLayout"
+        android:layout_width="match_parent"
+        android:layout_height="320dp"
+        android:background="?selectableItemBackground"
+        android:clickable="true">
+
+        <com.kyleduo.switchbutton.SwitchButton
+            android:id="@+id/switchButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="56dp"
+            android:gravity="center"
+            android:textColor="@color/switch_text_color"
+            android:textSize="24sp"
+            app:kswBackColor="@color/switch_bg_color"
+            app:kswTextOff="OFF"
+            app:kswTextOn="ON"
+            app:kswThumbHeight="48dp"
+            app:kswThumbRangeRatio="1.9"
+            app:kswThumbWidth="64dp"
+            app:kswTintColor="@color/switch_tint_color"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_chainStyle="packed" />
+
+        <TextView
+            android:id="@+id/tv_service_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:paddingStart="@dimen/tv_padding"
+            android:paddingEnd="@dimen/tv_padding"
+            android:text="@string/service_status_off"
+            android:textAppearance="@style/ServiceStatusTextStyle"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/switchButton" />
+
+        <TextView
+            android:id="@+id/tv_service_desc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:paddingStart="@dimen/tv_padding"
+            android:paddingEnd="@dimen/tv_padding"
+            android:text="@string/service_desc_off"
+            android:textAlignment="center"
+            android:textAppearance="@style/ServiceDescTextStyle"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_service_status" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="?android:attr/listDivider" />
+
+    <fragment
+        android:id="@+id/fragment"
+        android:name="kyklab.quiet.MainActivity$SettingsFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+</LinearLayout>

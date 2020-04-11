@@ -1,6 +1,5 @@
 package kyklab.quiet;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -12,28 +11,80 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.View;
+import android.widget.CompoundButton;
+import android.widget.TextView;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreferenceCompat;
 
-public class SettingsActivity extends AppCompatActivity {
+import com.kyleduo.switchbutton.SwitchButton;
+
+public class MainActivity extends AppCompatActivity {
+
+    private BroadcastReceiver mReceiver;
+
+    private TextView tvServiceStatus, tvServiceDesc;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.settings_activity);
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.settings, new SettingsFragment())
-                .commit();
+        setContentView(R.layout.activity_main);
 
         // Create notification channel if first launch
         if (true/*Prefs.get().getFirstLaunch()*/) {
             Prefs.get().setBoolean(Prefs.Key.FIRST_LAUNCH, false);
             createNotificationChannel();
         }
+
+        tvServiceStatus = findViewById(R.id.tv_service_status);
+        tvServiceDesc = findViewById(R.id.tv_service_desc);
+
+        final SwitchButton switchButton = findViewById(R.id.switchButton);
+        switchButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    startWatcherService();
+                    setServiceStatusText(true);
+                    Prefs.get().setBoolean(Prefs.Key.SERVICE_ENABLED, true);
+                } else {
+                    stopWatcherService();
+                    setServiceStatusText(false);
+                    Prefs.get().setBoolean(Prefs.Key.SERVICE_ENABLED, false);
+                }
+            }
+        });
+
+        ConstraintLayout mainLayout = findViewById(R.id.mainLayout);
+        mainLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                switchButton.toggle();
+            }
+        });
+
+        // Resume service if it was originally running
+        if (Prefs.get().getBoolean(Prefs.Key.SERVICE_ENABLED)) {
+            switchButton.setCheckedNoEvent(true);
+            setServiceStatusText(true);
+            if (!Utils.isServiceRunning(VolumeWatcherService.class)) {
+                startWatcherService();
+            }
+        }
+
+        mReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (TextUtils.equals(intent.getAction(), Const.Intent.ACTION_SWITCH_OFF)) {
+                    switchButton.setCheckedNoEvent(false);
+                }
+            }
+        };
     }
 
     private void createNotificationChannel() {
@@ -60,6 +111,35 @@ public class SettingsActivity extends AppCompatActivity {
         //manager.createNotificationChannel(channel);
     }
 
+    private void startWatcherService() {
+        startWatcherService(Const.Intent.ACTION_START_SERVICE, null);
+    }
+
+    private void startWatcherService(@Nullable String action, @Nullable Bundle extras) {
+        Intent intent = new Intent(this, VolumeWatcherService.class);
+        if (action != null) {
+            intent.setAction(action);
+        }
+        if (extras != null) {
+            intent.putExtras(extras);
+        }
+        startForegroundService(intent);
+    }
+
+    private void stopWatcherService() {
+        startWatcherService(Const.Intent.ACTION_STOP_SERVICE, null);
+    }
+
+    private void setServiceStatusText(boolean serviceEnabled) {
+        if (serviceEnabled) {
+            tvServiceStatus.setText(R.string.service_status_on);
+            tvServiceDesc.setText(R.string.service_desc_on);
+        } else {
+            tvServiceStatus.setText(R.string.service_status_off);
+            tvServiceDesc.setText(R.string.service_desc_off);
+        }
+    }
+
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
@@ -76,8 +156,8 @@ public class SettingsActivity extends AppCompatActivity {
     public void onResume() {
         super.onResume();
 
-        Log.e("SettingsActivity", "onResume called");
-        Log.e("SettingsActivity", "intent:" +
+        Log.e("MainActivity", "onResume called");
+        Log.e("MainActivity", "intent:" +
                 getIntent().getBooleanExtra(Const.Intent.EXTRA_NOTIFICATION_CLICKED, false));
 
         boolean isNotificationClicked =
@@ -86,13 +166,25 @@ public class SettingsActivity extends AppCompatActivity {
             showNotificationHelp();
             getIntent().removeExtra(Const.Intent.EXTRA_NOTIFICATION_CLICKED);
         }
+
+        IntentFilter intentFilter = new IntentFilter(Const.Intent.ACTION_SWITCH_OFF);
+        registerReceiver(mReceiver, intentFilter);
+        Log.e("MainActivity", "Registered receiver");
     }
 
-    private void showNotificationHelp() {
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this)
-                .setTitle("제목")
-                .setMessage("메시지")
-                .setPositiveButton("긍정", new DialogInterface.OnClickListener() {
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        Log.e("MainActivity", "Unregistered receiver");
+        unregisterReceiver(mReceiver);
+    }
+
+    public void showNotificationHelp() {
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle(R.string.hide_foreground_service_notification_dialog_title)
+                .setMessage(R.string.hide_foreground_service_notification_dialog_text)
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         Intent intent = new Intent();
@@ -107,44 +199,18 @@ public class SettingsActivity extends AppCompatActivity {
 
                         startActivity(intent);
                     }
-                });
-        AlertDialog alertDialog = dialogBuilder.create();
-        alertDialog.show();
+                })
+                .create();
+        dialog.show();
     }
 
 
     public static class SettingsFragment extends PreferenceFragmentCompat
             implements Preference.OnPreferenceClickListener {
-        private BroadcastReceiver mReceiver;
-
-        private SwitchPreferenceCompat mServiceEnabled;
 
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             setPreferencesFromResource(R.xml.root_preferences, rootKey);
-
-            // Service enabled switch
-            mServiceEnabled = findPreference(Prefs.Key.SERVICE_ENABLED);
-            if (mServiceEnabled != null) {
-                mServiceEnabled.setOnPreferenceClickListener(this);
-            }
-
-            // Resume service if it was originally running
-            if (Prefs.get().getBoolean(Prefs.Key.SERVICE_ENABLED) && !Utils.isServiceRunning(VolumeWatcherService.class)) {
-                startService();
-            }
-
-
-            mReceiver = new BroadcastReceiver() {
-                @Override
-                public void onReceive(Context context, Intent intent) {
-                    if (TextUtils.equals(intent.getAction(), Const.Intent.ACTION_SWITCH_OFF)) {
-                        mServiceEnabled.setOnPreferenceClickListener(null);
-                        mServiceEnabled.setChecked(false);
-                        mServiceEnabled.setOnPreferenceClickListener(SettingsFragment.this);
-                    }
-                }
-            };
 
             // Enable on headset switch
             SwitchPreferenceCompat enableOnHeadsetSwitch = findPreference(Prefs.Key.ENABLE_ON_HEADSET);
@@ -159,88 +225,29 @@ public class SettingsActivity extends AppCompatActivity {
             }
         }
 
-        @Override
-        public void onResume() {
-            super.onResume();
-
-            IntentFilter intentFilter = new IntentFilter(Const.Intent.ACTION_SWITCH_OFF);
-            Activity activity = getActivity();
-            if (activity != null) {
-                activity.registerReceiver(mReceiver, intentFilter);
-                Log.e("SettingsFragment", "Registered receiver");
-            }
-
-        }
-
-        @Override
-        public void onPause() {
-            super.onPause();
-            Log.e("SettingsFragment", "Unregistered receiver");
-            Activity activity = getActivity();
-            if (activity != null) {
-                activity.unregisterReceiver(mReceiver);
-            }
-        }
-
-        private void startService() {
-            Activity activity = getActivity();
-            if (activity != null) {
-                Intent intent = new Intent(activity, VolumeWatcherService.class);
-                intent.setAction(Const.Intent.ACTION_START_SERVICE);
-                activity.startForegroundService(intent);
-            }
-        }
-
-        private void startService(Intent intent) {
-            Activity activity = getActivity();
-            if (activity != null) {
-                activity.startForegroundService(intent);
-            }
-        }
-
-        private void stopService() {
-            Activity activity = getActivity();
-            if (activity != null) {
-                Intent serviceIntent = new Intent(activity, VolumeWatcherService.class);
-                serviceIntent.setAction(Const.Intent.ACTION_STOP_SERVICE);
-                activity.startForegroundService(serviceIntent);
-            }
-        }
-
 
         @Override
         public boolean onPreferenceClick(Preference preference) {
-            if (preference == findPreference(Prefs.Key.SERVICE_ENABLED)) {
-                boolean value =
-                        preference.getSharedPreferences().getBoolean(preference.getKey(), false);
-                if (value) {
-                    startService();
-                } else {
-                    stopService();
-                }
-            } else if (preference == findPreference(Prefs.Key.ENABLE_ON_HEADSET)) {
+            MainActivity activity = (MainActivity) getActivity();
+            if (activity == null) {
+                return false;
+            }
+
+            if (preference == findPreference(Prefs.Key.ENABLE_ON_HEADSET)) {
                 // If the service is already running, pass data to service
                 if (Utils.isServiceRunning(VolumeWatcherService.class)) {
-                    Activity activity = getActivity();
-                    if (activity != null) {
-                        Intent intent = new Intent(activity, VolumeWatcherService.class);
-                        intent.setAction(Const.Intent.ACTION_UPDATE_SETTINGS);
-                        intent.putExtra(Const.Intent.EXTRA_ENABLE_ON_HEADSET,
-                                Prefs.get().getBoolean(Prefs.Key.ENABLE_ON_HEADSET));
-                        startService(intent);
-                    }
+                    Bundle bundle = new Bundle();
+                    bundle.putBoolean(Const.Intent.EXTRA_ENABLE_ON_HEADSET,
+                            Prefs.get().getBoolean(Prefs.Key.ENABLE_ON_HEADSET));
+                    activity.startWatcherService(Const.Intent.ACTION_UPDATE_SETTINGS, bundle);
                 }
             } else if (preference == findPreference(Prefs.Key.VOLUME_LEVEL_IN_NOTI_ICON)) {
                 // If the service is already running, pass data to service
                 if (Utils.isServiceRunning(VolumeWatcherService.class)) {
-                    Activity activity = getActivity();
-                    if (activity != null) {
-                        Intent intent = new Intent(activity, VolumeWatcherService.class);
-                        intent.setAction(Const.Intent.ACTION_UPDATE_SETTINGS);
-                        intent.putExtra(Const.Intent.EXTRA_VOLUME_LEVEL_IN_NOTI_ICON,
-                                Prefs.get().getBoolean(Prefs.Key.VOLUME_LEVEL_IN_NOTI_ICON));
-                        startService(intent);
-                    }
+                    Bundle bundle = new Bundle();
+                    bundle.putBoolean(Const.Intent.EXTRA_VOLUME_LEVEL_IN_NOTI_ICON,
+                            Prefs.get().getBoolean(Prefs.Key.VOLUME_LEVEL_IN_NOTI_ICON));
+                    activity.startWatcherService(Const.Intent.ACTION_UPDATE_SETTINGS, bundle);
                 }
             }
             return false;

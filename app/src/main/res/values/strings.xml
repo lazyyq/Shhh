@@ -1,8 +1,11 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
     <string name="app_name">Shhh!</string>
 
-    <string name="settings_master_switch_title">Enable service</string>
-    <string name="settings_master_switch_summary">Show notification when media volume is on.</string>
+    <string name="service_status_on">Shhh! is enabled</string>
+    <string name="service_status_off">Shhh! is disabled</string>
+    <string name="service_desc_on">Shhh! is monitoring the device\'s media volume. We will show you a notification when it is on.</string>
+    <string name="service_desc_off">Shhh! is not monitoring the device\'s media volume at the moment.</string>
+
     <string name="settings_enable_on_headset_title">Enable when headset is connected</string>
     <string name="settings_enable_on_headset_summary">Warn about media volume even when headset(wired or bluetooth) is connected.</string>
     <string name="settings_show_volume_level_in_noti_icon_title">Show volume level in notification icon</string>
@@ -19,6 +22,9 @@
 
     <string name="notification_media_volume_on_title">Volume is on.</string>
     <string name="notification_media_volume_on_text">"Current output device : %s / Volume level : %d"</string>
+
+    <string name="hide_foreground_service_notification_dialog_title">Hide foreground service notification</string>
+    <string name="hide_foreground_service_notification_dialog_text">To hide this notification, you can manually disable \'Foreground service\' notification in the settings window.</string>
 
     <string name="output_speaker">Speaker</string>
     <string name="output_headset">Headset</string>

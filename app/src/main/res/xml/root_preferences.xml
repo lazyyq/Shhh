@@ -1,15 +1,7 @@
 <PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <SwitchPreferenceCompat
-        app:defaultValue="@bool/pref_key_service_enabled_default"
-        app:iconSpaceReserved="false"
-        app:key="@string/pref_key_service_enabled"
-        app:summary="@string/settings_master_switch_summary"
-        app:title="@string/settings_master_switch_title" />
-
-    <SwitchPreferenceCompat
         app:defaultValue="@bool/pref_key_enable_on_headset_default"
-        app:dependency="@string/pref_key_service_enabled"
         app:iconSpaceReserved="false"
         app:key="@string/pref_key_enable_on_headset"
         app:summary="@string/settings_enable_on_headset_summary"
@@ -17,7 +9,6 @@
 
     <SwitchPreferenceCompat
         app:defaultValue="@bool/pref_key_volume_level_in_noti_icon_default"
-        app:dependency="@string/pref_key_service_enabled"
         app:iconSpaceReserved="false"
         app:key="@string/pref_key_volume_level_in_noti_icon"
         app:summary="@string/settings_show_volume_level_in_noti_icon_summary"

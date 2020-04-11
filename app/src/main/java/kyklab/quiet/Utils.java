@@ -23,6 +23,10 @@ import androidx.core.content.ContextCompat;
 public class Utils {
     private static final String TAG = "Utils";
 
+    public static boolean isDebug() {
+        return BuildConfig.DEBUG;
+    }
+
     public static boolean isServiceRunning(Class<?> serviceClass) {
         ActivityManager manager =
                 (ActivityManager) App.getContext().getSystemService(Context.ACTIVITY_SERVICE);
@@ -43,8 +47,7 @@ public class Utils {
         AudioManager audioManager =
                 (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         if (audioManager == null) {
-            Toast.makeText(context, "isWiredHeadsetConnected(): audioManager is null",
-                    Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "Failed to get wired headset connection status", Toast.LENGTH_SHORT).show();
         }
         return audioManager != null && audioManager.isWiredHeadsetOn();
     }
@@ -53,8 +56,7 @@ public class Utils {
         AudioManager audioManager =
                 (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         if (audioManager == null) {
-            Toast.makeText(context, "isBluetoothHeadsetConnected(): audioManager is null",
-                    Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "Failed to get bluetooth headset connection status", Toast.LENGTH_SHORT).show();
         }
         return audioManager != null && audioManager.isBluetoothA2dpOn();
     }
@@ -63,8 +65,7 @@ public class Utils {
         TelephonyManager telephonyManager =
                 (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
         if (telephonyManager == null) {
-            Toast.makeText(context, "isCallActive(): telephonyManager is null",
-                    Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "Failed to get call status", Toast.LENGTH_SHORT).show();
         }
         return telephonyManager != null &&
                 telephonyManager.getCallState() == TelephonyManager.CALL_STATE_OFFHOOK;
@@ -76,8 +77,7 @@ public class Utils {
         if (audioManager != null) {
             return audioManager.getStreamVolume(streamType);
         } else {
-            Toast.makeText(context, "getStreamVolume(): audioManager is null",
-                    Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "Failed to get stream volume", Toast.LENGTH_SHORT).show();
             return -1;
         }
     }
@@ -85,6 +85,7 @@ public class Utils {
     public static void muteStreamVolume(Context context, int streamType) {
         AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         if (audioManager == null) {
+            Toast.makeText(context, "Failed to mute stream volume", Toast.LENGTH_SHORT).show();
             return;
         }
         audioManager.setStreamVolume(streamType, 0, AudioManager.FLAG_SHOW_UI);

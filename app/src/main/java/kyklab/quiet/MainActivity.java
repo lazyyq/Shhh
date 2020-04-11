@@ -156,8 +156,8 @@ public class MainActivity extends AppCompatActivity {
     public void onResume() {
         super.onResume();
 
-        Log.e("MainActivity", "onResume called");
-        Log.e("MainActivity", "intent:" +
+        Log.d("MainActivity", "onResume called");
+        Log.d("MainActivity", "intent:" +
                 getIntent().getBooleanExtra(Const.Intent.EXTRA_NOTIFICATION_CLICKED, false));
 
         boolean isNotificationClicked =
@@ -169,14 +169,14 @@ public class MainActivity extends AppCompatActivity {
 
         IntentFilter intentFilter = new IntentFilter(Const.Intent.ACTION_SWITCH_OFF);
         registerReceiver(mReceiver, intentFilter);
-        Log.e("MainActivity", "Registered receiver");
+        Log.d("MainActivity", "Registered receiver");
     }
 
     @Override
     protected void onPause() {
         super.onPause();
 
-        Log.e("MainActivity", "Unregistered receiver");
+        Log.d("MainActivity", "Unregistered receiver");
         unregisterReceiver(mReceiver);
     }
 

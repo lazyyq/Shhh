@@ -1,6 +1,9 @@
 <resources>
     <string name="app_name">쉿!</string>
 
+    <string name="starting_service">서비스를 시작합니다.</string>
+    <string name="stopping_service">서비스를 중지합니다.</string>
+
     <string name="service_status_on">쉿!이 실행 중입니다.</string>
     <string name="service_status_off">쉿!이 꺼져 있습니다.</string>
     <string name="service_desc_on">쉿!이 기기의 미디어 볼륨을 감시 중입니다. 미디어 볼륨이 켜져 있으면 알림을 표시해 드릴 겁니다.</string>

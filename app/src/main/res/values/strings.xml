@@ -1,6 +1,9 @@
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
     <string name="app_name">Shhh!</string>
 
+    <string name="starting_service">Starting service.</string>
+    <string name="stopping_service">Stopping service.</string>
+
     <string name="service_status_on">Shhh! is enabled</string>
     <string name="service_status_off">Shhh! is disabled</string>
     <string name="service_desc_on">Shhh! is monitoring the device\'s media volume. We will show you a notification when it is on.</string>

@@ -22,6 +22,8 @@ import androidx.core.app.NotificationManagerCompat;
 import com.kennyc.textdrawable.TextDrawable;
 import com.kennyc.textdrawable.TextDrawableBuilder;
 
+import static kyklab.quiet.Utils.isDebug;
+
 public class VolumeWatcherService extends Service {
     private static final String TAG = "VolumeWatcherService";
 
@@ -39,7 +41,7 @@ public class VolumeWatcherService extends Service {
 
     @Override
     public void onCreate() {
-        Log.e(TAG, "onCreate()");
+        Log.d(TAG, "onCreate()");
 
         /*
          * Volume state notification
@@ -104,7 +106,7 @@ public class VolumeWatcherService extends Service {
         mReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                Log.e(TAG, "Receiver triggered: " + intent.getAction());
+                Log.d(TAG, "Receiver triggered: " + intent.getAction());
                 String action = intent.getAction();
                 if (TextUtils.equals(action, Const.Intent.ACTION_VOLUME_CHANGED)) {
                     // Volume level changed
@@ -139,15 +141,20 @@ public class VolumeWatcherService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.e(TAG, "onStartCommand()");
+        Log.d(TAG, "onStartCommand()" +
+                "\nintents:" + intent.toString() + "\nflags:" + flags + "\nstartId:" + startId);
         String action = intent.getAction();
 
         if (TextUtils.equals(action, Const.Intent.ACTION_START_SERVICE)) {
             // Start foreground service
             mEnableOnHeadset = Prefs.get().getBoolean(Prefs.Key.ENABLE_ON_HEADSET);
             mVolumeLevelInNotiIcon = Prefs.get().getBoolean(Prefs.Key.VOLUME_LEVEL_IN_NOTI_ICON);
-            Toast.makeText(this, "Starting service, enable_on_headset: " + mEnableOnHeadset
-                    + ", volume_level_in_noti_icon: " + mVolumeLevelInNotiIcon, Toast.LENGTH_SHORT).show();
+            if (!isDebug()) {
+                Toast.makeText(this, R.string.starting_service, Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Starting service, enable_on_headset: " + mEnableOnHeadset
+                        + ", volume_level_in_noti_icon: " + mVolumeLevelInNotiIcon, Toast.LENGTH_SHORT).show();
+            }
 
             // Start foreground service
             startForeground(Const.Notification.ID_ONGOING, mForegroundNotiBuilder.build());
@@ -166,7 +173,7 @@ public class VolumeWatcherService extends Service {
 
         } else if (TextUtils.equals(action, Const.Intent.ACTION_STOP_SERVICE)) {
             // Stop service button in notification clicked
-            Log.e(TAG, "Stopping service on notification click");
+            Log.d(TAG, "Stopping service on notification click");
             Prefs.get().setBoolean(Prefs.Key.SERVICE_ENABLED, false);
             sendBroadcast(new Intent(Const.Intent.ACTION_SWITCH_OFF));
             stopForeground(true);
@@ -193,7 +200,7 @@ public class VolumeWatcherService extends Service {
 
         int vol = Utils.getStreamVolume(this, AudioManager.STREAM_MUSIC);
         if (vol == -1) {
-            Toast.makeText(this, "Error while getting current volume", Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "Error while getting current volume");
         } else if (vol <= 0) {
             // Remove notification
             removeVolumeNotification();

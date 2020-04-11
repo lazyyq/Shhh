@@ -10,6 +10,8 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
@@ -19,6 +21,7 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreferenceCompat;
 
+import com.google.android.gms.oss.licenses.OssLicensesMenuActivity;
 import com.kyleduo.switchbutton.SwitchButton;
 
 public class MainActivity extends AppCompatActivity {
@@ -164,6 +167,22 @@ public class MainActivity extends AppCompatActivity {
 
         Log.d("MainActivity", "Unregistered receiver");
         unregisterReceiver(mReceiver);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.menu_oss_license) {
+            startActivity(new Intent(this, OssLicensesMenuActivity.class));
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     public void showNotificationHelp() {

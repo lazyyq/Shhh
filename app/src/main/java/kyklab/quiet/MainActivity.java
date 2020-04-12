@@ -83,8 +83,13 @@ public class MainActivity extends AppCompatActivity {
         mReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                if (TextUtils.equals(intent.getAction(), Const.Intent.ACTION_SWITCH_OFF)) {
+                String action = intent.getAction();
+                if (TextUtils.equals(action, Const.Intent.ACTION_SERVICE_STOPPED)) {
                     switchButton.setCheckedNoEvent(false);
+                    setServiceStatusText(false);
+                } else if (TextUtils.equals(action, Const.Intent.ACTION_SERVICE_STARTED)) {
+                    switchButton.setCheckedNoEvent(true);
+                    setServiceStatusText(true);
                 }
             }
         };
@@ -166,7 +171,9 @@ public class MainActivity extends AppCompatActivity {
             getIntent().removeExtra(Const.Intent.EXTRA_NOTIFICATION_CLICKED);
         }
 
-        IntentFilter intentFilter = new IntentFilter(Const.Intent.ACTION_SWITCH_OFF);
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(Const.Intent.ACTION_SERVICE_STARTED);
+        intentFilter.addAction(Const.Intent.ACTION_SERVICE_STOPPED);
         registerReceiver(mReceiver, intentFilter);
         Log.d("MainActivity", "Registered receiver");
     }

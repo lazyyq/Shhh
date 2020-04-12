@@ -43,16 +43,28 @@ public class MainActivity extends AppCompatActivity {
         tvServiceStatus = findViewById(R.id.tv_service_status);
         tvServiceDesc = findViewById(R.id.tv_service_desc);
 
-        final SwitchButton switchButton = findViewById(R.id.switchButton);
+        SwitchButton switchButton = findViewById(R.id.switchButton);
+        Runnable startServiceRunnable = () -> {
+            startWatcherService();
+            Prefs.get().setBoolean(Prefs.Key.SERVICE_ENABLED, true);
+            runOnUiThread(() -> {
+                setServiceStatusText(true);
+                switchButton.setEnabled(true);
+            });
+        };
+        Runnable stopServiceRunnable = () -> {
+            stopWatcherService();
+            Prefs.get().setBoolean(Prefs.Key.SERVICE_ENABLED, false);
+            runOnUiThread(() -> {
+                setServiceStatusText(false);
+                switchButton.setEnabled(true);
+            });
+        };
         switchButton.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
-                startWatcherService();
-                setServiceStatusText(true);
-                Prefs.get().setBoolean(Prefs.Key.SERVICE_ENABLED, true);
+                new Thread(startServiceRunnable).start();
             } else {
-                stopWatcherService();
-                setServiceStatusText(false);
-                Prefs.get().setBoolean(Prefs.Key.SERVICE_ENABLED, false);
+                new Thread(stopServiceRunnable).start();
             }
         });
 

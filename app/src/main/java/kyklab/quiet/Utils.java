@@ -10,6 +10,7 @@ import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
+import android.os.Build;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.util.TypedValue;
@@ -19,12 +20,17 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
+import androidx.core.graphics.drawable.DrawableCompat;
 
 public class Utils {
     private static final String TAG = "Utils";
 
     public static boolean isDebug() {
         return BuildConfig.DEBUG;
+    }
+
+    public static boolean isOreoOrHigher() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.O;
     }
 
     public static boolean isServiceRunning(Context context, Class<?> serviceClass) {
@@ -112,7 +118,7 @@ public class Utils {
         }
         Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
-        drawable.setTint(bgColor); // 40% opacity
+        DrawableCompat.setTint(drawable, bgColor); // 40% opacity
         drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
         drawable.draw(canvas);
 

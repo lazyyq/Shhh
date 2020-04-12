@@ -4,7 +4,7 @@
 
     <style name="AppTheme" parent="AppThemeBase">
         <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorPrimaryDark">?colorSurface</item>
         <item name="colorAccent">@color/colorAccent</item>
 
         <item name="actionBarPopupTheme">@style/ThemeOverlay.MaterialComponents</item>
@@ -12,16 +12,7 @@
         <item name="actionBarTheme">@style/ThemeOverlay.MaterialComponents.ActionBar.Surface</item>
         <item name="actionOverflowMenuStyle">@style/Widget.MaterialComponents.PopupMenu.Overflow
         </item>
-    </style>
 
-    <style name="ServiceStatusTextStyle" parent="TextAppearance.AppCompat">
-        <item name="android:textColor">?android:textColorPrimary</item>
-        <item name="android:textSize">24sp</item>
+        <item name="android:windowLightStatusBar">true</item>
     </style>
-
-    <style name="ServiceDescTextStyle" parent="TextAppearance.AppCompat">
-        <item name="android:textColor">?android:textColorSecondary</item>
-        <item name="android:textSize">16sp</item>
-    </style>
-
 </resources>

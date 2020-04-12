@@ -8,6 +8,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Icon;
@@ -17,7 +18,10 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
+import androidx.annotation.DrawableRes;
+import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.core.graphics.drawable.IconCompat;
 
 import com.kennyc.textdrawable.TextDrawable;
 import com.kennyc.textdrawable.TextDrawableBuilder;
@@ -26,13 +30,15 @@ import static kyklab.quiet.Utils.getStreamVolume;
 import static kyklab.quiet.Utils.isCallActive;
 import static kyklab.quiet.Utils.isDebug;
 import static kyklab.quiet.Utils.isHeadsetConnected;
+import static kyklab.quiet.Utils.isOreoOrHigher;
 import static kyklab.quiet.Utils.muteStreamVolume;
 
 public class VolumeWatcherService extends Service {
     private static final String TAG = "VolumeWatcherService";
 
-    private Notification.Builder mForegroundNotiBuilder,
+    private NotificationCompat.Builder mForegroundNotiBuilder,
             mOutputDeviceNotiBuilder, mVolumeLevelNotiBuilder;
+    private Notification.Builder mOutputDeviceNotiBuilderOreo, mVolumeLevelNotiBuilderOreo;
 
     // Receiver for broadcast events (volume changed, headset plugged, etc..)
     private BroadcastReceiver mReceiver;
@@ -64,28 +70,46 @@ public class VolumeWatcherService extends Service {
                         PendingIntent.FLAG_UPDATE_CURRENT);
 
         // Notification for actions for output device / volume level notification
-        Notification.Action stopAction =
-                new Notification.Action.Builder(Icon.createWithResource(this, 0),
-                        getString(R.string.notification_action_stop_service), pendingStopIntent)
-                        .build();
-        Notification.Action muteAction =
-                new Notification.Action.Builder(Icon.createWithResource(this, 0),
-                        getString(R.string.notification_action_mute_volume), pendingMuteIntent)
-                        .build();
+        if (isOreoOrHigher()) {
+            // Notification action is actually compatible with API >= 23(M)
+            // so TODO: Consider notification action for API 23~25
+            Notification.Action stopActionOreo = new Notification.Action.Builder(null,
+                    getString(R.string.notification_action_stop_service), pendingStopIntent)
+                    .build();
+            Notification.Action muteActionOreo = new Notification.Action.Builder(null,
+                    getString(R.string.notification_action_mute_volume), pendingMuteIntent)
+                    .build();
 
-        // Notification for output device
-        mOutputDeviceNotiBuilder =
-                new Notification.Builder(this, Const.Notification.CHANNEL_OUTPUT_DEVICE)
-                        .addAction(stopAction)
-                        .addAction(muteAction)
-                        .setOngoing(true);
+            mOutputDeviceNotiBuilderOreo =
+                    new Notification.Builder(this, Const.Notification.CHANNEL_OUTPUT_DEVICE)
+                            .addAction(stopActionOreo)
+                            .addAction(muteActionOreo)
+                            .setOngoing(true);
+            mVolumeLevelNotiBuilderOreo =
+                    new Notification.Builder(this, Const.Notification.CHANNEL_VOLUME_LEVEL)
+                            .addAction(stopActionOreo)
+                            .addAction(muteActionOreo)
+                            .setOngoing(true);
+        } else {
+            NotificationCompat.Action stopAction = new NotificationCompat.Action.Builder(null,
+                    getString(R.string.notification_action_stop_service), pendingStopIntent)
+                    .build();
+            NotificationCompat.Action muteAction = new NotificationCompat.Action.Builder(null,
+                    getString(R.string.notification_action_mute_volume), pendingMuteIntent)
+                    .build();
 
-        // Notification for volume level
-        mVolumeLevelNotiBuilder =
-                new Notification.Builder(this, Const.Notification.CHANNEL_VOLUME_LEVEL)
-                        .addAction(stopAction)
-                        .addAction(muteAction)
-                        .setOngoing(true);
+            // Notification for output device
+            mOutputDeviceNotiBuilder =
+                    new NotificationCompat.Builder(this, Const.Notification.CHANNEL_OUTPUT_DEVICE)
+                            .addAction(stopAction)
+                            .addAction(muteAction)
+                            .setOngoing(true);
+            mVolumeLevelNotiBuilder =
+                    new NotificationCompat.Builder(this, Const.Notification.CHANNEL_VOLUME_LEVEL)
+                            .addAction(stopAction)
+                            .addAction(muteAction)
+                            .setOngoing(true);
+        }
 
         /*
          * Foreground service notification
@@ -100,7 +124,7 @@ public class VolumeWatcherService extends Service {
 
         // Builder for foreground notification
         mForegroundNotiBuilder =
-                new Notification.Builder(this, Const.Notification.CHANNEL_ONGOING)
+                new NotificationCompat.Builder(this, Const.Notification.CHANNEL_ONGOING)
                         .setContentTitle(getString(R.string.notification_foreground_service_title))
                         .setContentText(getString(R.string.notification_foreground_service_text))
                         .setSmallIcon(R.drawable.ic_speaker)
@@ -246,9 +270,17 @@ public class VolumeWatcherService extends Service {
             text = String.format(getString(R.string.notification_output_device_text),
                     getCurrentOutputDevice(this));
         }
-        Icon smallIcon = getCurrentOutputDeviceIcon(this);
-        Notification notification = mOutputDeviceNotiBuilder
-                .setContentTitle(title).setContentText(text).setSmallIcon(smallIcon).build();
+
+        Notification notification;
+        if (isOreoOrHigher()) {
+            notification = mOutputDeviceNotiBuilderOreo
+                    .setContentTitle(title).setContentText(text)
+                    .setSmallIcon(getCurrentOutputDeviceIconRes(this)).build();
+        } else {
+            notification = mOutputDeviceNotiBuilder
+                    .setContentTitle(title).setContentText(text)
+                    .setSmallIcon(getCurrentOutputDeviceIconRes(this)).build();
+        }
 
         NotificationManagerCompat.from(this).notify(Const.Notification.ID_OUTPUT_DEVICE, notification);
     }
@@ -270,9 +302,20 @@ public class VolumeWatcherService extends Service {
         } else {
             text = getString(R.string.notification_volume_level_text);
         }
-        Icon smallIcon = getVolumeLevelIcon(vol);
-        Notification notification = mVolumeLevelNotiBuilder
-                .setContentTitle(title).setContentText(text).setSmallIcon(smallIcon).build();
+
+        Notification notification;
+        if (isOreoOrHigher()) {
+            Icon smallIcon = getVolumeLevelIcon(vol);
+            notification = mVolumeLevelNotiBuilderOreo
+                    .setContentTitle(title).setContentText(text)
+                    .setSmallIcon(smallIcon).build();
+        } else {
+            notification = mVolumeLevelNotiBuilder
+                    .setContentTitle(title).setContentText(text)
+                    .setLargeIcon(getVolumeLevelBitmap(vol))
+                    .setSmallIcon(R.drawable.ic_volume_level, vol)
+                    .build();
+        }
 
         NotificationManagerCompat.from(this).notify(Const.Notification.ID_VOLUME_LEVEL, notification);
     }
@@ -282,8 +325,8 @@ public class VolumeWatcherService extends Service {
                 .cancel(Const.Notification.ID_VOLUME_LEVEL);
     }
 
-    private Icon getVolumeLevelIcon(int vol) {
-        TextDrawable drawable = new TextDrawableBuilder(TextDrawable.DRAWABLE_SHAPE_OVAL)
+    private TextDrawable getVolumeLevelDrawable(int vol) {
+        return new TextDrawableBuilder(TextDrawable.DRAWABLE_SHAPE_OVAL)
                 .setHeight(100)
                 .setWidth(100)
                 .setColor(0x010000000)
@@ -292,7 +335,14 @@ public class VolumeWatcherService extends Service {
                 .setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD))
                 .setTextSize(90f)
                 .build();
-        return Icon.createWithBitmap(drawable.toBitmap());
+    }
+
+    private Icon getVolumeLevelIcon(int vol) {
+        return IconCompat.createWithBitmap(getVolumeLevelDrawable(vol).toBitmap()).toIcon();
+    }
+
+    private Bitmap getVolumeLevelBitmap(int vol) {
+        return getVolumeLevelDrawable(vol).toBitmap();
     }
 
     private String getCurrentOutputDevice(Context context) {
@@ -300,9 +350,9 @@ public class VolumeWatcherService extends Service {
                 R.string.output_headset : R.string.output_speaker);
     }
 
-    private Icon getCurrentOutputDeviceIcon(Context context) {
-        return Icon.createWithResource(context,
-                isHeadsetConnected(context) ? R.drawable.ic_headset : R.drawable.ic_speaker);
+    @DrawableRes
+    private int getCurrentOutputDeviceIconRes(Context context) {
+        return isHeadsetConnected(context) ? R.drawable.ic_headset : R.drawable.ic_speaker;
     }
 
     @Override

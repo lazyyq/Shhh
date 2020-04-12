@@ -8,6 +8,9 @@
     <string name="pref_key_enable_on_headset">enable_on_headset</string>
     <bool name="pref_key_enable_on_headset_default">false</bool>
 
-    <string name="pref_key_volume_level_in_noti_icon">volume_level_in_noti_icon</string>
-    <bool name="pref_key_volume_level_in_noti_icon_default">false</bool>
+    <string name="pref_key_show_noti_output_device">show_noti_output_device</string>
+    <bool name="pref_key_show_noti_output_device_default">true</bool>
+
+    <string name="pref_key_show_noti_vol_level">show_noti_vol_level</string>
+    <bool name="pref_key_show_noti_vol_level_default">false</bool>
 </resources>

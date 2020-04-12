@@ -23,7 +23,8 @@ public class Prefs {
         map.put(Key.FIRST_LAUNCH, Key.FIRST_LAUNCH_DEF);
         map.put(Key.SERVICE_ENABLED, Key.SERVICE_ENABLED_DEF);
         map.put(Key.ENABLE_ON_HEADSET, Key.ENABLE_ON_HEADSET_DEF);
-        map.put(Key.VOLUME_LEVEL_IN_NOTI_ICON, Key.VOLUME_LEVEL_IN_NOTI_ICON_DEF);
+        map.put(Key.SHOW_NOTI_OUTPUT_DEVICE, Key.SHOW_NOTI_OUTPUT_DEVICE_DEF);
+        map.put(Key.SHOW_NOTI_VOL_LEVEL, Key.SHOW_NOTI_VOL_LEVEL_DEF);
     }
 
     @SuppressWarnings("SameReturnValue")
@@ -106,10 +107,12 @@ public class Prefs {
         public static final String FIRST_LAUNCH = r.getString(R.string.pref_key_first_launch);
         public static final String SERVICE_ENABLED = r.getString(R.string.pref_key_service_enabled);
         public static final String ENABLE_ON_HEADSET = r.getString(R.string.pref_key_enable_on_headset);
-        public static final String VOLUME_LEVEL_IN_NOTI_ICON = r.getString(R.string.pref_key_volume_level_in_noti_icon);
+        public static final String SHOW_NOTI_OUTPUT_DEVICE = r.getString(R.string.pref_key_show_noti_output_device);
+        public static final String SHOW_NOTI_VOL_LEVEL = r.getString(R.string.pref_key_show_noti_vol_level);
         private static final boolean FIRST_LAUNCH_DEF = r.getBoolean(R.bool.pref_key_first_launch_default);
         private static final boolean SERVICE_ENABLED_DEF = r.getBoolean(R.bool.pref_key_service_enabled_default);
         private static final boolean ENABLE_ON_HEADSET_DEF = r.getBoolean(R.bool.pref_key_enable_on_headset_default);
-        private static final boolean VOLUME_LEVEL_IN_NOTI_ICON_DEF = r.getBoolean(R.bool.pref_key_volume_level_in_noti_icon_default);
+        private static final boolean SHOW_NOTI_OUTPUT_DEVICE_DEF = r.getBoolean(R.bool.pref_key_show_noti_output_device_default);
+        private static final boolean SHOW_NOTI_VOL_LEVEL_DEF = r.getBoolean(R.bool.pref_key_show_noti_vol_level_default);
     }
 }

@@ -1,4 +1,5 @@
-<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <SwitchPreferenceCompat
         app:defaultValue="@bool/pref_key_enable_on_headset_default"
@@ -7,11 +8,22 @@
         app:summary="@string/settings_enable_on_headset_summary"
         app:title="@string/settings_enable_on_headset_title" />
 
-    <SwitchPreferenceCompat
-        app:defaultValue="@bool/pref_key_volume_level_in_noti_icon_default"
-        app:iconSpaceReserved="false"
-        app:key="@string/pref_key_volume_level_in_noti_icon"
-        app:summary="@string/settings_show_volume_level_in_noti_icon_summary"
-        app:title="@string/settings_show_volume_level_in_noti_icon_title" />
+    <PreferenceCategory
+        android:title="@string/settings_category_notification"
+        app:iconSpaceReserved="false">
+
+        <SwitchPreferenceCompat
+            app:defaultValue="@bool/pref_key_show_noti_output_device_default"
+            app:iconSpaceReserved="false"
+            app:key="@string/pref_key_show_noti_output_device"
+            app:summary="@string/settings_show_noti_output_device_summary"
+            app:title="@string/settings_show_noti_output_device_title" />
+        <SwitchPreferenceCompat
+            app:defaultValue="@bool/pref_key_show_noti_vol_level_default"
+            app:iconSpaceReserved="false"
+            app:key="@string/pref_key_show_noti_vol_level"
+            app:summary="@string/settings_show_noti_vol_level_summary"
+            app:title="@string/settings_show_noti_vol_level_title" />
+    </PreferenceCategory>
 
 </PreferenceScreen>

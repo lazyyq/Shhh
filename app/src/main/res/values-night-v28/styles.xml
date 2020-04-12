@@ -1,14 +1,10 @@
 <resources>
 
-    <style name="AppThemeBase" parent="Theme.MaterialComponents.DayNight" />
-
-    <style name="AppTheme" parent="AppThemeBase">
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">?colorSurface</item>
-        <item name="colorAccent">@color/colorAccent</item>
-
-        <item name="android:navigationBarColor">?colorSurface</item>
-        <item name="android:navigationBarDividerColor">?colorControlHighlight</item>
+    <style name="AppThemeV28Dark" parent="AppThemeV27">
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
     </style>
+
+    <style name="AppTheme" parent="AppThemeV28Dark" />
 
 </resources>

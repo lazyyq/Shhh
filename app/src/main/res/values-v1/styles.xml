@@ -1,0 +1,17 @@
+<resources>
+
+    <style name="AppThemeV1" parent="AppThemeBase">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+
+        <item name="actionBarPopupTheme">@style/ThemeOverlay.MaterialComponents</item>
+        <item name="actionBarStyle">@style/Widget.MaterialComponents.ActionBar.Surface</item>
+        <item name="actionBarTheme">@style/ThemeOverlay.MaterialComponents.ActionBar.Surface</item>
+        <item name="actionOverflowMenuStyle">@style/Widget.MaterialComponents.PopupMenu.Overflow
+        </item>
+    </style>
+
+    <style name="AppTheme" parent="AppThemeV1" />
+
+</resources>

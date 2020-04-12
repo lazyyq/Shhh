@@ -259,7 +259,7 @@ public class VolumeWatcherService extends Service {
 
     private void showVolumeLevelNotification() {
         int vol = getStreamVolume(this, AudioManager.STREAM_MUSIC);
-        String title = getString(R.string.notification_volume_level_title);
+        String title = String.format(getString(R.string.notification_volume_level_title), vol);
         String text;
         if (!mShowNotiOutputDevice) {
             // if this is the only notification enabled,
@@ -267,7 +267,7 @@ public class VolumeWatcherService extends Service {
             text = String.format(getString(R.string.notification_unified_text),
                     getCurrentOutputDevice(this), vol);
         } else {
-            text = String.format(getString(R.string.notification_volume_level_text), vol);
+            text = getString(R.string.notification_volume_level_text);
         }
         Icon smallIcon = getVolumeLevelIcon(vol);
         Notification notification = mVolumeLevelNotiBuilder

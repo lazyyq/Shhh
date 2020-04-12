@@ -28,10 +28,10 @@
     <string name="notification_action_stop_service">서비스 중지</string>
     <string name="notification_action_mute_volume">볼륨 끄기</string>
 
-    <string name="notification_output_device_title">"출력 장치는 %s입니다."</string>
-    <string name="notification_output_device_text">"현재 출력 장치 : %s"</string>
-    <string name="notification_volume_level_title">볼륨이 켜져 있습니다.</string>
-    <string name="notification_volume_level_text">"미디어 볼륨 크기 : %d"</string>
+    <string name="notification_output_device_title">"현재 볼륨 출력 장치 : %s"</string>
+    <string name="notification_output_device_text">"현재 미디어 볼륨 출력 장치는 %s입니다."</string>
+    <string name="notification_volume_level_title">"미디어 볼륨 크기 : %d"</string>
+    <string name="notification_volume_level_text">미디어 볼륨이 켜져 있습니다.</string>
     <string name="notification_unified_text">"현재 출력 장치 : %s / 미디어 볼륨 크기 : %d"</string>
 
     <string name="hide_foreground_service_notification_dialog_title">서비스 실행 중 알림 숨기기</string>

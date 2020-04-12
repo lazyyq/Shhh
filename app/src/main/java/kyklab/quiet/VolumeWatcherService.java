@@ -135,6 +135,8 @@ public class VolumeWatcherService extends Service {
         String action = intent.getAction();
 
         if (TextUtils.equals(action, Const.Intent.ACTION_START_SERVICE)) {
+            // Notify we started service
+            sendBroadcast(new Intent(Const.Intent.ACTION_SERVICE_STARTED));
             // Start foreground service
             mEnableOnHeadset = Prefs.get().getBoolean(Prefs.Key.ENABLE_ON_HEADSET);
             mShowNotiOutputDevice = Prefs.get().getBoolean(Prefs.Key.SHOW_NOTI_OUTPUT_DEVICE);
@@ -168,7 +170,7 @@ public class VolumeWatcherService extends Service {
             // Stop service button in notification clicked
             Log.d(TAG, "Stopping service on notification click");
             Prefs.get().setBoolean(Prefs.Key.SERVICE_ENABLED, false);
-            sendBroadcast(new Intent(Const.Intent.ACTION_SWITCH_OFF));
+            sendBroadcast(new Intent(Const.Intent.ACTION_SERVICE_STOPPED));
             stopForeground(true);
             stopSelf();
 

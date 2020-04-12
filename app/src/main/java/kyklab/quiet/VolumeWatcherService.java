@@ -101,7 +101,6 @@ public class VolumeWatcherService extends Service {
         intentFilter.addAction(Const.Intent.ACTION_VOLUME_CHANGED);
         intentFilter.addAction(Const.Intent.ACTION_HEADSET_PLUGGED);
         intentFilter.addAction(BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED);
-        intentFilter.addAction(Const.Intent.ACTION_MUTE_VOLUME);
         //intentFilter.addAction(EVENT_PHONE_STATE_CHANGED); // TODO: Fix phone state detection
         mReceiver = new BroadcastReceiver() {
             @Override

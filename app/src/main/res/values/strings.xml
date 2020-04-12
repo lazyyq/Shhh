@@ -28,10 +28,10 @@
     <string name="notification_action_stop_service">Stop service</string>
     <string name="notification_action_mute_volume">Mute volume</string>
 
-    <string name="notification_output_device_title">"Output device is %s."</string>
-    <string name="notification_output_device_text">"Current output device : %s"</string>
-    <string name="notification_volume_level_title">Volume is on.</string>
-    <string name="notification_volume_level_text">"Media volume level : %d"</string>
+    <string name="notification_output_device_title">"Current volume output device : %s"</string>
+    <string name="notification_output_device_text">"Current media volume output device is %s."</string>
+    <string name="notification_volume_level_title">"Media volume level : %d"</string>
+    <string name="notification_volume_level_text">Media volume is on.</string>
     <string name="notification_unified_text">"Current output device : %s / Volume level : %d"</string>
 
     <string name="hide_foreground_service_notification_dialog_title">Hide foreground service notification</string>

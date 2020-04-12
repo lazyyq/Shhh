@@ -16,12 +16,14 @@
             app:defaultValue="@bool/pref_key_show_noti_output_device_default"
             app:iconSpaceReserved="false"
             app:key="@string/pref_key_show_noti_output_device"
+            app:singleLineTitle="false"
             app:summary="@string/settings_show_noti_output_device_summary"
             app:title="@string/settings_show_noti_output_device_title" />
         <SwitchPreferenceCompat
             app:defaultValue="@bool/pref_key_show_noti_vol_level_default"
             app:iconSpaceReserved="false"
             app:key="@string/pref_key_show_noti_vol_level"
+            app:singleLineTitle="false"
             app:summary="@string/settings_show_noti_vol_level_summary"
             app:title="@string/settings_show_noti_vol_level_title" />
     </PreferenceCategory>

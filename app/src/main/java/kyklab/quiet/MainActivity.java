@@ -1,6 +1,5 @@
 package kyklab.quiet;
 
-import android.app.AlertDialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
@@ -15,6 +14,7 @@ import android.view.MenuItem;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.NotificationManagerCompat;
@@ -23,6 +23,7 @@ import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreferenceCompat;
 
 import com.google.android.gms.oss.licenses.OssLicensesMenuActivity;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.kyleduo.switchbutton.SwitchButton;
 
 public class MainActivity extends AppCompatActivity {
@@ -183,7 +184,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void showNotificationHelp() {
-        AlertDialog dialog = new AlertDialog.Builder(this)
+        AlertDialog dialog = new MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.hide_foreground_service_notification_dialog_title)
                 .setMessage(R.string.hide_foreground_service_notification_dialog_text)
                 .setPositiveButton(android.R.string.ok, (dialog1, which) -> {

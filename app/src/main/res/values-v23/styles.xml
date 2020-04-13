@@ -1,0 +1,11 @@
+<resources>
+
+    <style name="AppThemeV23" parent="AppThemeV16">
+        <item name="colorPrimaryDark">?colorSurface</item>
+
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
+
+    <style name="AppTheme" parent="AppThemeV23" />
+
+</resources>

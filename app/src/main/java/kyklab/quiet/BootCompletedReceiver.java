@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.text.TextUtils;
 
+import androidx.core.content.ContextCompat;
+
 public class BootCompletedReceiver extends BroadcastReceiver {
     private static final String TAG = "BootCompletedReceiver";
 
@@ -15,7 +17,7 @@ public class BootCompletedReceiver extends BroadcastReceiver {
             if (Prefs.get().getBoolean(Prefs.Key.SERVICE_ENABLED)) {
                 Intent serviceIntent = new Intent(context, VolumeWatcherService.class);
                 serviceIntent.setAction(Const.Intent.ACTION_START_SERVICE);
-                context.startForegroundService(serviceIntent);
+                ContextCompat.startForegroundService(context, serviceIntent);
             }
         }
     }

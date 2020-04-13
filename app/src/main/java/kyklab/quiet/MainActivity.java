@@ -6,6 +6,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -14,10 +15,12 @@ import android.view.MenuItem;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.core.content.ContextCompat;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreferenceCompat;
@@ -25,6 +28,8 @@ import androidx.preference.SwitchPreferenceCompat;
 import com.google.android.gms.oss.licenses.OssLicensesMenuActivity;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.kyleduo.switchbutton.SwitchButton;
+
+import static kyklab.quiet.Utils.isOreoOrHigher;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -38,7 +43,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         // Create notification channel
-        createNotificationChannel();
+        if (isOreoOrHigher()) {
+            createNotificationChannel();
+        }
 
         tvServiceStatus = findViewById(R.id.tv_service_status);
         tvServiceDesc = findViewById(R.id.tv_service_desc);
@@ -95,6 +102,7 @@ public class MainActivity extends AppCompatActivity {
         };
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     private void createNotificationChannel() {
         NotificationChannel channel;
         NotificationManagerCompat manager = NotificationManagerCompat.from(this);
@@ -127,7 +135,7 @@ public class MainActivity extends AppCompatActivity {
         if (extras != null) {
             intent.putExtras(extras);
         }
-        startForegroundService(intent);
+        ContextCompat.startForegroundService(this, intent);
     }
 
     private void stopWatcherService() {
@@ -209,13 +217,12 @@ public class MainActivity extends AppCompatActivity {
                 .setPositiveButton(android.R.string.ok, (dialog1, which) -> {
                     Intent intent = new Intent();
                     intent.setAction(Const.Intent.ACTION_APP_NOTIFICATION_SETTINGS);
-
-                    //for Android 5-7
-                    //intent.putExtra("app_package", getPackageName());
-                    //intent.putExtra("app_uid", getApplicationInfo().uid);
-
-                    // for Android 8 and above
-                    intent.putExtra(Const.Intent.EXTRA_APP_PACKAGE, App.getContext().getPackageName());
+                    if (isOreoOrHigher()) {
+                        intent.putExtra(Const.Intent.EXTRA_APP_PACKAGE, App.getContext().getPackageName());
+                    } else {
+                        intent.putExtra("app_package", getPackageName());
+                        intent.putExtra("app_uid", getApplicationInfo().uid);
+                    }
 
                     startActivity(intent);
                 })

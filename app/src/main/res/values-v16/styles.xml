@@ -1,0 +1,7 @@
+<resources>
+
+    <style name="AppThemeV16" parent="AppThemeV1" />
+
+    <style name="AppTheme" parent="AppThemeV16" />
+
+</resources>

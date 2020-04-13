@@ -2,11 +2,16 @@ package kyklab.quiet;
 
 import android.content.Intent;
 import android.graphics.drawable.Icon;
+import android.os.Build;
 import android.service.quicksettings.Tile;
 import android.service.quicksettings.TileService;
 
+import androidx.annotation.RequiresApi;
+import androidx.core.content.ContextCompat;
+
 import static kyklab.quiet.Utils.isServiceRunning;
 
+@RequiresApi(api = Build.VERSION_CODES.N)
 public class QsTile extends TileService {
     @Override
     public void onStartListening() {
@@ -47,12 +52,12 @@ public class QsTile extends TileService {
     private void startWatcherService() {
         Intent intent = new Intent(this, VolumeWatcherService.class);
         intent.setAction(Const.Intent.ACTION_START_SERVICE);
-        startForegroundService(intent);
+        ContextCompat.startForegroundService(this, intent);
     }
 
     private void stopWatcherService() {
         Intent intent = new Intent(this, VolumeWatcherService.class);
         intent.setAction(Const.Intent.ACTION_STOP_SERVICE);
-        startForegroundService(intent);
+        ContextCompat.startForegroundService(this, intent);
     }
 }

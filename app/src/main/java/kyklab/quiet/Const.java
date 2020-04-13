@@ -21,26 +21,20 @@ public class Const {
     public static class Intent {
 
         // Actions
-        public static final String ACTION_START_SERVICE = "kyklab.quiet.action.start_service";
-        public static final String ACTION_STOP_SERVICE = "kyklab.quiet.action.stop_service";
-        public static final String ACTION_UPDATE_SETTINGS = "kyklab.quiet.action.update_settings";
-        public static final String ACTION_SERVICE_STARTED = "kyklab.quiet.action.service_started";
-        public static final String ACTION_SERVICE_STOPPED = "kyklab.quiet.action.service_stopped";
-        public static final String ACTION_MUTE_VOLUME = "kyklab.quite.action.mute_volume";
+        public static final String ACTION_START_SERVICE = "kyklab.quiet.action.START_SERVICE";
+        public static final String ACTION_STOP_SERVICE = "kyklab.quiet.action.STOP_SERVICE";
+        public static final String ACTION_UPDATE_SETTINGS = "kyklab.quiet.action.UPDATE_SETTINGS";
+        public static final String ACTION_SERVICE_STARTED = "kyklab.quiet.action.SERVICE_STARTED";
+        public static final String ACTION_SERVICE_STOPPED = "kyklab.quiet.action.SERVICE_STOPPED";
+        public static final String ACTION_MUTE_VOLUME = "kyklab.quite.action.MUTE_VOLUME";
 
         public static final String ACTION_VOLUME_CHANGED = "android.media.VOLUME_CHANGED_ACTION";
-        public static final String ACTION_PHONE_STATE_CHANGED = "android.intent.action.PHONE_STATE";
-        public static final String ACTION_HEADSET_PLUGGED = "android.intent.action.HEADSET_PLUG";
-
-        public static final String ACTION_APP_NOTIFICATION_SETTINGS = "android.settings.APP_NOTIFICATION_SETTINGS";
 
         // Extras
-        public static final String EXTRA_ENABLE_ON_HEADSET = "enable_on_headset";
-        public static final String EXTRA_NOTIFICATION_CLICKED = "notification_clicked";
-        public static final String EXTRA_SHOW_NOTI_OUTPUT_DEVICE = "show_noti_output_device";
-        public static final String EXTRA_SHOW_NOTI_VOLUME_LEVEL = "show_noti_volume_level";
-
-        public static final String EXTRA_APP_PACKAGE = "android.provider.extra.APP_PACKAGE";
+        public static final String EXTRA_ENABLE_ON_HEADSET = "kyklab.quiet.extra.ENABLE_ON_HEADSET";
+        public static final String EXTRA_NOTIFICATION_CLICKED = "kyklab.quiet.extra.NOTIFICATION_CLICKED";
+        public static final String EXTRA_SHOW_NOTI_OUTPUT_DEVICE = "kyklab.quiet.extra.SHOW_NOTI_OUTPUT_DEVICE";
+        public static final String EXTRA_SHOW_NOTI_VOLUME_LEVEL = "kyklab.quiet.extra.SHOW_NOTI_VOLUME_LEVEL";
 
     }
 

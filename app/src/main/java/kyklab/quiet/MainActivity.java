@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
@@ -217,9 +218,9 @@ public class MainActivity extends AppCompatActivity {
                 .setMessage(R.string.hide_foreground_service_notification_dialog_text)
                 .setPositiveButton(android.R.string.ok, (dialog1, which) -> {
                     Intent intent = new Intent();
-                    intent.setAction(Const.Intent.ACTION_APP_NOTIFICATION_SETTINGS);
+                    intent.setAction(Settings.ACTION_APP_NOTIFICATION_SETTINGS);
                     if (isOreoOrHigher()) {
-                        intent.putExtra(Const.Intent.EXTRA_APP_PACKAGE, App.getContext().getPackageName());
+                        intent.putExtra(Settings.EXTRA_APP_PACKAGE, App.getContext().getPackageName());
                     } else {
                         intent.putExtra("app_package", getPackageName());
                         intent.putExtra("app_uid", getApplicationInfo().uid);

@@ -133,7 +133,7 @@ public class VolumeWatcherService extends Service {
         // Receiver for volume change, headset connection detection
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(Const.Intent.ACTION_VOLUME_CHANGED);
-        intentFilter.addAction(Const.Intent.ACTION_HEADSET_PLUGGED);
+        intentFilter.addAction(Intent.ACTION_HEADSET_PLUG);
         intentFilter.addAction(BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED);
         //intentFilter.addAction(EVENT_PHONE_STATE_CHANGED); // TODO: Fix phone state detection
         mReceiver = new BroadcastReceiver() {
@@ -142,7 +142,7 @@ public class VolumeWatcherService extends Service {
                 Log.d(TAG, "Receiver triggered: " + intent.getAction());
                 String action = intent.getAction();
                 if (TextUtils.equals(action, Const.Intent.ACTION_VOLUME_CHANGED) ||
-                        TextUtils.equals(action, Const.Intent.ACTION_HEADSET_PLUGGED) ||
+                        TextUtils.equals(action, Intent.ACTION_HEADSET_PLUG) ||
                         TextUtils.equals(action, BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED)) {
                     // Update notification status
                     updateVolumeNotification();

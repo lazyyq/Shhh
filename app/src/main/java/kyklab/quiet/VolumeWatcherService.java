@@ -114,21 +114,28 @@ public class VolumeWatcherService extends Service {
         /*
          * Foreground service notification
          */
-        // Notification for foreground service
-        Intent notificationIntent = new Intent(this, MainActivity.class);
-        //notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        notificationIntent.putExtra(Const.Intent.EXTRA_NOTIFICATION_CLICKED, true);
-        PendingIntent pendingIntent =
-                PendingIntent.getActivity(this, 0, notificationIntent,
-                        PendingIntent.FLAG_UPDATE_CURRENT);
 
         // Builder for foreground notification
         mForegroundNotiBuilder =
                 new NotificationCompat.Builder(this, Const.Notification.CHANNEL_ONGOING)
                         .setContentTitle(getString(R.string.notification_foreground_service_title))
-                        .setContentText(getString(R.string.notification_foreground_service_text))
-                        .setSmallIcon(R.drawable.ic_speaker)
-                        .setContentIntent(pendingIntent);
+                        .setSmallIcon(R.drawable.ic_speaker);
+        if (isOreoOrHigher()) {
+            // Notification channels are available for Oreo or higher,
+            // so show guidance about disabling notification only for them.
+
+            // Notification for foreground service
+            Intent notificationIntent = new Intent(this, MainActivity.class);
+            //notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            notificationIntent.putExtra(Const.Intent.EXTRA_NOTIFICATION_CLICKED, true);
+            PendingIntent pendingIntent =
+                    PendingIntent.getActivity(this, 0, notificationIntent,
+                            PendingIntent.FLAG_UPDATE_CURRENT);
+
+            mForegroundNotiBuilder
+                    .setContentText(getString(R.string.notification_foreground_service_text))
+                    .setContentIntent(pendingIntent);
+        }
 
         // Receiver for volume change, headset connection detection
         IntentFilter intentFilter = new IntentFilter();

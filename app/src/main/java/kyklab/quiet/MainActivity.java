@@ -212,19 +212,16 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     public void showNotificationHelp() {
         AlertDialog dialog = new MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.hide_foreground_service_notification_dialog_title)
                 .setMessage(R.string.hide_foreground_service_notification_dialog_text)
                 .setPositiveButton(android.R.string.ok, (dialog1, which) -> {
                     Intent intent = new Intent();
-                    intent.setAction(Settings.ACTION_APP_NOTIFICATION_SETTINGS);
-                    if (isOreoOrHigher()) {
-                        intent.putExtra(Settings.EXTRA_APP_PACKAGE, App.getContext().getPackageName());
-                    } else {
-                        intent.putExtra("app_package", getPackageName());
-                        intent.putExtra("app_uid", getApplicationInfo().uid);
-                    }
+                    intent.setAction(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS);
+                    intent.putExtra(Settings.EXTRA_APP_PACKAGE, BuildConfig.APPLICATION_ID);
+                    intent.putExtra(Settings.EXTRA_CHANNEL_ID, Const.Notification.CHANNEL_ONGOING);
 
                     startActivity(intent);
                 })

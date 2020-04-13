@@ -35,7 +35,7 @@
     <string name="notification_unified_text">"Current output device : %s / Volume level : %d"</string>
 
     <string name="hide_foreground_service_notification_dialog_title">Hide foreground service notification</string>
-    <string name="hide_foreground_service_notification_dialog_text">To hide this notification, you can manually disable \'Foreground service\' notification in the settings window.</string>
+    <string name="hide_foreground_service_notification_dialog_text">Please manually disable or minimize this notification in the settings window.</string>
 
     <string name="output_speaker">Speaker</string>
     <string name="output_headset">Headset</string>

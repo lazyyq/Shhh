@@ -36,6 +36,9 @@ public class Const {
         public static final String EXTRA_SHOW_NOTI_OUTPUT_DEVICE = "kyklab.quiet.extra.SHOW_NOTI_OUTPUT_DEVICE";
         public static final String EXTRA_SHOW_NOTI_VOLUME_LEVEL = "kyklab.quiet.extra.SHOW_NOTI_VOLUME_LEVEL";
 
+        public static final String EXTRA_VOLUME_STREAM_TYPE = "android.media.EXTRA_VOLUME_STREAM_TYPE";
+        public static final String EXTRA_VOLUME_STREAM_VALUE = "android.media.EXTRA_VOLUME_STREAM_VALUE";
+
     }
 
 }

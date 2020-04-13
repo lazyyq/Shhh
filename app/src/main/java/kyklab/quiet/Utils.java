@@ -2,6 +2,7 @@ package kyklab.quiet;
 
 import android.app.ActivityManager;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -11,6 +12,7 @@ import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.os.Build;
+import android.os.Bundle;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.util.TypedValue;
@@ -143,5 +145,16 @@ public class Utils {
     public static float getPxFromDp(Context context, float dp) {
         return TypedValue.applyDimension(
                 TypedValue.COMPLEX_UNIT_DIP, dp, context.getResources().getDisplayMetrics());
+    }
+
+    public static String extrasToString(Intent intent) {
+        StringBuilder sb = new StringBuilder();
+        Bundle extras = intent.getExtras();
+        if (extras != null) {
+            for (String key : extras.keySet()) {
+                sb.append(key).append(":").append(extras.get(key)).append(", ");
+            }
+        }
+        return sb.toString();
     }
 }

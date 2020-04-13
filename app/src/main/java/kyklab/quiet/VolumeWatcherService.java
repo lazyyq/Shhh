@@ -263,38 +263,63 @@ public class VolumeWatcherService extends Service {
         }
     }
 
+    private static TextDrawable getVolumeLevelDrawable(int vol) {
+        return new TextDrawableBuilder(TextDrawable.DRAWABLE_SHAPE_OVAL)
+                .setHeight(100)
+                .setWidth(100)
+                .setColor(0x010000000)
+                .setText(String.valueOf(vol))
+                .setTextColor(Color.BLACK)
+                .setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD))
+                .setTextSize(90f)
+                .build();
+    }
+
+    private void removeOutputDeviceNotification() {
+        NotificationManagerCompat.from(VolumeWatcherService.this)
+                .cancel(Const.Notification.ID_OUTPUT_DEVICE);
+    }
+
+    private static Icon getVolumeLevelIcon(int vol) {
+        return IconCompat.createWithBitmap(getVolumeLevelDrawable(vol).toBitmap()).toIcon();
+    }
+
+    private void removeVolumeLevelNotification() {
+        NotificationManagerCompat.from(VolumeWatcherService.this)
+                .cancel(Const.Notification.ID_VOLUME_LEVEL);
+    }
+
+    private static Bitmap getVolumeLevelBitmap(int vol) {
+        return getVolumeLevelDrawable(vol).toBitmap();
+    }
+
     private void showOutputDeviceNotification() {
         int vol = getStreamVolume(this, AudioManager.STREAM_MUSIC);
         String title = String.format(getString(R.string.notification_output_device_title),
-                getCurrentOutputDevice(this));
+                getCurrentOutputDevice());
         String text;
         if (!mShowNotiVolumeLevel) {
             // if this is the only notification enabled,
             // show info for both output device and volume level
             text = String.format(getString(R.string.notification_unified_text),
-                    getCurrentOutputDevice(this), vol);
+                    getCurrentOutputDevice(), vol);
         } else {
             text = String.format(getString(R.string.notification_output_device_text),
-                    getCurrentOutputDevice(this));
+                    getCurrentOutputDevice());
         }
 
         Notification notification;
         if (isOreoOrHigher()) {
             notification = mOutputDeviceNotiBuilderOreo
                     .setContentTitle(title).setContentText(text)
-                    .setSmallIcon(getCurrentOutputDeviceIconRes(this)).build();
+                    .setSmallIcon(getCurrentOutputDeviceIconRes()).build();
         } else {
             notification = mOutputDeviceNotiBuilder
                     .setContentTitle(title).setContentText(text)
-                    .setSmallIcon(getCurrentOutputDeviceIconRes(this)).build();
+                    .setSmallIcon(getCurrentOutputDeviceIconRes()).build();
         }
 
         NotificationManagerCompat.from(this).notify(Const.Notification.ID_OUTPUT_DEVICE, notification);
-    }
-
-    private void removeOutputDeviceNotification() {
-        NotificationManagerCompat.from(VolumeWatcherService.this)
-                .cancel(Const.Notification.ID_OUTPUT_DEVICE);
     }
 
     private void showVolumeLevelNotification() {
@@ -305,7 +330,7 @@ public class VolumeWatcherService extends Service {
             // if this is the only notification enabled,
             // show info for both output device and volume level
             text = String.format(getString(R.string.notification_unified_text),
-                    getCurrentOutputDevice(this), vol);
+                    getCurrentOutputDevice(), vol);
         } else {
             text = getString(R.string.notification_volume_level_text);
         }
@@ -327,39 +352,14 @@ public class VolumeWatcherService extends Service {
         NotificationManagerCompat.from(this).notify(Const.Notification.ID_VOLUME_LEVEL, notification);
     }
 
-    private void removeVolumeLevelNotification() {
-        NotificationManagerCompat.from(VolumeWatcherService.this)
-                .cancel(Const.Notification.ID_VOLUME_LEVEL);
-    }
-
-    private TextDrawable getVolumeLevelDrawable(int vol) {
-        return new TextDrawableBuilder(TextDrawable.DRAWABLE_SHAPE_OVAL)
-                .setHeight(100)
-                .setWidth(100)
-                .setColor(0x010000000)
-                .setText(String.valueOf(vol))
-                .setTextColor(Color.BLACK)
-                .setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD))
-                .setTextSize(90f)
-                .build();
-    }
-
-    private Icon getVolumeLevelIcon(int vol) {
-        return IconCompat.createWithBitmap(getVolumeLevelDrawable(vol).toBitmap()).toIcon();
-    }
-
-    private Bitmap getVolumeLevelBitmap(int vol) {
-        return getVolumeLevelDrawable(vol).toBitmap();
-    }
-
-    private String getCurrentOutputDevice(Context context) {
+    private String getCurrentOutputDevice() {
         return getString(isHeadsetConnected(this) ?
                 R.string.output_headset : R.string.output_speaker);
     }
 
     @DrawableRes
-    private int getCurrentOutputDeviceIconRes(Context context) {
-        return isHeadsetConnected(context) ? R.drawable.ic_headset : R.drawable.ic_speaker;
+    private int getCurrentOutputDeviceIconRes() {
+        return isHeadsetConnected(this) ? R.drawable.ic_headset : R.drawable.ic_speaker;
     }
 
     @Override

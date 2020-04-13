@@ -32,6 +32,18 @@ public class Prefs {
         return LazyHolder.INSTANCE;
     }
 
+    public static void registerPrefChangeListener(
+            SharedPreferences.OnSharedPreferenceChangeListener listener) {
+        PreferenceManager.getDefaultSharedPreferences(App.getContext())
+                .registerOnSharedPreferenceChangeListener(listener);
+    }
+
+    public static void unregisterPrefChangeListener(
+            SharedPreferences.OnSharedPreferenceChangeListener listener) {
+        PreferenceManager.getDefaultSharedPreferences(App.getContext())
+                .unregisterOnSharedPreferenceChangeListener(listener);
+    }
+
     public String getString(String key) {
         return pref.getString(key, (String) map.get(key));
     }
@@ -79,18 +91,6 @@ public class Prefs {
 
     public void setBoolean(String key, boolean b) {
         editor.putBoolean(key, b).apply();
-    }
-
-    public static void registerPrefChangeListener(
-            SharedPreferences.OnSharedPreferenceChangeListener listener) {
-        PreferenceManager.getDefaultSharedPreferences(App.getContext())
-                .registerOnSharedPreferenceChangeListener(listener);
-    }
-
-    public static void unregisterPrefChangeListener(
-            SharedPreferences.OnSharedPreferenceChangeListener listener) {
-        PreferenceManager.getDefaultSharedPreferences(App.getContext())
-                .unregisterOnSharedPreferenceChangeListener(listener);
     }
 
     public void removePref(String pref) {

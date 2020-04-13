@@ -1,6 +1,6 @@
 <resources>
 
-    <style name="AppThemeBase" parent="Theme.MaterialComponents.DayNight">
+    <style name="AppThemeBase" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="fontFamily">@font/googlesans_regular</item>
     </style>
 

@@ -17,6 +17,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
@@ -53,6 +54,7 @@ public class VolumeWatcherService extends Service {
 
     private boolean
             mEnableOnHeadset, mShowNotiOutputDevice, mShowNotiVolumeLevel, // App settings
+            mCallActive, // There's an active call
             mHeadsetConnected; // Headset connection status
 
     private int mVol; // Current media volume
@@ -154,7 +156,7 @@ public class VolumeWatcherService extends Service {
         intentFilter.addAction(Const.Intent.ACTION_VOLUME_CHANGED);
         intentFilter.addAction(Intent.ACTION_HEADSET_PLUG);
         intentFilter.addAction(BluetoothAdapter.ACTION_CONNECTION_STATE_CHANGED);
-        //intentFilter.addAction(EVENT_PHONE_STATE_CHANGED); // TODO: Fix phone state detection
+        intentFilter.addAction(TelephonyManager.ACTION_PHONE_STATE_CHANGED);
         mReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -174,6 +176,9 @@ public class VolumeWatcherService extends Service {
                     updateMediaVolume(null);
                     updateHeadsetStatus(intent);
                     updateVolumeNotification();
+                } else if (TextUtils.equals(action, TelephonyManager.ACTION_PHONE_STATE_CHANGED)) {
+                    updateCallStatus(intent);
+                    updateVolumeNotification();
                 }
             }
         };
@@ -182,7 +187,7 @@ public class VolumeWatcherService extends Service {
         mHandler = new Handler(Looper.getMainLooper());
         mNotifyVolumeRunnable = () -> {
             // Hide all notifications during call
-            if (isCallActive(this)) {
+            if (mCallActive) {
                 removeOutputDeviceNotification();
                 removeVolumeLevelNotification();
                 return;
@@ -217,6 +222,7 @@ public class VolumeWatcherService extends Service {
             // Initialize status
             updateMediaVolume(null);
             updateHeadsetStatus(null);
+            updateCallStatus(null);
 
             // Notify we started service
             sendBroadcast(new Intent(Const.Intent.ACTION_SERVICE_STARTED));
@@ -379,6 +385,24 @@ public class VolumeWatcherService extends Service {
                         extras.getInt(BluetoothAdapter.EXTRA_CONNECTION_STATE,
                                 BluetoothAdapter.STATE_DISCONNECTED) ==
                                 BluetoothAdapter.STATE_CONNECTED;
+            }
+        }
+    }
+
+    /**
+     * Update call active status from intent received.
+     *
+     * @param intent Intent passed to receiver. If null, get value from TelephonyManager instead.
+     */
+    private void updateCallStatus(@Nullable Intent intent) {
+        if (intent == null) {
+            mCallActive = isCallActive(this);
+        } else {
+            Bundle extras = intent.getExtras();
+            if (extras != null) {
+                mCallActive = TextUtils.equals(extras.getString(
+                        TelephonyManager.EXTRA_STATE, TelephonyManager.EXTRA_STATE_IDLE),
+                        TelephonyManager.EXTRA_STATE_OFFHOOK);
             }
         }
     }

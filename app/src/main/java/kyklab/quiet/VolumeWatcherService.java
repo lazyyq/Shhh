@@ -400,7 +400,7 @@ public class VolumeWatcherService extends Service {
         manager.cancel(Const.Notification.ID_ONGOING);
         manager.cancel(Const.Notification.ID_OUTPUT_DEVICE);
         manager.cancel(Const.Notification.ID_VOLUME_LEVEL);
-        Toast.makeText(this, "Stopping service", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, R.string.stopping_service, Toast.LENGTH_SHORT).show();
         super.onDestroy();
     }
 

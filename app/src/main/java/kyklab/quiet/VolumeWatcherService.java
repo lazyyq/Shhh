@@ -41,7 +41,6 @@ import static kyklab.quiet.Utils.muteStreamVolume;
 public class VolumeWatcherService extends Service {
     private static final String TAG = "VolumeWatcherService";
 
-    private Notification mVolumeLevelNotification;
     private NotificationCompat.Builder mForegroundNotiBuilder,
             mOutputDeviceNotiBuilder, mVolumeLevelNotiBuilder;
     private Notification.Builder mOutputDeviceNotiBuilderOreo, mVolumeLevelNotiBuilderOreo;
@@ -163,21 +162,48 @@ public class VolumeWatcherService extends Service {
                 Log.d(TAG, "Receiver triggered");
                 Log.d(TAG, "intent action: " + action + "\nintent extras: " + extrasToString(intent));
                 if (TextUtils.equals(action, Const.Intent.ACTION_VOLUME_CHANGED)) {
-                    updateMediaVolume(intent);
+                    Bundle extras = intent.getExtras();
+                    if (extras != null &&
+                            extras.getInt(Const.Intent.EXTRA_VOLUME_STREAM_TYPE, -1)
+                                    == AudioManager.STREAM_MUSIC) {
+                        updateMediaVolume(intent);
+                        updateVolumeNotification();
+                    }
                 } else if (TextUtils.equals(action, Intent.ACTION_HEADSET_PLUG) ||
                         TextUtils.equals(action, BluetoothAdapter.ACTION_CONNECTION_STATE_CHANGED)) {
                     updateMediaVolume(null);
                     updateHeadsetStatus(intent);
+                    updateVolumeNotification();
                 }
-                // Update notification status
-                updateVolumeNotification();
             }
         };
         registerReceiver(mReceiver, intentFilter);
 
         mHandler = new Handler(Looper.getMainLooper());
-        mNotifyVolumeRunnable = () -> NotificationManagerCompat.from(this)
-                .notify(Const.Notification.ID_VOLUME_LEVEL, mVolumeLevelNotification);
+        mNotifyVolumeRunnable = () -> {
+            // Hide all notifications during call
+            if (isCallActive(this)) {
+                removeOutputDeviceNotification();
+                removeVolumeLevelNotification();
+                return;
+            }
+
+            // Decide whether to show output device notification
+            if (mShowNotiOutputDevice)
+                if (mHeadsetConnected)
+                    if (mEnableOnHeadset) showOutputDeviceNotification();
+                    else removeOutputDeviceNotification();
+                else showOutputDeviceNotification();
+            else removeOutputDeviceNotification();
+
+            // Decide whether to show volume level notification
+            if (mShowNotiVolumeLevel && isMediaVolumeOn())
+                if (mHeadsetConnected)
+                    if (mEnableOnHeadset) showVolumeLevelNotification();
+                    else removeVolumeLevelNotification();
+                else showVolumeLevelNotification();
+            else removeVolumeLevelNotification();
+        };
     }
 
     @Override
@@ -239,44 +265,13 @@ public class VolumeWatcherService extends Service {
     }
 
     private void updateVolumeNotification() {
-        // Hide all notifications during call
-        if (isCallActive(this)) {
-            removeOutputDeviceNotification();
-            removeVolumeLevelNotification();
-            return;
-        }
-
-        // Decide whether to show output device notification
-        if (mShowNotiOutputDevice) {
-            if (mHeadsetConnected) {
-                // if headset connected
-                if (mEnableOnHeadset) {
-                    showOutputDeviceNotification();
-                } else {
-                    removeOutputDeviceNotification();
-                }
-            } else {
-                showOutputDeviceNotification();
-            }
-        } else {
-            removeOutputDeviceNotification();
-        }
-
-        // Decide whether to show volume level notification
-        if (mShowNotiVolumeLevel && isMediaVolumeOn()) {
-            if (mHeadsetConnected) {
-                // if headset connected
-                if (mEnableOnHeadset) {
-                    showVolumeLevelNotification();
-                } else {
-                    removeVolumeLevelNotification();
-                }
-            } else {
-                showVolumeLevelNotification();
-            }
-        } else {
-            removeVolumeLevelNotification();
-        }
+        mNotifyVolumeRunnable.run();
+        // NotificationManager.notify() seems to get ignored
+        // when volume has changed very rapidly.
+        // Our workaround is to trigger notification update 1s after last update
+        // to ensure that notification icon is up to date.
+        mHandler.removeCallbacks(mNotifyVolumeRunnable);
+        mHandler.postDelayed(mNotifyVolumeRunnable, 1000);
     }
 
     private boolean isMediaVolumeOn() {
@@ -333,26 +328,21 @@ public class VolumeWatcherService extends Service {
             text = getString(R.string.notification_volume_level_text);
         }
 
+        Notification notification;
         if (isOreoOrHigher()) {
             Icon smallIcon = getVolumeLevelIcon(mVol);
-            mVolumeLevelNotification = mVolumeLevelNotiBuilderOreo
+            notification = mVolumeLevelNotiBuilderOreo
                     .setContentTitle(title).setContentText(text)
                     .setSmallIcon(smallIcon).build();
         } else {
-            mVolumeLevelNotification = mVolumeLevelNotiBuilder
+            notification = mVolumeLevelNotiBuilder
                     .setContentTitle(title).setContentText(text)
                     .setLargeIcon(getVolumeLevelBitmap(mVol))
                     .setSmallIcon(R.drawable.ic_volume_level, mVol)
                     .build();
         }
 
-        mNotifyVolumeRunnable.run();
-        // NotificationManager.notify() seems to get ignored
-        // when volume has changed very rapidly.
-        // Our workaround is to trigger notification update 1s after last update
-        // to ensure that notification icon is up to date.
-        mHandler.removeCallbacks(mNotifyVolumeRunnable);
-        mHandler.postDelayed(mNotifyVolumeRunnable, 1000);
+        NotificationManagerCompat.from(this).notify(Const.Notification.ID_VOLUME_LEVEL, notification);
     }
 
     /**

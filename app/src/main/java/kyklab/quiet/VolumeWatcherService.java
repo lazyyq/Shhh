@@ -3,7 +3,7 @@ package kyklab.quiet;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.bluetooth.BluetoothHeadset;
+import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -13,12 +13,16 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Icon;
 import android.media.AudioManager;
+import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.DrawableRes;
+import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.graphics.drawable.IconCompat;
@@ -26,6 +30,7 @@ import androidx.core.graphics.drawable.IconCompat;
 import com.kennyc.textdrawable.TextDrawable;
 import com.kennyc.textdrawable.TextDrawableBuilder;
 
+import static kyklab.quiet.Utils.extrasToString;
 import static kyklab.quiet.Utils.getStreamVolume;
 import static kyklab.quiet.Utils.isCallActive;
 import static kyklab.quiet.Utils.isDebug;
@@ -36,6 +41,7 @@ import static kyklab.quiet.Utils.muteStreamVolume;
 public class VolumeWatcherService extends Service {
     private static final String TAG = "VolumeWatcherService";
 
+    private Notification mVolumeLevelNotification;
     private NotificationCompat.Builder mForegroundNotiBuilder,
             mOutputDeviceNotiBuilder, mVolumeLevelNotiBuilder;
     private Notification.Builder mOutputDeviceNotiBuilderOreo, mVolumeLevelNotiBuilderOreo;
@@ -43,7 +49,14 @@ public class VolumeWatcherService extends Service {
     // Receiver for broadcast events (volume changed, headset plugged, etc..)
     private BroadcastReceiver mReceiver;
 
-    private boolean mEnableOnHeadset, mShowNotiOutputDevice, mShowNotiVolumeLevel;
+    private Handler mHandler;
+    private Runnable mNotifyVolumeRunnable; // Show media volume notification
+
+    private boolean
+            mEnableOnHeadset, mShowNotiOutputDevice, mShowNotiVolumeLevel, // App settings
+            mHeadsetConnected; // Headset connection status
+
+    private int mVol; // Current media volume
 
     public VolumeWatcherService() {
     }
@@ -141,31 +154,44 @@ public class VolumeWatcherService extends Service {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(Const.Intent.ACTION_VOLUME_CHANGED);
         intentFilter.addAction(Intent.ACTION_HEADSET_PLUG);
-        intentFilter.addAction(BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED);
+        intentFilter.addAction(BluetoothAdapter.ACTION_CONNECTION_STATE_CHANGED);
         //intentFilter.addAction(EVENT_PHONE_STATE_CHANGED); // TODO: Fix phone state detection
         mReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                Log.d(TAG, "Receiver triggered: " + intent.getAction());
                 String action = intent.getAction();
-                if (TextUtils.equals(action, Const.Intent.ACTION_VOLUME_CHANGED) ||
-                        TextUtils.equals(action, Intent.ACTION_HEADSET_PLUG) ||
-                        TextUtils.equals(action, BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED)) {
-                    // Update notification status
-                    updateVolumeNotification();
+                Log.d(TAG, "Receiver triggered");
+                Log.d(TAG, "intent action: " + action + "\nintent extras: " + extrasToString(intent));
+                if (TextUtils.equals(action, Const.Intent.ACTION_VOLUME_CHANGED)) {
+                    updateMediaVolume(intent);
+                } else if (TextUtils.equals(action, Intent.ACTION_HEADSET_PLUG) ||
+                        TextUtils.equals(action, BluetoothAdapter.ACTION_CONNECTION_STATE_CHANGED)) {
+                    updateMediaVolume(null);
+                    updateHeadsetStatus(intent);
                 }
+                // Update notification status
+                updateVolumeNotification();
             }
         };
         registerReceiver(mReceiver, intentFilter);
+
+        mHandler = new Handler(Looper.getMainLooper());
+        mNotifyVolumeRunnable = () -> NotificationManagerCompat.from(this)
+                .notify(Const.Notification.ID_VOLUME_LEVEL, mVolumeLevelNotification);
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d(TAG, "onStartCommand()" +
-                "\nintents:" + intent.toString() + "\nflags:" + flags + "\nstartId:" + startId);
         String action = intent.getAction();
+        Log.d(TAG, "onStartCommand()" +
+                "\nintent action:" + action + "\nintent extras: " + extrasToString(intent) +
+                "\nflags:" + flags + "\nstartId:" + startId);
 
         if (TextUtils.equals(action, Const.Intent.ACTION_START_SERVICE)) {
+            // Initialize status
+            updateMediaVolume(null);
+            updateHeadsetStatus(null);
+
             // Notify we started service
             sendBroadcast(new Intent(Const.Intent.ACTION_SERVICE_STARTED));
             // Start foreground service
@@ -222,7 +248,7 @@ public class VolumeWatcherService extends Service {
 
         // Decide whether to show output device notification
         if (mShowNotiOutputDevice) {
-            if (isHeadsetConnected(this)) {
+            if (mHeadsetConnected) {
                 // if headset connected
                 if (mEnableOnHeadset) {
                     showOutputDeviceNotification();
@@ -238,7 +264,7 @@ public class VolumeWatcherService extends Service {
 
         // Decide whether to show volume level notification
         if (mShowNotiVolumeLevel && isMediaVolumeOn()) {
-            if (isHeadsetConnected(this)) {
+            if (mHeadsetConnected) {
                 // if headset connected
                 if (mEnableOnHeadset) {
                     showVolumeLevelNotification();
@@ -254,25 +280,7 @@ public class VolumeWatcherService extends Service {
     }
 
     private boolean isMediaVolumeOn() {
-        int vol = getStreamVolume(this, AudioManager.STREAM_MUSIC);
-        if (vol == -1) {
-            Log.e(TAG, "Error while getting current volume");
-            return false;
-        } else {
-            return vol != 0;
-        }
-    }
-
-    private static TextDrawable getVolumeLevelDrawable(int vol) {
-        return new TextDrawableBuilder(TextDrawable.DRAWABLE_SHAPE_OVAL)
-                .setHeight(100)
-                .setWidth(100)
-                .setColor(0x010000000)
-                .setText(String.valueOf(vol))
-                .setTextColor(Color.BLACK)
-                .setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD))
-                .setTextSize(90f)
-                .build();
+        return mVol > 0;
     }
 
     private void removeOutputDeviceNotification() {
@@ -280,21 +288,12 @@ public class VolumeWatcherService extends Service {
                 .cancel(Const.Notification.ID_OUTPUT_DEVICE);
     }
 
-    private static Icon getVolumeLevelIcon(int vol) {
-        return IconCompat.createWithBitmap(getVolumeLevelDrawable(vol).toBitmap()).toIcon();
-    }
-
     private void removeVolumeLevelNotification() {
         NotificationManagerCompat.from(VolumeWatcherService.this)
                 .cancel(Const.Notification.ID_VOLUME_LEVEL);
     }
 
-    private static Bitmap getVolumeLevelBitmap(int vol) {
-        return getVolumeLevelDrawable(vol).toBitmap();
-    }
-
     private void showOutputDeviceNotification() {
-        int vol = getStreamVolume(this, AudioManager.STREAM_MUSIC);
         String title = String.format(getString(R.string.notification_output_device_title),
                 getCurrentOutputDevice());
         String text;
@@ -302,7 +301,7 @@ public class VolumeWatcherService extends Service {
             // if this is the only notification enabled,
             // show info for both output device and volume level
             text = String.format(getString(R.string.notification_unified_text),
-                    getCurrentOutputDevice(), vol);
+                    getCurrentOutputDevice(), mVol);
         } else {
             text = String.format(getString(R.string.notification_output_device_text),
                     getCurrentOutputDevice());
@@ -323,43 +322,84 @@ public class VolumeWatcherService extends Service {
     }
 
     private void showVolumeLevelNotification() {
-        int vol = getStreamVolume(this, AudioManager.STREAM_MUSIC);
-        String title = String.format(getString(R.string.notification_volume_level_title), vol);
+        String title = String.format(getString(R.string.notification_volume_level_title), mVol);
         String text;
         if (!mShowNotiOutputDevice) {
             // if this is the only notification enabled,
             // show info for both output device and volume level
             text = String.format(getString(R.string.notification_unified_text),
-                    getCurrentOutputDevice(), vol);
+                    getCurrentOutputDevice(), mVol);
         } else {
             text = getString(R.string.notification_volume_level_text);
         }
 
-        Notification notification;
         if (isOreoOrHigher()) {
-            Icon smallIcon = getVolumeLevelIcon(vol);
-            notification = mVolumeLevelNotiBuilderOreo
+            Icon smallIcon = getVolumeLevelIcon(mVol);
+            mVolumeLevelNotification = mVolumeLevelNotiBuilderOreo
                     .setContentTitle(title).setContentText(text)
                     .setSmallIcon(smallIcon).build();
         } else {
-            notification = mVolumeLevelNotiBuilder
+            mVolumeLevelNotification = mVolumeLevelNotiBuilder
                     .setContentTitle(title).setContentText(text)
-                    .setLargeIcon(getVolumeLevelBitmap(vol))
-                    .setSmallIcon(R.drawable.ic_volume_level, vol)
+                    .setLargeIcon(getVolumeLevelBitmap(mVol))
+                    .setSmallIcon(R.drawable.ic_volume_level, mVol)
                     .build();
         }
 
-        NotificationManagerCompat.from(this).notify(Const.Notification.ID_VOLUME_LEVEL, notification);
+        mNotifyVolumeRunnable.run();
+        // NotificationManager.notify() seems to get ignored
+        // when volume has changed very rapidly.
+        // Our workaround is to trigger notification update 1s after last update
+        // to ensure that notification icon is up to date.
+        mHandler.removeCallbacks(mNotifyVolumeRunnable);
+        mHandler.postDelayed(mNotifyVolumeRunnable, 1000);
+    }
+
+    /**
+     * Update current media volume value from intent received.
+     *
+     * @param intent Intent passed to receiver. If null, get value from AudioManager instead.
+     */
+    private void updateMediaVolume(@Nullable Intent intent) {
+        if (intent == null) {
+            mVol = getStreamVolume(this, AudioManager.STREAM_MUSIC);
+        } else {
+            int streamType = intent.getIntExtra(Const.Intent.EXTRA_VOLUME_STREAM_TYPE, -1);
+            if (streamType == AudioManager.STREAM_MUSIC) {
+                mVol = intent.getIntExtra(Const.Intent.EXTRA_VOLUME_STREAM_VALUE, -1);
+            }
+        }
+    }
+
+    /**
+     * Update headset connection status from intent received.
+     *
+     * @param intent Intent passed to receiver. If null, get value from AudioManager instead.
+     */
+    private void updateHeadsetStatus(@Nullable Intent intent) {
+        if (intent == null) {
+            mHeadsetConnected = isHeadsetConnected(this);
+        } else {
+            String action = intent.getAction();
+            Bundle extras = intent.getExtras();
+            if (TextUtils.equals(action, Intent.ACTION_HEADSET_PLUG)) {
+                mHeadsetConnected = extras != null && extras.getInt("state", 0) == 1;
+            } else if (TextUtils.equals(action, BluetoothAdapter.ACTION_CONNECTION_STATE_CHANGED)) {
+                mHeadsetConnected = extras != null &&
+                        extras.getInt(BluetoothAdapter.EXTRA_CONNECTION_STATE,
+                                BluetoothAdapter.STATE_DISCONNECTED) ==
+                                BluetoothAdapter.STATE_CONNECTED;
+            }
+        }
     }
 
     private String getCurrentOutputDevice() {
-        return getString(isHeadsetConnected(this) ?
-                R.string.output_headset : R.string.output_speaker);
+        return getString(mHeadsetConnected ? R.string.output_headset : R.string.output_speaker);
     }
 
     @DrawableRes
     private int getCurrentOutputDeviceIconRes() {
-        return isHeadsetConnected(this) ? R.drawable.ic_headset : R.drawable.ic_speaker;
+        return mHeadsetConnected ? R.drawable.ic_headset : R.drawable.ic_speaker;
     }
 
     @Override
@@ -371,6 +411,26 @@ public class VolumeWatcherService extends Service {
         manager.cancel(Const.Notification.ID_VOLUME_LEVEL);
         Toast.makeText(this, "Stopping service", Toast.LENGTH_SHORT).show();
         super.onDestroy();
+    }
+
+    private static TextDrawable getVolumeLevelDrawable(int vol) {
+        return new TextDrawableBuilder(TextDrawable.DRAWABLE_SHAPE_OVAL)
+                .setHeight(100)
+                .setWidth(100)
+                .setColor(0x010000000)
+                .setText(String.valueOf(vol))
+                .setTextColor(Color.BLACK)
+                .setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD))
+                .setTextSize(90f)
+                .build();
+    }
+
+    private static Icon getVolumeLevelIcon(int vol) {
+        return IconCompat.createWithBitmap(getVolumeLevelDrawable(vol).toBitmap()).toIcon();
+    }
+
+    private static Bitmap getVolumeLevelBitmap(int vol) {
+        return getVolumeLevelDrawable(vol).toBitmap();
     }
 
     @Override

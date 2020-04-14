@@ -161,7 +161,9 @@ public class MainActivity extends AppCompatActivity {
         boolean isNotificationClicked =
                 intent.getBooleanExtra(Const.Intent.EXTRA_NOTIFICATION_CLICKED, false);
         if (isNotificationClicked) {
-            showNotificationHelp();
+            if (isOreoOrHigher()) {
+                showNotificationHelp();
+            }
             getIntent().removeExtra(Const.Intent.EXTRA_NOTIFICATION_CLICKED);
         }
     }
@@ -177,7 +179,9 @@ public class MainActivity extends AppCompatActivity {
         boolean isNotificationClicked =
                 getIntent().getBooleanExtra(Const.Intent.EXTRA_NOTIFICATION_CLICKED, false);
         if (isNotificationClicked) {
-            showNotificationHelp();
+            if (isOreoOrHigher()) {
+                showNotificationHelp();
+            }
             getIntent().removeExtra(Const.Intent.EXTRA_NOTIFICATION_CLICKED);
         }
 

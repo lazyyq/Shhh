@@ -16,7 +16,7 @@
     <string name="settings_show_noti_output_device_title">Show volume output device</string>
     <string name="settings_show_noti_output_device_summary">Show current volume output device(Speaker/Headset) in notification icon in status bar.</string>
     <string name="settings_show_noti_vol_level_title">Show volume level</string>
-    <string name="settings_show_noti_vol_level_summary">Show current media volume level in notification icon in status bar.</string>
+    <string name="settings_show_noti_vol_level_summary">Show current media volume level in notification icon in status bar. Notification will only be shown when media volume is on.</string>
 
     <string name="notification_channel_foreground_service">Foreground service (Disable this)</string>
     <string name="notification_channel_output_device">Output device</string>

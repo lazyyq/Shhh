@@ -16,7 +16,7 @@
     <string name="settings_show_noti_output_device_title">볼륨 출력 장치 표시</string>
     <string name="settings_show_noti_output_device_summary">상태표시줄의 알림 아이콘에 현재 볼륨 출력 장치(스피커/헤드셋)를 표시합니다.</string>
     <string name="settings_show_noti_vol_level_title">볼륨 크기 표시</string>
-    <string name="settings_show_noti_vol_level_summary">상태표시줄의 알림 아이콘에 현재 미디어 볼륨 크기를 표시합니다.</string>
+    <string name="settings_show_noti_vol_level_summary">상태표시줄의 알림 아이콘에 현재 미디어 볼륨 크기를 표시합니다. 알림은 볼륨이 켜져 있을 때만 표시됩니다.</string>
 
     <string name="notification_channel_foreground_service">포어그라운드 서비스 (알림을 꺼주세요)</string>
     <string name="notification_channel_output_device">출력 장치</string>

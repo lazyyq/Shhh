@@ -399,7 +399,8 @@ public class VolumeWatcherService extends Service {
 
     @DrawableRes
     private int getCurrentOutputDeviceIconRes() {
-        return mHeadsetConnected ? R.drawable.ic_headset : R.drawable.ic_speaker;
+        return mHeadsetConnected ? R.drawable.ic_headset :
+                isMediaVolumeOn() ? R.drawable.ic_speaker : R.drawable.ic_speaker_mute;
     }
 
     @Override

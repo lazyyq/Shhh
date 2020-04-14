@@ -396,6 +396,7 @@ public class VolumeWatcherService extends Service {
     @Override
     public void onDestroy() {
         unregisterReceiver(mReceiver);
+        mHandler.removeCallbacks(mNotifyVolumeRunnable);
         NotificationManagerCompat manager = NotificationManagerCompat.from(this);
         manager.cancel(Const.Notification.ID_ONGOING);
         manager.cancel(Const.Notification.ID_OUTPUT_DEVICE);

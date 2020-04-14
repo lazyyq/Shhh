@@ -3,4 +3,9 @@
     <item
         android:id="@+id/menu_oss_license"
         android:title="@string/oss_license_title" />
+
+    <item
+        android:id="@+id/menu_check_permission"
+        android:title="@string/menu_check_permission" />
+
 </menu>

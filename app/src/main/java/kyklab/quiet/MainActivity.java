@@ -1,11 +1,13 @@
 package kyklab.quiet;
 
+import android.Manifest;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -15,11 +17,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 import androidx.preference.Preference;
@@ -34,9 +38,13 @@ import static kyklab.quiet.Utils.isOreoOrHigher;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final int PERMISSION_REQUEST_READ_PHONE_STATE = 100;
+
     private BroadcastReceiver mReceiver;
 
     private TextView tvServiceStatus, tvServiceDesc;
+
+    private boolean mPermissionGranted;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +56,8 @@ public class MainActivity extends AppCompatActivity {
         if (isOreoOrHigher()) {
             createNotificationChannel();
         }
+
+        checkPermission();
 
         tvServiceStatus = findViewById(R.id.tv_service_status);
         tvServiceDesc = findViewById(R.id.tv_service_desc);
@@ -154,6 +164,43 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void checkPermission() {
+        String permission = Manifest.permission.READ_PHONE_STATE;
+
+        // Check if permission is already granted
+        if (ContextCompat.checkSelfPermission(this, permission)
+                == PackageManager.PERMISSION_GRANTED) {
+            Log.d("checkPermission()", "Permission all granted");
+            mPermissionGranted = true;
+        } else {
+            // Check if we should show permission request explanation
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, permission)) {
+                new MaterialAlertDialogBuilder(this)
+                        .setTitle(R.string.dialog_permission_request_title)
+                        .setMessage(R.string.dialog_permission_request_message)
+                        .setNegativeButton(android.R.string.cancel, null)
+                        .setPositiveButton(android.R.string.ok, (dialog1, which) -> {
+                            ActivityCompat.requestPermissions(this, new String[]{permission},
+                                    PERMISSION_REQUEST_READ_PHONE_STATE);
+                        })
+                        .show();
+            } else {
+                ActivityCompat.requestPermissions(this, new String[]{permission},
+                        PERMISSION_REQUEST_READ_PHONE_STATE);
+            }
+            mPermissionGranted = false;
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == PERMISSION_REQUEST_READ_PHONE_STATE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                mPermissionGranted = true;
+            }
+        }
+    }
+
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
@@ -209,8 +256,20 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.menu_oss_license) {
-            startActivity(new Intent(this, OssLicensesMenuActivity.class));
+        switch (id) {
+            case R.id.menu_oss_license:
+                startActivity(new Intent(this, OssLicensesMenuActivity.class));
+                break;
+            case R.id.menu_check_permission:
+                checkPermission();
+                if (mPermissionGranted) {
+                    new MaterialAlertDialogBuilder(this)
+                            .setTitle(R.string.dialog_permission_already_granted_title)
+                            .setMessage(R.string.dialog_permission_already_granted_message)
+                            .setPositiveButton(android.R.string.ok, null)
+                            .show();
+                }
+                break;
         }
 
         return super.onOptionsItemSelected(item);

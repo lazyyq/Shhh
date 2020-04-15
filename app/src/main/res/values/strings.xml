@@ -9,6 +9,11 @@
     <string name="service_desc_on">Shhh! is monitoring the device\'s media volume. We will show you a notification when it is on.</string>
     <string name="service_desc_off">Shhh! is not monitoring the device\'s media volume at the moment.</string>
 
+    <string name="dialog_permission_request_title">Permission request</string>
+    <string name="dialog_permission_request_message">In order for the app to function normally, some permissions are necessary. Please confirm them in the following dialogs.</string>
+    <string name="dialog_permission_already_granted_title">Permission granted</string>
+    <string name="dialog_permission_already_granted_message">All required permissions are already granted.</string>
+
     <string name="settings_category_notification">Notification</string>
 
     <string name="settings_enable_on_headset_title">Enable when headset is connected</string>
@@ -39,4 +44,6 @@
 
     <string name="output_speaker">Speaker</string>
     <string name="output_headset">Headset</string>
+
+    <string name="menu_check_permission">Check permissions</string>
 </resources>

@@ -9,6 +9,11 @@
     <string name="service_desc_on">쉿!이 기기의 미디어 볼륨을 감시 중입니다. 미디어 볼륨이 켜져 있으면 알림을 표시해 드릴 겁니다.</string>
     <string name="service_desc_off">쉿!이 지금은 기기의 미디어 볼륨을 감시하고 있지 않습니다.</string>
 
+    <string name="dialog_permission_request_title">권한 요청</string>
+    <string name="dialog_permission_request_message">앱이 정상적으로 작동하기 위해선 몇몇 권한들이 반드시 필요합니다. 다음 팝업 화면에서 권한을 허용해주세요.</string>
+    <string name="dialog_permission_already_granted_title">권한 부여됨</string>
+    <string name="dialog_permission_already_granted_message">모든 필요한 권한들이 이미 부여되었습니다.</string>
+
     <string name="settings_category_notification">알림</string>
 
     <string name="settings_enable_on_headset_title">헤드셋이 연결되어 있을 때도 활성화</string>
@@ -39,4 +44,6 @@
 
     <string name="output_speaker">스피커</string>
     <string name="output_headset">헤드셋</string>
+
+    <string name="menu_check_permission">권한 확인</string>
 </resources>

@@ -28,7 +28,6 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
-import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreferenceCompat;
 
@@ -361,7 +360,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     public static class SettingsFragment extends PreferenceFragmentCompat
-            implements Preference.OnPreferenceClickListener, SharedPreferences.OnSharedPreferenceChangeListener {
+            implements SharedPreferences.OnSharedPreferenceChangeListener {
         @Override
         public void onResume() {
             super.onResume();
@@ -377,61 +376,6 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             setPreferencesFromResource(R.xml.root_preferences, rootKey);
-
-            // Enable on headset switch
-            SwitchPreferenceCompat enableOnHeadsetSwitch = findPreference(Prefs.Key.ENABLE_ON_HEADSET);
-            if (enableOnHeadsetSwitch != null) {
-                enableOnHeadsetSwitch.setOnPreferenceClickListener(this);
-            }
-
-            // Show output device in notification icon switch
-            SwitchPreferenceCompat showNotiOutputDevice = findPreference(Prefs.Key.SHOW_NOTI_OUTPUT_DEVICE);
-            if (showNotiOutputDevice != null) {
-                showNotiOutputDevice.setOnPreferenceClickListener(this);
-            }
-
-            // Show volume level in notification icon switch
-            SwitchPreferenceCompat showNotiVolumeLevel = findPreference(Prefs.Key.SHOW_NOTI_VOL_LEVEL);
-            if (showNotiVolumeLevel != null) {
-                showNotiVolumeLevel.setOnPreferenceClickListener(this);
-            }
-        }
-
-
-        @Override
-        public boolean onPreferenceClick(Preference preference) {
-            MainActivity activity = (MainActivity) getActivity();
-            if (activity == null) {
-                return false;
-            }
-
-            if (preference == findPreference(Prefs.Key.ENABLE_ON_HEADSET)) {
-                // If the service is already running, pass data to service
-                if (Utils.isServiceRunning(activity, VolumeWatcherService.class)) {
-                    Bundle bundle = new Bundle();
-                    bundle.putBoolean(Const.Intent.EXTRA_ENABLE_ON_HEADSET,
-                            Prefs.get().getBoolean(Prefs.Key.ENABLE_ON_HEADSET));
-                    activity.startWatcherService(Const.Intent.ACTION_UPDATE_SETTINGS, bundle);
-                }
-            } else if (preference == findPreference(Prefs.Key.SHOW_NOTI_OUTPUT_DEVICE)) {
-                // If the service is already running, pass data to service
-                if (Utils.isServiceRunning(activity, VolumeWatcherService.class)) {
-                    Bundle bundle = new Bundle();
-                    bundle.putBoolean(Const.Intent.EXTRA_SHOW_NOTI_OUTPUT_DEVICE,
-                            Prefs.get().getBoolean(Prefs.Key.SHOW_NOTI_OUTPUT_DEVICE));
-                    activity.startWatcherService(Const.Intent.ACTION_UPDATE_SETTINGS, bundle);
-                }
-            }
-            if (preference == findPreference(Prefs.Key.SHOW_NOTI_VOL_LEVEL)) {
-                // If the service is already running, pass data to service
-                if (Utils.isServiceRunning(activity, VolumeWatcherService.class)) {
-                    Bundle bundle = new Bundle();
-                    bundle.putBoolean(Const.Intent.EXTRA_SHOW_NOTI_VOLUME_LEVEL,
-                            Prefs.get().getBoolean(Prefs.Key.SHOW_NOTI_VOL_LEVEL));
-                    activity.startWatcherService(Const.Intent.ACTION_UPDATE_SETTINGS, bundle);
-                }
-            }
-            return false;
         }
 
         @Override
@@ -444,9 +388,13 @@ public class MainActivity extends AppCompatActivity {
                 SwitchPreferenceCompat pref = findPreference(key);
                 if (pref != null) {
                     boolean value = Prefs.get().getBoolean(key);
-                    if (value) activity.showAd();
-                    else activity.hideAd();
-                    pref.setChecked(value);
+                    if (value) {
+                        activity.showAd();
+                        if (!pref.isChecked()) pref.setChecked(true);
+                    } else {
+                        activity.hideAd();
+                        if (pref.isChecked()) pref.setChecked(false);
+                    }
                 }
             }
         }

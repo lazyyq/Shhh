@@ -8,6 +8,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -39,7 +40,8 @@ import static kyklab.quiet.Utils.isHeadsetConnected;
 import static kyklab.quiet.Utils.isOreoOrHigher;
 import static kyklab.quiet.Utils.muteStreamVolume;
 
-public class VolumeWatcherService extends Service {
+public class VolumeWatcherService extends Service
+        implements SharedPreferences.OnSharedPreferenceChangeListener {
     private static final String TAG = "VolumeWatcherService";
 
     private NotificationCompat.Builder mForegroundNotiBuilder,
@@ -244,16 +246,7 @@ public class VolumeWatcherService extends Service {
             // Show notification for first time
             updateVolumeNotification();
 
-        } else if (TextUtils.equals(action, Const.Intent.ACTION_UPDATE_SETTINGS)) {
-            // Update settings as per new preference changed by user
-            mEnableOnHeadset = intent.getBooleanExtra(
-                    Const.Intent.EXTRA_ENABLE_ON_HEADSET, mEnableOnHeadset);
-            mShowNotiOutputDevice = intent.getBooleanExtra(
-                    Const.Intent.EXTRA_SHOW_NOTI_OUTPUT_DEVICE, mShowNotiOutputDevice);
-            mShowNotiVolumeLevel = intent.getBooleanExtra(
-                    Const.Intent.EXTRA_SHOW_NOTI_VOLUME_LEVEL, mShowNotiVolumeLevel);
-
-            updateVolumeNotification();
+            Prefs.registerPrefChangeListener(this);
 
         } else if (TextUtils.equals(action, Const.Intent.ACTION_STOP_SERVICE)) {
             // Stop service button in notification clicked
@@ -420,6 +413,7 @@ public class VolumeWatcherService extends Service {
     @Override
     public void onDestroy() {
         unregisterReceiver(mReceiver);
+        Prefs.unregisterPrefChangeListener(this);
         mHandler.removeCallbacks(mNotifyVolumeRunnable);
         NotificationManagerCompat manager = NotificationManagerCompat.from(this);
         manager.cancel(Const.Notification.ID_ONGOING);
@@ -452,6 +446,22 @@ public class VolumeWatcherService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         return null;
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if (TextUtils.equals(key, Prefs.Key.ENABLE_ON_HEADSET)) {
+            mEnableOnHeadset = Prefs.get().getBoolean(key);
+            updateVolumeNotification();
+
+        } else if (TextUtils.equals(key, Prefs.Key.SHOW_NOTI_OUTPUT_DEVICE)) {
+            mShowNotiOutputDevice = Prefs.get().getBoolean(key);
+            updateVolumeNotification();
+
+        } else if (TextUtils.equals(key, Prefs.Key.SHOW_NOTI_VOL_LEVEL)) {
+            mShowNotiVolumeLevel = Prefs.get().getBoolean(key);
+            updateVolumeNotification();
+        }
     }
 
     /*private class VolumeChangedReceiver extends BroadcastReceiver {

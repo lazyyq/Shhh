@@ -44,6 +44,11 @@ public class VolumeWatcherService extends Service
         implements SharedPreferences.OnSharedPreferenceChangeListener {
     private static final String TAG = "VolumeWatcherService";
 
+    private static final int PENDING_REQ_CODE_STOP = 0,
+            PENDING_REQ_CODE_MUTE = 1,
+            PENDING_REQ_CODE_OPEN_APP = 2,
+            PENDING_REQ_CODE_FOREGROUND = 3;
+
     private NotificationCompat.Builder mForegroundNotiBuilder,
             mOutputDeviceNotiBuilder, mVolumeLevelNotiBuilder;
     private Notification.Builder mOutputDeviceNotiBuilderOreo, mVolumeLevelNotiBuilderOreo;
@@ -75,17 +80,21 @@ public class VolumeWatcherService extends Service
         Intent stopIntent = new Intent(this, VolumeWatcherService.class);
         stopIntent.setAction(Const.Intent.ACTION_STOP_SERVICE);
         PendingIntent pendingStopIntent =
-                PendingIntent.getService(this, 0, stopIntent,
+                PendingIntent.getService(this, PENDING_REQ_CODE_STOP, stopIntent,
                         PendingIntent.FLAG_UPDATE_CURRENT);
 
         // Intent for killing media volume
         Intent muteIntent = new Intent(this, VolumeWatcherService.class);
         muteIntent.setAction(Const.Intent.ACTION_MUTE_VOLUME);
         PendingIntent pendingMuteIntent =
-                PendingIntent.getService(this, 0, muteIntent,
+                PendingIntent.getService(this, PENDING_REQ_CODE_MUTE, muteIntent,
                         PendingIntent.FLAG_UPDATE_CURRENT);
 
         // Notification for actions for output device / volume level notification
+        PendingIntent pendingOpenAppIntent =
+                PendingIntent.getActivity(this, PENDING_REQ_CODE_OPEN_APP,
+                        new Intent(this, MainActivity.class),
+                        PendingIntent.FLAG_UPDATE_CURRENT);
         if (isOreoOrHigher()) {
             // Notification action is actually compatible with API >= 23(M)
             // so TODO: Consider notification action for API 23~25
@@ -98,11 +107,13 @@ public class VolumeWatcherService extends Service
 
             mOutputDeviceNotiBuilderOreo =
                     new Notification.Builder(this, Const.Notification.CHANNEL_OUTPUT_DEVICE)
+                            .setContentIntent(pendingOpenAppIntent)
                             .addAction(stopActionOreo)
                             .addAction(muteActionOreo)
                             .setOngoing(true);
             mVolumeLevelNotiBuilderOreo =
                     new Notification.Builder(this, Const.Notification.CHANNEL_VOLUME_LEVEL)
+                            .setContentIntent(pendingOpenAppIntent)
                             .addAction(stopActionOreo)
                             .addAction(muteActionOreo)
                             .setOngoing(true);
@@ -117,11 +128,13 @@ public class VolumeWatcherService extends Service
             // Notification for output device
             mOutputDeviceNotiBuilder =
                     new NotificationCompat.Builder(this, Const.Notification.CHANNEL_OUTPUT_DEVICE)
+                            .setContentIntent(pendingOpenAppIntent)
                             .addAction(stopAction)
                             .addAction(muteAction)
                             .setOngoing(true);
             mVolumeLevelNotiBuilder =
                     new NotificationCompat.Builder(this, Const.Notification.CHANNEL_VOLUME_LEVEL)
+                            .setContentIntent(pendingOpenAppIntent)
                             .addAction(stopAction)
                             .addAction(muteAction)
                             .setOngoing(true);
@@ -145,7 +158,7 @@ public class VolumeWatcherService extends Service
             //notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             notificationIntent.putExtra(Const.Intent.EXTRA_NOTIFICATION_CLICKED, true);
             PendingIntent pendingIntent =
-                    PendingIntent.getActivity(this, 0, notificationIntent,
+                    PendingIntent.getActivity(this, PENDING_REQ_CODE_FOREGROUND, notificationIntent,
                             PendingIntent.FLAG_UPDATE_CURRENT);
 
             mForegroundNotiBuilder

@@ -28,4 +28,16 @@
             app:title="@string/settings_show_noti_vol_level_title" />
     </PreferenceCategory>
 
+    <PreferenceCategory
+        android:title="@string/settings_category_app"
+        app:iconSpaceReserved="false">
+
+        <SwitchPreferenceCompat
+            app:defaultValue="@bool/pref_key_show_ad_default"
+            app:iconSpaceReserved="false"
+            app:key="@string/pref_key_show_ad"
+            app:summary="@string/settings_show_ad_summary"
+            app:title="@string/settings_show_ad_title" />
+    </PreferenceCategory>
+
 </PreferenceScreen>

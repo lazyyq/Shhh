@@ -7,6 +7,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -15,6 +16,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -30,10 +32,15 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreferenceCompat;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdSize;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.oss.licenses.OssLicensesMenuActivity;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.kyleduo.switchbutton.SwitchButton;
 
+import static kyklab.quiet.Utils.isDebug;
 import static kyklab.quiet.Utils.isOreoOrHigher;
 
 public class MainActivity extends AppCompatActivity {
@@ -43,6 +50,11 @@ public class MainActivity extends AppCompatActivity {
     private BroadcastReceiver mReceiver;
 
     private TextView tvServiceStatus, tvServiceDesc;
+
+    private FrameLayout mAdContainer;
+    private AdView mAdView;
+    private Runnable mShowAdRunnable;
+    private boolean mAdInitialized;
 
     private boolean mPermissionGranted;
 
@@ -57,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
             createNotificationChannel();
         }
 
+        initAd();
         checkPermission();
 
         tvServiceStatus = findViewById(R.id.tv_service_status);
@@ -112,6 +125,60 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         };
+
+        Prefs.get().setBoolean(Prefs.Key.FIRST_LAUNCH, false);
+    }
+
+    private void initAd() {
+        if (Prefs.get().getBoolean(Prefs.Key.FIRST_LAUNCH)) {
+            new MaterialAlertDialogBuilder(this)
+                    .setTitle(R.string.dialog_show_ad_title)
+                    .setMessage(R.string.dialog_show_ad_message)
+                    .setNegativeButton(R.string.no, (dialog, which) -> {
+                        Prefs.get().setBoolean(Prefs.Key.SHOW_AD, false);
+                        hideAd();
+                    })
+                    .setPositiveButton(R.string.yes, (dialog, which) -> {
+                        Prefs.get().setBoolean(Prefs.Key.SHOW_AD, true);
+                        showAd();
+                    })
+                    .setCancelable(false)
+                    .show();
+        } else if (Prefs.get().getBoolean(Prefs.Key.SHOW_AD)) {
+            showAd();
+        }
+    }
+
+    private void showAd() {
+        if (mShowAdRunnable == null) {
+            mShowAdRunnable = () -> {
+                if (!mAdInitialized) {
+                    MobileAds.initialize(MainActivity.this);
+                    mAdInitialized = true;
+                }
+                AdRequest adRequest = new AdRequest.Builder().build();
+                runOnUiThread(() -> mAdView.loadAd(adRequest));
+            };
+        }
+        if (mAdContainer == null) {
+            mAdContainer = findViewById(R.id.adContainer);
+        }
+        if (mAdView == null) {
+            mAdView = new AdView(this);
+            mAdView.setAdSize(AdSize.BANNER);
+            mAdView.setAdUnitId(getString(
+                    isDebug() ? R.string.banner_ad_unit_debug_id : R.string.banner_ad_unit_id));
+        }
+        if (mAdView.getParent() == null) {
+            mAdContainer.addView(mAdView);
+        }
+        new Thread(mShowAdRunnable).start();
+    }
+
+    private void hideAd() {
+        if (mAdContainer != null) {
+            mAdContainer.removeView(mAdView);
+        }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -294,7 +361,18 @@ public class MainActivity extends AppCompatActivity {
 
 
     public static class SettingsFragment extends PreferenceFragmentCompat
-            implements Preference.OnPreferenceClickListener {
+            implements Preference.OnPreferenceClickListener, SharedPreferences.OnSharedPreferenceChangeListener {
+        @Override
+        public void onResume() {
+            super.onResume();
+            Prefs.registerPrefChangeListener(this);
+        }
+
+        @Override
+        public void onPause() {
+            Prefs.unregisterPrefChangeListener(this);
+            super.onPause();
+        }
 
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
@@ -354,6 +432,23 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
             return false;
+        }
+
+        @Override
+        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+            if (TextUtils.equals(key, Prefs.Key.SHOW_AD)) {
+                MainActivity activity = (MainActivity) getActivity();
+                if (activity == null) {
+                    return;
+                }
+                SwitchPreferenceCompat pref = findPreference(key);
+                if (pref != null) {
+                    boolean value = Prefs.get().getBoolean(key);
+                    if (value) activity.showAd();
+                    else activity.hideAd();
+                    pref.setChecked(value);
+                }
+            }
         }
     }
 }

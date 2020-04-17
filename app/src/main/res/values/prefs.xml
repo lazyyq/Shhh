@@ -13,4 +13,7 @@
 
     <string name="pref_key_show_noti_vol_level">show_noti_vol_level</string>
     <bool name="pref_key_show_noti_vol_level_default">false</bool>
+
+    <string name="pref_key_show_ad">show_ad</string>
+    <bool name="pref_key_show_ad_default">true</bool>
 </resources>

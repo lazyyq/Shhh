@@ -23,7 +23,6 @@ public class Const {
         // Actions
         public static final String ACTION_START_SERVICE = "kyklab.quiet.action.START_SERVICE";
         public static final String ACTION_STOP_SERVICE = "kyklab.quiet.action.STOP_SERVICE";
-        public static final String ACTION_UPDATE_SETTINGS = "kyklab.quiet.action.UPDATE_SETTINGS";
         public static final String ACTION_SERVICE_STARTED = "kyklab.quiet.action.SERVICE_STARTED";
         public static final String ACTION_SERVICE_STOPPED = "kyklab.quiet.action.SERVICE_STOPPED";
         public static final String ACTION_MUTE_VOLUME = "kyklab.quite.action.MUTE_VOLUME";
@@ -31,10 +30,7 @@ public class Const {
         public static final String ACTION_VOLUME_CHANGED = "android.media.VOLUME_CHANGED_ACTION";
 
         // Extras
-        public static final String EXTRA_ENABLE_ON_HEADSET = "kyklab.quiet.extra.ENABLE_ON_HEADSET";
         public static final String EXTRA_NOTIFICATION_CLICKED = "kyklab.quiet.extra.NOTIFICATION_CLICKED";
-        public static final String EXTRA_SHOW_NOTI_OUTPUT_DEVICE = "kyklab.quiet.extra.SHOW_NOTI_OUTPUT_DEVICE";
-        public static final String EXTRA_SHOW_NOTI_VOLUME_LEVEL = "kyklab.quiet.extra.SHOW_NOTI_VOLUME_LEVEL";
 
         public static final String EXTRA_VOLUME_STREAM_TYPE = "android.media.EXTRA_VOLUME_STREAM_TYPE";
         public static final String EXTRA_VOLUME_STREAM_VALUE = "android.media.EXTRA_VOLUME_STREAM_VALUE";

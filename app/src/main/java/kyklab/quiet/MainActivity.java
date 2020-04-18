@@ -369,8 +369,9 @@ public class MainActivity extends AppCompatActivity {
 
 
     public static class SettingsFragment extends PreferenceFragmentCompat
-            implements SharedPreferences.OnSharedPreferenceChangeListener {
+            implements Preference.OnPreferenceClickListener, SharedPreferences.OnSharedPreferenceChangeListener {
 
+        private Preference mOpenNotiSettings;
         private TimePreference mForceMuteFrom, mForceMuteTo;
 
         @Override
@@ -383,8 +384,15 @@ public class MainActivity extends AppCompatActivity {
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             setPreferencesFromResource(R.xml.root_preferences, rootKey);
 
+            mOpenNotiSettings = findPreference(Prefs.Key.OPEN_NOTI_SETTINGS);
             mForceMuteFrom = findPreference(Prefs.Key.FORCE_MUTE_FROM);
             mForceMuteTo = findPreference(Prefs.Key.FORCE_MUTE_TO);
+
+            if (isOreoOrHigher()) {
+                mOpenNotiSettings.setOnPreferenceClickListener(this);
+            } else {
+                mOpenNotiSettings.setVisible(false);
+            }
         }
 
         @Override
@@ -396,6 +404,29 @@ public class MainActivity extends AppCompatActivity {
             updateForceMuteFromSummary();
             updateForceMuteToSummary();
             updateForceMuteScheduleVisibility(null);
+        }
+
+        @Override
+        public boolean onPreferenceClick(Preference preference) {
+            if (preference == mOpenNotiSettings) {
+                if (isOreoOrHigher()) {
+                    Intent intent = new Intent();
+                    intent.setAction(Settings.ACTION_APP_NOTIFICATION_SETTINGS);
+                    intent.putExtra(Settings.EXTRA_APP_PACKAGE, BuildConfig.APPLICATION_ID);
+                    startActivity(intent);
+                } else {
+                    Context context = getContext();
+                    if (context == null) {
+                        return false;
+                    }
+                    new MaterialAlertDialogBuilder(context)
+                            .setTitle(R.string.dialog_available_oreo_or_higher_title)
+                            .setMessage(R.string.dialog_available_oreo_or_higher_message)
+                            .setPositiveButton(android.R.string.ok, null)
+                            .show();
+                }
+            }
+            return false;
         }
 
         @Override

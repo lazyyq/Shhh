@@ -114,6 +114,7 @@ public class Prefs {
         public static final String ENABLE_ON_HEADSET = r.getString(R.string.pref_key_enable_on_headset);
         public static final String SHOW_NOTI_OUTPUT_DEVICE = r.getString(R.string.pref_key_show_noti_output_device);
         public static final String SHOW_NOTI_VOL_LEVEL = r.getString(R.string.pref_key_show_noti_vol_level);
+        public static final String OPEN_NOTI_SETTINGS = r.getString(R.string.pref_key_open_notification_settings);
         public static final String SHOW_AD = r.getString(R.string.pref_key_show_ad);
         public static final String FORCE_MUTE = r.getString(R.string.pref_key_force_mute);
         public static final String FORCE_MUTE_WHEN = r.getString(R.string.pref_key_force_mute_when);

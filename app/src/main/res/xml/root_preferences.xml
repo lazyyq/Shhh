@@ -19,6 +19,7 @@
             app:singleLineTitle="false"
             app:summary="@string/settings_show_noti_output_device_summary"
             app:title="@string/settings_show_noti_output_device_title" />
+
         <SwitchPreferenceCompat
             app:defaultValue="@bool/pref_key_show_noti_vol_level_default"
             app:iconSpaceReserved="false"
@@ -26,6 +27,12 @@
             app:singleLineTitle="false"
             app:summary="@string/settings_show_noti_vol_level_summary"
             app:title="@string/settings_show_noti_vol_level_title" />
+
+        <Preference
+            app:iconSpaceReserved="false"
+            app:key="@string/pref_key_open_notification_settings"
+            app:summary="@string/settings_open_notification_settings_summary"
+            app:title="@string/settings_open_notification_settings_title" />
     </PreferenceCategory>
 
     <PreferenceCategory

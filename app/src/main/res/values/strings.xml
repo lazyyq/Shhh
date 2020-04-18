@@ -16,6 +16,8 @@
     <string name="dialog_permission_request_message">In order for the app to function normally, some permissions are necessary. Please confirm them in the following dialogs.</string>
     <string name="dialog_permission_already_granted_title">Permission granted</string>
     <string name="dialog_permission_already_granted_message">All required permissions are already granted.</string>
+    <string name="dialog_available_oreo_or_higher_title">Android 8.0 or higher required</string>
+    <string name="dialog_available_oreo_or_higher_message">Your Android version is too low. This feature required at least Android version 8.0.</string>
     <string name="dialog_show_ad_title">May we show you an ad?</string>
     <string name="dialog_show_ad_message">"Showing ads can be a great help to the developer. However since your pleasant user experience with this app is the top priority, you should be the one to have a choice.
 If you allow us to show you an ad, a small ad banner will be displayed at the bottom of the screen only when the app is running, and if you refuse, we\'ll never show you an ad again without your permission.
@@ -31,6 +33,8 @@ Would you allow us to show you an ad?"</string>
     <string name="settings_show_noti_output_device_summary">Show current volume output device(Speaker/Headset) in notification icon in status bar.</string>
     <string name="settings_show_noti_vol_level_title">Show volume level</string>
     <string name="settings_show_noti_vol_level_summary">Show current media volume level in notification icon in status bar. Notification will only be shown when media volume is on.</string>
+    <string name="settings_open_notification_settings_title">Open notification settings</string>
+    <string name="settings_open_notification_settings_summary">Open settings window where you can find preferences for each notification provided the app including system priority and whether to show notification icon in status bar.</string>
     <string name="settings_force_mute_title">Force mute (Experimental)</string>
     <string name="settings_force_mute_summary">Force mute and prevent media volume from changing. If a change in volume is detected, the app will try to put it back down to 0. Works only when headset is not connected.</string>
     <string name="settings_force_mute_when_title">When to force mute</string>

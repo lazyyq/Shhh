@@ -16,6 +16,8 @@
     <string name="dialog_permission_request_message">앱이 정상적으로 작동하기 위해선 몇몇 권한들이 반드시 필요합니다. 다음 팝업 화면에서 권한을 허용해주세요.</string>
     <string name="dialog_permission_already_granted_title">권한 부여됨</string>
     <string name="dialog_permission_already_granted_message">모든 필요한 권한들이 이미 부여되었습니다.</string>
+    <string name="dialog_available_oreo_or_higher_title">안드로이드 8.0 이상 필요</string>
+    <string name="dialog_available_oreo_or_higher_message">안드로이드 버전이 너무 낮습니다. 이 기능을 사용하려면 적어도 안드로이드 버전 8.0이 필요합니다.</string>
     <string name="dialog_show_ad_title">광고를 표시해도 될까요?</string>
     <string name="dialog_show_ad_message">"광고를 표시하는 것은 앱 개발자에게 큰 도움이 됩니다. 하지만 무엇보다 당신의 쾌적한 사용 경험이 우선이기에 선택권은 당신에게 있어야 합니다.
 만약 광고를 표시하는 것을 허락해 주신다면 앱을 실행 중일 때에만 화면 하단에 작은 광고 배너가 표시되며, 광고를 보는 것을 원치 않으시면 허락 없이는 다시는 광고를 표시하지 않을 것입니다.
@@ -31,6 +33,8 @@
     <string name="settings_show_noti_output_device_summary">상태표시줄의 알림 아이콘에 현재 볼륨 출력 장치(스피커/헤드셋)를 표시합니다.</string>
     <string name="settings_show_noti_vol_level_title">볼륨 크기 표시</string>
     <string name="settings_show_noti_vol_level_summary">상태표시줄의 알림 아이콘에 현재 미디어 볼륨 크기를 표시합니다. 알림은 볼륨이 켜져 있을 때만 표시됩니다.</string>
+    <string name="settings_open_notification_settings_title">알림 설정 열기</string>
+    <string name="settings_open_notification_settings_summary">앱에서 제공하는 각 알림의 시스템 우선순위, 상태표시줄에 아이콘 표시 여부 등 자세한 설정이 가능한 설정 창을 엽니다.</string>
     <string name="settings_force_mute_title">강제 음소거 (실험적)</string>
     <string name="settings_force_mute_summary">음소거 모드를 강제하고 미디어 볼륨이 변경되는 것을 방지합니다. 볼륨 변경이 감지되면 앱이 볼륨을 다시 0으로 돌려놓으려고 시도할 것입니다. 헤드셋이 연결되어 있지 않을 때만 작동합니다.</string>
     <string name="settings_force_mute_when_title">강제 음소거 실행 시간</string>

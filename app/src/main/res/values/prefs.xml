@@ -14,6 +14,8 @@
     <string name="pref_key_show_noti_vol_level">show_noti_vol_level</string>
     <bool name="pref_key_show_noti_vol_level_default">false</bool>
 
+    <string name="pref_key_open_notification_settings">open_notification_settings</string>
+
     <string name="pref_key_force_mute">force_mute</string>
     <bool name="pref_key_force_mute_default">false</bool>
 

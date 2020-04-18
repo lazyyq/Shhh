@@ -28,6 +28,8 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.DialogFragment;
+import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreferenceCompat;
 
@@ -38,6 +40,11 @@ import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.oss.licenses.OssLicensesMenuActivity;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.kyleduo.switchbutton.SwitchButton;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 import static kyklab.quiet.Utils.isDebug;
 import static kyklab.quiet.Utils.isOreoOrHigher;
@@ -182,23 +189,25 @@ public class MainActivity extends AppCompatActivity {
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void createNotificationChannel() {
-        NotificationChannel channel;
+        NotificationChannel[] channels = {
+                new NotificationChannel(Const.Notification.CHANNEL_ONGOING,
+                        getString(R.string.notification_channel_foreground_service),
+                        NotificationManager.IMPORTANCE_LOW), // IMPORTANCE_LOW : no sound
+                new NotificationChannel(Const.Notification.CHANNEL_OUTPUT_DEVICE,
+                        getString(R.string.notification_channel_output_device),
+                        NotificationManager.IMPORTANCE_LOW),
+                new NotificationChannel(Const.Notification.CHANNEL_VOLUME_LEVEL,
+                        getString(R.string.notification_channel_volume_level),
+                        NotificationManager.IMPORTANCE_LOW),
+                new NotificationChannel(Const.Notification.CHANNEL_FORCE_MUTE,
+                        getString(R.string.notification_channel_force_mute),
+                        NotificationManager.IMPORTANCE_LOW)
+        };
+
         NotificationManagerCompat manager = NotificationManagerCompat.from(this);
-
-        channel = new NotificationChannel(Const.Notification.CHANNEL_ONGOING,
-                getString(R.string.notification_channel_foreground_service),
-                NotificationManager.IMPORTANCE_LOW); // IMPORTANCE_LOW : no sound
-        manager.createNotificationChannel(channel);
-
-        channel = new NotificationChannel(Const.Notification.CHANNEL_OUTPUT_DEVICE,
-                getString(R.string.notification_channel_output_device),
-                NotificationManager.IMPORTANCE_LOW);
-        manager.createNotificationChannel(channel);
-
-        channel = new NotificationChannel(Const.Notification.CHANNEL_VOLUME_LEVEL,
-                getString(R.string.notification_channel_volume_level),
-                NotificationManager.IMPORTANCE_LOW);
-        manager.createNotificationChannel(channel);
+        for (NotificationChannel channel : channels) {
+            manager.createNotificationChannel(channel);
+        }
     }
 
     private void startWatcherService() {
@@ -361,11 +370,8 @@ public class MainActivity extends AppCompatActivity {
 
     public static class SettingsFragment extends PreferenceFragmentCompat
             implements SharedPreferences.OnSharedPreferenceChangeListener {
-        @Override
-        public void onResume() {
-            super.onResume();
-            Prefs.registerPrefChangeListener(this);
-        }
+
+        private TimePreference mForceMuteFrom, mForceMuteTo;
 
         @Override
         public void onPause() {
@@ -376,6 +382,20 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             setPreferencesFromResource(R.xml.root_preferences, rootKey);
+
+            mForceMuteFrom = findPreference(Prefs.Key.FORCE_MUTE_FROM);
+            mForceMuteTo = findPreference(Prefs.Key.FORCE_MUTE_TO);
+        }
+
+        @Override
+        public void onResume() {
+            super.onResume();
+
+            Prefs.registerPrefChangeListener(this);
+
+            updateForceMuteFromSummary();
+            updateForceMuteToSummary();
+            updateForceMuteScheduleVisibility(null);
         }
 
         @Override
@@ -396,7 +416,61 @@ public class MainActivity extends AppCompatActivity {
                         if (pref.isChecked()) pref.setChecked(false);
                     }
                 }
+
+            } else if (TextUtils.equals(key, Prefs.Key.FORCE_MUTE_WHEN)) {
+                updateForceMuteScheduleVisibility(null);
+
+            } else if (TextUtils.equals(key, Prefs.Key.FORCE_MUTE_FROM)) {
+                updateForceMuteFromSummary();
+
+            } else if (TextUtils.equals(key, Prefs.Key.FORCE_MUTE_TO)) {
+                updateForceMuteToSummary();
+
             }
+        }
+
+        private void updateForceMuteFromSummary() {
+            mForceMuteFrom.setSummary(getTimeFromMinutes(
+                    Prefs.get().getInt(Prefs.Key.FORCE_MUTE_FROM), DateFormat.SHORT));
+        }
+
+        private void updateForceMuteToSummary() {
+            mForceMuteTo.setSummary(getTimeFromMinutes(
+                    Prefs.get().getInt(Prefs.Key.FORCE_MUTE_TO), DateFormat.SHORT));
+        }
+
+        private void updateForceMuteScheduleVisibility(@Nullable Boolean visible) {
+            visible = visible != null ? visible : Prefs.get().getString(Prefs.Key.FORCE_MUTE_WHEN)
+                    .equals(Prefs.Value.FORCE_MUTE_WHEN_SCHEDULED);
+            mForceMuteFrom.setVisible(visible);
+            mForceMuteTo.setVisible(visible);
+        }
+
+        @Override
+        public void onDisplayPreferenceDialog(Preference preference) {
+            DialogFragment dialogFragment = null;
+            if (preference instanceof TimePreference) {
+                dialogFragment = TimePreferenceDialogFragmentCompat.newInstance(preference.getKey());
+            }
+            if (dialogFragment != null) {
+                dialogFragment.setTargetFragment(this, 0);
+                if (getFragmentManager() != null) {
+                    dialogFragment.show(getFragmentManager(), null);
+                }
+            } else {
+                super.onDisplayPreferenceDialog(preference);
+            }
+        }
+
+        private static CharSequence getTimeFromMinutes(int totalMins, @Nullable Integer style) {
+            int hours = totalMins / 60, mins = totalMins % 60, secs = 0;
+            Calendar cal = Calendar.getInstance();
+            cal.set(Calendar.HOUR_OF_DAY, hours);
+            cal.set(Calendar.MINUTE, mins);
+            cal.set(Calendar.SECOND, secs);
+            Date date = cal.getTime();
+            DateFormat format = SimpleDateFormat.getTimeInstance(style != null ? style : DateFormat.MEDIUM);
+            return format.format(date);
         }
     }
 }

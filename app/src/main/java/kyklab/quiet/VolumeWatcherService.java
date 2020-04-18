@@ -1,5 +1,6 @@
 package kyklab.quiet;
 
+import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -14,6 +15,7 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Icon;
 import android.media.AudioManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -32,6 +34,9 @@ import androidx.core.graphics.drawable.IconCompat;
 import com.kennyc.textdrawable.TextDrawable;
 import com.kennyc.textdrawable.TextDrawableBuilder;
 
+import java.util.Calendar;
+import java.util.Locale;
+
 import static kyklab.quiet.Utils.extrasToString;
 import static kyklab.quiet.Utils.getStreamVolume;
 import static kyklab.quiet.Utils.isCallActive;
@@ -47,10 +52,16 @@ public class VolumeWatcherService extends Service
     private static final int PENDING_REQ_CODE_STOP = 0,
             PENDING_REQ_CODE_MUTE = 1,
             PENDING_REQ_CODE_OPEN_APP = 2,
-            PENDING_REQ_CODE_FOREGROUND = 3;
+            PENDING_REQ_CODE_FOREGROUND = 3,
+            PENDING_REQ_CODE_START_FORCE_MUTE = 10,
+            PENDING_REQ_CODE_STOP_FORCE_MUTE = 11,
+            PENDING_REQ_CODE_STOP_FORCE_MUTE_USER = 12;
+
+    private PendingIntent mStartForceMuteIntent, mStopForceMuteIntent;
 
     private NotificationCompat.Builder mForegroundNotiBuilder,
-            mOutputDeviceNotiBuilder, mVolumeLevelNotiBuilder;
+            mOutputDeviceNotiBuilder, mVolumeLevelNotiBuilder,
+            mForceMuteNotiBuiler;
     private Notification.Builder mOutputDeviceNotiBuilderOreo, mVolumeLevelNotiBuilderOreo;
 
     // Receiver for broadcast events (volume changed, headset plugged, etc..)
@@ -62,7 +73,8 @@ public class VolumeWatcherService extends Service
     private boolean
             mEnableOnHeadset, mShowNotiOutputDevice, mShowNotiVolumeLevel, // App settings
             mCallActive, // There's an active call
-            mHeadsetConnected; // Headset connection status
+            mHeadsetConnected, // Headset connection status
+            mForceMute = false; // Force mute mode
 
     private int mVol; // Current media volume
 
@@ -166,6 +178,24 @@ public class VolumeWatcherService extends Service
                     .setContentIntent(pendingIntent);
         }
 
+        /*
+         * Force mute mode notification
+         */
+        Intent stopForceMuteIntent = new Intent(this, VolumeWatcherService.class);
+        stopForceMuteIntent.setAction(Const.Intent.ACTION_STOP_FORCE_MUTE_USER);
+        PendingIntent pendingStopForceMuteIntent =
+                PendingIntent.getService(this, PENDING_REQ_CODE_STOP_FORCE_MUTE_USER,
+                        stopForceMuteIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        mForceMuteNotiBuiler =
+                new NotificationCompat.Builder(this, Const.Notification.CHANNEL_FORCE_MUTE)
+                        .setContentTitle(getString(R.string.notification_force_mute_title))
+                        .setContentText(getString(R.string.notification_force_mute_text))
+                        .setStyle(new NotificationCompat.BigTextStyle())
+                        .setSmallIcon(R.drawable.ic_block)
+                        .setContentIntent(pendingStopForceMuteIntent)
+                        .setOngoing(true);
+
+
         // Receiver for volume change, headset connection detection
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(Const.Intent.ACTION_VOLUME_CHANGED);
@@ -184,16 +214,27 @@ public class VolumeWatcherService extends Service
                             extras.getInt(Const.Intent.EXTRA_VOLUME_STREAM_TYPE, -1)
                                     == AudioManager.STREAM_MUSIC) {
                         updateMediaVolume(intent);
-                        updateVolumeNotification();
+                        if (mForceMute && !mHeadsetConnected && isMediaVolumeOn()) {
+                            Utils.muteStreamVolume(
+                                    VolumeWatcherService.this, AudioManager.STREAM_MUSIC);
+                        } else {
+                            updateVolumeNotification();
+                        }
                     }
+
                 } else if (TextUtils.equals(action, Intent.ACTION_HEADSET_PLUG) ||
                         TextUtils.equals(action, BluetoothAdapter.ACTION_CONNECTION_STATE_CHANGED)) {
                     updateMediaVolume(null);
                     updateHeadsetStatus(intent);
                     updateVolumeNotification();
+
                 } else if (TextUtils.equals(action, TelephonyManager.ACTION_PHONE_STATE_CHANGED)) {
                     updateCallStatus(intent);
                     updateVolumeNotification();
+
+                } else if (TextUtils.equals(action, Const.Intent.ACTION_UPDATE_FORCE_MUTE_ALARMS)) {
+                    updateForceMuteAlarms();
+
                 }
             }
         };
@@ -238,6 +279,8 @@ public class VolumeWatcherService extends Service
             updateMediaVolume(null);
             updateHeadsetStatus(null);
             updateCallStatus(null);
+            updateForceMuteStatus(null);
+            updateForceMuteAlarms();
 
             // Notify we started service
             sendBroadcast(new Intent(Const.Intent.ACTION_SERVICE_STARTED));
@@ -271,6 +314,19 @@ public class VolumeWatcherService extends Service
 
         } else if (TextUtils.equals(action, Const.Intent.ACTION_MUTE_VOLUME)) {
             muteStreamVolume(this, AudioManager.STREAM_MUSIC);
+
+        } else if (TextUtils.equals(action, Const.Intent.ACTION_START_FORCE_MUTE)) {
+            updateForceMuteStatus(true);
+            Log.d(TAG, "start alarm triggered");
+
+        } else if (TextUtils.equals(action, Const.Intent.ACTION_STOP_FORCE_MUTE)) {
+            updateForceMuteStatus(false);
+            Log.d(TAG, "stop alarm triggered");
+
+        } else if (TextUtils.equals(action, Const.Intent.ACTION_STOP_FORCE_MUTE_USER)) {
+            updateForceMuteStatus(false);
+            Log.d(TAG, "stop by user");
+
         }
 
         return START_NOT_STICKY;
@@ -413,6 +469,134 @@ public class VolumeWatcherService extends Service
         }
     }
 
+    /**
+     * Set force mute mode status
+     *
+     * @param enabled New status for force mute mode.
+     *                If null, automatically set current status based on preferences.
+     */
+    private void updateForceMuteStatus(@Nullable Boolean enabled) {
+        if (enabled != null) {
+            mForceMute = enabled;
+        } else {
+            Calendar cal = Calendar.getInstance();
+            int curHour = cal.get(Calendar.HOUR_OF_DAY), curMin = cal.get(Calendar.MINUTE);
+            int totalMins = curHour * 60 + curMin;
+            boolean forceMuteOn = Prefs.get().getBoolean(Prefs.Key.FORCE_MUTE);
+            boolean forceMuteAlwaysOn = Prefs.get().getString(Prefs.Key.FORCE_MUTE_WHEN)
+                    .equals(Prefs.Value.FORCE_MUTE_WHEN_ALWAYS_ON);
+            int forceMuteFrom = Prefs.get().getInt(Prefs.Key.FORCE_MUTE_FROM),
+                    forceMuteTo = Prefs.get().getInt(Prefs.Key.FORCE_MUTE_TO);
+
+            Log.d(TAG, "forceMuteFrom:" + forceMuteFrom + ", forceMuteTo:" + forceMuteTo + ", totalMins:" + totalMins);
+
+            boolean shouldCurrentlyBeActive;
+            if (forceMuteFrom < forceMuteTo) {
+                shouldCurrentlyBeActive = forceMuteFrom <= totalMins && totalMins < forceMuteTo;
+            } else if (forceMuteFrom > forceMuteTo) {
+                shouldCurrentlyBeActive = forceMuteFrom <= totalMins || totalMins < forceMuteTo;
+            } else {
+                shouldCurrentlyBeActive = false;
+            }
+
+            mForceMute = forceMuteOn && (forceMuteAlwaysOn || shouldCurrentlyBeActive);
+        }
+        Log.d(TAG, "new force_mute status:" + mForceMute);
+        if (mForceMute) {
+            NotificationManagerCompat.from(this).notify(
+                    Const.Notification.ID_FORCE_MUTE, mForceMuteNotiBuiler.build());
+            if (!mHeadsetConnected && isMediaVolumeOn()) {
+                muteStreamVolume(this, AudioManager.STREAM_MUSIC);
+            }
+        } else {
+            NotificationManagerCompat.from(this).cancel(Const.Notification.ID_FORCE_MUTE);
+        }
+    }
+
+    /**
+     * Set/unset alarms for start/stopping force mute mode based on preferences
+     */
+    private void updateForceMuteAlarms() {
+        if (!Prefs.get().getBoolean(Prefs.Key.FORCE_MUTE)) {
+            cancelForceMuteAlarms();
+            return;
+        }
+
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        if (alarmManager == null) {
+            return;
+        }
+        Calendar cal;
+        Intent intent;
+        int start = Prefs.get().getInt(Prefs.Key.FORCE_MUTE_FROM);
+        int end = Prefs.get().getInt(Prefs.Key.FORCE_MUTE_TO);
+        if (start == end) {
+            cancelForceMuteAlarms();
+        }
+
+        int hours, mins, secs = 0;
+
+        // Set start force mute mode alarm
+        hours = start / 60;
+        mins = start % 60;
+        cal = Calendar.getInstance();
+        cal.set(Calendar.HOUR_OF_DAY, hours);
+        cal.set(Calendar.MINUTE, mins);
+        cal.set(Calendar.SECOND, secs);
+        if (cal.getTimeInMillis() < System.currentTimeMillis()) {
+            cal.add(Calendar.DAY_OF_YEAR, 1);
+        }
+        intent = new Intent(this, VolumeWatcherService.class);
+        intent.setAction(Const.Intent.ACTION_START_FORCE_MUTE);
+        if (isDebug()) {
+            intent.putExtra("triggered", Calendar.getInstance(Locale.getDefault()).getTime().toString());
+            intent.putExtra("target", cal.getTime().toString());
+        }
+        mStartForceMuteIntent = PendingIntent.getService(this,
+                PENDING_REQ_CODE_START_FORCE_MUTE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
+            alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(),
+                    AlarmManager.INTERVAL_DAY, mStartForceMuteIntent);
+
+        Log.d(TAG, "registered start alarm for " + cal.getTime().toString());
+
+        // Set stop force mute mode alarm
+        hours = end / 60;
+        mins = end % 60;
+        cal = Calendar.getInstance();
+        cal.set(Calendar.HOUR_OF_DAY, hours);
+        cal.set(Calendar.MINUTE, mins);
+        cal.set(Calendar.SECOND, secs);
+        if (cal.getTimeInMillis() < System.currentTimeMillis()) {
+            cal.add(Calendar.DAY_OF_YEAR, 1);
+        }
+        intent = new Intent(this, VolumeWatcherService.class);
+        intent.setAction(Const.Intent.ACTION_STOP_FORCE_MUTE);
+        if (isDebug()) {
+            intent.putExtra("triggered", Calendar.getInstance(Locale.getDefault()).getTime().toString());
+            intent.putExtra("target", cal.getTime().toString());
+        }
+        mStopForceMuteIntent = PendingIntent.getService(this,
+                PENDING_REQ_CODE_STOP_FORCE_MUTE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
+            alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(),
+                    AlarmManager.INTERVAL_DAY, mStopForceMuteIntent);
+
+        Log.d(TAG, "registered stop alarm for " + cal.getTime().toString());
+    }
+
+    private void cancelForceMuteAlarms() {
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        if (alarmManager != null) {
+            if (mStartForceMuteIntent != null) {
+                alarmManager.cancel(mStartForceMuteIntent);
+            }
+            if (mStopForceMuteIntent != null) {
+                alarmManager.cancel(mStopForceMuteIntent);
+            }
+        }
+    }
+
     private String getCurrentOutputDevice() {
         return getString(mHeadsetConnected ? R.string.output_headset : R.string.output_speaker);
     }
@@ -428,10 +612,12 @@ public class VolumeWatcherService extends Service
         unregisterReceiver(mReceiver);
         Prefs.unregisterPrefChangeListener(this);
         mHandler.removeCallbacks(mNotifyVolumeRunnable);
+        cancelForceMuteAlarms();
         NotificationManagerCompat manager = NotificationManagerCompat.from(this);
         manager.cancel(Const.Notification.ID_ONGOING);
         manager.cancel(Const.Notification.ID_OUTPUT_DEVICE);
         manager.cancel(Const.Notification.ID_VOLUME_LEVEL);
+        manager.cancel(Const.Notification.ID_FORCE_MUTE);
         Toast.makeText(this, R.string.stopping_service, Toast.LENGTH_SHORT).show();
         super.onDestroy();
     }
@@ -474,6 +660,12 @@ public class VolumeWatcherService extends Service
         } else if (TextUtils.equals(key, Prefs.Key.SHOW_NOTI_VOL_LEVEL)) {
             mShowNotiVolumeLevel = Prefs.get().getBoolean(key);
             updateVolumeNotification();
+
+        } else if (key.contains("force_mute")) {
+            Log.d(TAG, "contains force_mute triggered");
+            updateForceMuteStatus(null);
+            updateForceMuteAlarms();
+
         }
     }
 

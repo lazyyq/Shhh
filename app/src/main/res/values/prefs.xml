@@ -14,6 +14,28 @@
     <string name="pref_key_show_noti_vol_level">show_noti_vol_level</string>
     <bool name="pref_key_show_noti_vol_level_default">false</bool>
 
+    <string name="pref_key_force_mute">force_mute</string>
+    <bool name="pref_key_force_mute_default">false</bool>
+
+    <string name="pref_key_force_mute_when">force_mute_when</string>
+    <string name="pref_key_force_mute_when_default">"0"</string>
+
+    <string-array name="force_mute_when_entries">
+        <item>Always</item>
+        <item>On scheduled time</item>
+    </string-array>
+
+    <string-array name="force_mute_when_values">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+
+    <string name="pref_key_force_mute_from">force_mute_from</string>
+    <integer name="pref_key_force_mute_from_default">0</integer>
+
+    <string name="pref_key_force_mute_to">force_mute_to</string>
+    <integer name="pref_key_force_mute_to_default">0</integer>
+
     <string name="pref_key_show_ad">show_ad</string>
     <bool name="pref_key_show_ad_default">true</bool>
 </resources>

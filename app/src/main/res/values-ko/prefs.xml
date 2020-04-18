@@ -1,0 +1,8 @@
+<resources>
+
+    <string-array name="force_mute_when_entries">
+        <item>항상</item>
+        <item>예약된 시간에</item>
+    </string-array>
+
+</resources>

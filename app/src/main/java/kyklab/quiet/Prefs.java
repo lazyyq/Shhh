@@ -26,6 +26,10 @@ public class Prefs {
         map.put(Key.SHOW_NOTI_OUTPUT_DEVICE, Key.SHOW_NOTI_OUTPUT_DEVICE_DEF);
         map.put(Key.SHOW_NOTI_VOL_LEVEL, Key.SHOW_NOTI_VOL_LEVEL_DEF);
         map.put(Key.SHOW_AD, Key.SHOW_AD_DEF);
+        map.put(Key.FORCE_MUTE, Key.FORCE_MUTE_DEF);
+        map.put(Key.FORCE_MUTE_WHEN, Key.FORCE_MUTE_WHEN_DEF);
+        map.put(Key.FORCE_MUTE_FROM, Key.FORCE_MUTE_FROM_DEF);
+        map.put(Key.FORCE_MUTE_TO, Key.FORCE_MUTE_TO_DEF);
     }
 
     @SuppressWarnings("SameReturnValue")
@@ -111,11 +115,27 @@ public class Prefs {
         public static final String SHOW_NOTI_OUTPUT_DEVICE = r.getString(R.string.pref_key_show_noti_output_device);
         public static final String SHOW_NOTI_VOL_LEVEL = r.getString(R.string.pref_key_show_noti_vol_level);
         public static final String SHOW_AD = r.getString(R.string.pref_key_show_ad);
+        public static final String FORCE_MUTE = r.getString(R.string.pref_key_force_mute);
+        public static final String FORCE_MUTE_WHEN = r.getString(R.string.pref_key_force_mute_when);
+        public static final String FORCE_MUTE_FROM = r.getString(R.string.pref_key_force_mute_from);
+        public static final String FORCE_MUTE_TO = r.getString(R.string.pref_key_force_mute_to);
+
         private static final boolean FIRST_LAUNCH_DEF = r.getBoolean(R.bool.pref_key_first_launch_default);
         private static final boolean SERVICE_ENABLED_DEF = r.getBoolean(R.bool.pref_key_service_enabled_default);
         private static final boolean ENABLE_ON_HEADSET_DEF = r.getBoolean(R.bool.pref_key_enable_on_headset_default);
         private static final boolean SHOW_NOTI_OUTPUT_DEVICE_DEF = r.getBoolean(R.bool.pref_key_show_noti_output_device_default);
         private static final boolean SHOW_NOTI_VOL_LEVEL_DEF = r.getBoolean(R.bool.pref_key_show_noti_vol_level_default);
         private static final boolean SHOW_AD_DEF = r.getBoolean(R.bool.pref_key_show_ad_default);
+        private static final boolean FORCE_MUTE_DEF = r.getBoolean(R.bool.pref_key_force_mute_default);
+        private static final String FORCE_MUTE_WHEN_DEF = r.getString(R.string.pref_key_force_mute_when_default);
+        private static final int FORCE_MUTE_FROM_DEF = r.getInteger(R.integer.pref_key_force_mute_from_default);
+        private static final int FORCE_MUTE_TO_DEF = r.getInteger(R.integer.pref_key_force_mute_to_default);
+    }
+
+    public static class Value {
+        private static final Resources r = App.getContext().getResources();
+
+        public static final String FORCE_MUTE_WHEN_ALWAYS_ON = r.getStringArray(R.array.force_mute_when_values)[0];
+        public static final String FORCE_MUTE_WHEN_SCHEDULED = r.getStringArray(R.array.force_mute_when_values)[1];
     }
 }

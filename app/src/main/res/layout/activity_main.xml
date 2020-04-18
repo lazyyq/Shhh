@@ -85,12 +85,12 @@
         android:id="@+id/fragment"
         android:name="kyklab.quiet.MainActivity$SettingsFragment"
         android:layout_width="match_parent"
-        android:layout_weight="1"
-        android:layout_height="0dp" />
+        android:layout_height="0dp"
+        android:layout_weight="1" />
 
     <FrameLayout
+        android:id="@+id/adContainer"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/adContainer" />
+        android:layout_height="wrap_content" />
 
 </LinearLayout>

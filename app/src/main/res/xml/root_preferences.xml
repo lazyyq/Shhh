@@ -51,24 +51,24 @@
             app:dependency="@string/pref_key_force_mute"
             app:entries="@array/force_mute_when_entries"
             app:entryValues="@array/force_mute_when_values"
+            app:iconSpaceReserved="false"
             app:key="@string/pref_key_force_mute_when"
             app:title="@string/settings_force_mute_when_title"
-            app:iconSpaceReserved="false"
             app:useSimpleSummaryProvider="true" />
 
         <kyklab.quiet.TimePreference
             app:defaultValue="@integer/pref_key_force_mute_from_default"
             app:dependency="@string/pref_key_force_mute"
+            app:iconSpaceReserved="false"
             app:key="@string/pref_key_force_mute_from"
-            app:title="@string/settings_force_mute_from_title"
-            app:iconSpaceReserved="false" />
+            app:title="@string/settings_force_mute_from_title" />
 
         <kyklab.quiet.TimePreference
             app:defaultValue="@integer/pref_key_force_mute_to_default"
             app:dependency="@string/pref_key_force_mute"
+            app:iconSpaceReserved="false"
             app:key="@string/pref_key_force_mute_to"
-            app:title="@string/settings_force_mute_to_title"
-            app:iconSpaceReserved="false" />
+            app:title="@string/settings_force_mute_to_title" />
 
     </PreferenceCategory>
 

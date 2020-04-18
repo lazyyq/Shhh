@@ -22,6 +22,7 @@ If you allow us to show you an ad, a small ad banner will be displayed at the bo
 Would you allow us to show you an ad?"</string>
 
     <string name="settings_category_notification">Notification</string>
+    <string name="settings_category_force_mute">Force mute</string>
     <string name="settings_category_app">Application</string>
 
     <string name="settings_enable_on_headset_title">Enable when headset is connected</string>
@@ -30,12 +31,18 @@ Would you allow us to show you an ad?"</string>
     <string name="settings_show_noti_output_device_summary">Show current volume output device(Speaker/Headset) in notification icon in status bar.</string>
     <string name="settings_show_noti_vol_level_title">Show volume level</string>
     <string name="settings_show_noti_vol_level_summary">Show current media volume level in notification icon in status bar. Notification will only be shown when media volume is on.</string>
+    <string name="settings_force_mute_title">Force mute (Experimental)</string>
+    <string name="settings_force_mute_summary">Force mute and prevent media volume from changing. If a change in volume is detected, the app will try to put it back down to 0. Works only when headset is not connected.</string>
+    <string name="settings_force_mute_when_title">When to force mute</string>
+    <string name="settings_force_mute_from_title">Start</string>
+    <string name="settings_force_mute_to_title">End</string>
     <string name="settings_show_ad_title">Show ad</string>
     <string name="settings_show_ad_summary">When the app is running, show an ad banner at the bottom of the screen. This can be a great help to the developer, but you can freely disable this option.</string>
 
     <string name="notification_channel_foreground_service">Foreground service (Disable this)</string>
     <string name="notification_channel_output_device">Output device</string>
     <string name="notification_channel_volume_level">Volume level</string>
+    <string name="notification_channel_force_mute">Force mute</string>
 
     <string name="notification_foreground_service_title">Foreground service is up and running.</string>
     <string name="notification_foreground_service_text">Click here to hide this notification.</string>
@@ -48,6 +55,9 @@ Would you allow us to show you an ad?"</string>
     <string name="notification_volume_level_title">"Media volume level : %d"</string>
     <string name="notification_volume_level_text">Media volume is on.</string>
     <string name="notification_unified_text">"Current output device : %s / Volume level : %d"</string>
+
+    <string name="notification_force_mute_title">Force mute is on.</string>
+    <string name="notification_force_mute_text">Click here to turn off force mute and it won\'t start again until you change the settings or next scheduled time arrives.</string>
 
     <string name="hide_foreground_service_notification_dialog_title">Hide foreground service notification</string>
     <string name="hide_foreground_service_notification_dialog_text">Please manually disable or minimize this notification in the settings window.</string>

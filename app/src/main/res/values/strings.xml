@@ -36,7 +36,8 @@ Would you allow us to show you an ad?"</string>
     <string name="settings_open_notification_settings_title">Open notification settings</string>
     <string name="settings_open_notification_settings_summary">Open settings window where you can find preferences for each notification provided the app including system priority and whether to show notification icon in status bar.</string>
     <string name="settings_force_mute_title">Force mute (Experimental)</string>
-    <string name="settings_force_mute_summary">Force mute and prevent media volume from changing. If a change in volume is detected, the app will try to put it back down to 0. Works only when headset is not connected.</string>
+    <string name="settings_force_mute_summary">"Force mute and prevent media volume from changing. If a change in volume is detected, the app will try to put it back down to 0. Works only when headset is not connected.
+Warning: Due to Android policies, there can be a delay of seconds to minutes between scheduled and actual execution time.</string>
     <string name="settings_force_mute_when_title">When to force mute</string>
     <string name="settings_force_mute_from_title">Start</string>
     <string name="settings_force_mute_to_title">End</string>

@@ -36,7 +36,8 @@
     <string name="settings_open_notification_settings_title">알림 설정 열기</string>
     <string name="settings_open_notification_settings_summary">앱에서 제공하는 각 알림의 시스템 우선순위, 상태표시줄에 아이콘 표시 여부 등 자세한 설정이 가능한 설정 창을 엽니다.</string>
     <string name="settings_force_mute_title">강제 음소거 (실험적)</string>
-    <string name="settings_force_mute_summary">음소거 모드를 강제하고 미디어 볼륨이 변경되는 것을 방지합니다. 볼륨 변경이 감지되면 앱이 볼륨을 다시 0으로 돌려놓으려고 시도할 것입니다. 헤드셋이 연결되어 있지 않을 때만 작동합니다.</string>
+    <string name="settings_force_mute_summary">"음소거 모드를 강제하고 미디어 볼륨이 변경되는 것을 방지합니다. 볼륨 변경이 감지되면 앱이 볼륨을 다시 0으로 돌려놓으려고 시도할 것입니다. 헤드셋이 연결되어 있지 않을 때만 작동합니다.
+경고: 안드로이드 정책으로 인해 예약 시간과 실제 실행 사이에 몇 초에서 몇 분간의 지연이 발생할 수 있습니다."</string>
     <string name="settings_force_mute_when_title">강제 음소거 실행 시간</string>
     <string name="settings_force_mute_from_title">시작</string>
     <string name="settings_force_mute_to_title">종료</string>

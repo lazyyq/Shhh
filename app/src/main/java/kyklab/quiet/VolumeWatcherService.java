@@ -329,7 +329,7 @@ public class VolumeWatcherService extends Service
 
         }
 
-        return START_NOT_STICKY;
+        return START_STICKY;
     }
 
     private void updateVolumeNotification() {

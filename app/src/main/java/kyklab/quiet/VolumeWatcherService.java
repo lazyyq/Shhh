@@ -281,14 +281,17 @@ public class VolumeWatcherService extends Service
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        String action;
+        String action = "";
         if (intent == null) {
-            action = Const.Intent.ACTION_START_SERVICE;
+            if (Prefs.get().getBoolean(Prefs.Key.SERVICE_ENABLED)) {
+                action = Const.Intent.ACTION_START_SERVICE;
+            }
 
             if (BuildConfig.DEBUG) {
                 String filename =
                         getExternalFilesDir(null).toString() + File.separator + new Date() + " NULL INTENT.txt";
-                String msg = "Null intent received at " + new Date();
+                String msg = "Null intent received at " + new Date() + "\n Service status " +
+                        (Prefs.get().getBoolean(Prefs.Key.SERVICE_ENABLED) ? "Enabled" : "Disabled");
                 try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
                     writer.write(msg);
                 } catch (IOException e) {

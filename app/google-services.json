@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "476390507230",
+    "project_id": "shhh-a78f9",
+    "storage_bucket": "shhh-a78f9.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:476390507230:android:e4f9ee9e1d34813663384f",
+        "android_client_info": {
+          "package_name": "kyklab.quiet"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "476390507230-g87iui6bv1rikvpdu0fvtf78a9ubvpph.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBpTUDVkIKEnIwQct0-bmWFQVpVRx3AAfA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "476390507230-g87iui6bv1rikvpdu0fvtf78a9ubvpph.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

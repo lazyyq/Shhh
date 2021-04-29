@@ -30,6 +30,7 @@ import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.preference.Preference;
+import androidx.preference.PreferenceCategory;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreferenceCompat;
 
@@ -373,6 +374,19 @@ public class MainActivity extends AppCompatActivity {
                 mOpenNotiSettings.setOnPreferenceClickListener(this);
             } else {
                 mOpenNotiSettings.setVisible(false);
+            }
+
+            // Manually cause crash to test crashlytics in debug builds
+            if (BuildConfig.DEBUG) {
+                PreferenceCategory category = new PreferenceCategory(requireContext());
+                category.setTitle("DEBUG");
+                getPreferenceScreen().addPreference(category);
+                Preference preference = new Preference(requireContext());
+                preference.setTitle("CRASH!");
+                preference.setOnPreferenceClickListener(p -> {
+                    throw new RuntimeException("CRASH!");
+                });
+                getPreferenceScreen().addPreference(preference);
             }
         }
 

@@ -57,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
     private BroadcastReceiver mReceiver;
 
     private TextView tvServiceStatus, tvServiceDesc;
+    private SwitchButton mSwitchButton;
 
     private FrameLayout mAdContainer;
     private AdView mAdView;
@@ -82,38 +83,22 @@ public class MainActivity extends AppCompatActivity {
         tvServiceStatus = findViewById(R.id.tv_service_status);
         tvServiceDesc = findViewById(R.id.tv_service_desc);
 
-        SwitchButton switchButton = findViewById(R.id.switchButton);
-        Runnable startServiceRunnable = () -> {
-            VolumeWatcherService.startService(this);
-            Prefs.get().setBoolean(Prefs.Key.SERVICE_ENABLED, true);
-            runOnUiThread(() -> {
-                setServiceStatusText(true);
-                switchButton.setEnabled(true);
-            });
-        };
-        Runnable stopServiceRunnable = () -> {
-            VolumeWatcherService.stopService(this);
-            Prefs.get().setBoolean(Prefs.Key.SERVICE_ENABLED, false);
-            runOnUiThread(() -> {
-                setServiceStatusText(false);
-                switchButton.setEnabled(true);
-            });
-        };
-        switchButton.setOnCheckedChangeListener((buttonView, isChecked) -> {
+        mSwitchButton = findViewById(R.id.switchButton);
+        mSwitchButton.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
-                new Thread(startServiceRunnable).start();
+                VolumeWatcherService.startService(this);
+                updateUi(true, false);
             } else {
-                new Thread(stopServiceRunnable).start();
+                VolumeWatcherService.stopService(this);
+                updateUi(false, false);
             }
         });
 
         ConstraintLayout mainLayout = findViewById(R.id.mainLayout);
-        mainLayout.setOnClickListener(v -> switchButton.toggle());
+        mainLayout.setOnClickListener(v -> mSwitchButton.toggle());
 
         // Resume service if it was originally running
         if (Prefs.get().getBoolean(Prefs.Key.SERVICE_ENABLED)) {
-            switchButton.setCheckedNoEvent(true);
-            setServiceStatusText(true);
             if (!VolumeWatcherService.isRunning(this)) {
                 VolumeWatcherService.startService(this);
             }
@@ -124,11 +109,9 @@ public class MainActivity extends AppCompatActivity {
             public void onReceive(Context context, Intent intent) {
                 String action = intent.getAction();
                 if (TextUtils.equals(action, Const.Intent.ACTION_SERVICE_STOPPED)) {
-                    switchButton.setCheckedNoEvent(false);
-                    setServiceStatusText(false);
+                    updateUi(false, true);
                 } else if (TextUtils.equals(action, Const.Intent.ACTION_SERVICE_STARTED)) {
-                    switchButton.setCheckedNoEvent(true);
-                    setServiceStatusText(true);
+                    updateUi(true, true);
                 }
             }
         };
@@ -209,6 +192,15 @@ public class MainActivity extends AppCompatActivity {
         for (NotificationChannel channel : channels) {
             manager.createNotificationChannel(channel);
         }
+    }
+
+    private void updateUi() {
+        updateUi(Prefs.get().getBoolean(Prefs.Key.SERVICE_ENABLED), true);
+    }
+
+    private void updateUi(boolean isServiceEnabled, boolean updateSwitch) {
+        mSwitchButton.setCheckedNoEvent(isServiceEnabled);
+        setServiceStatusText(isServiceEnabled);
     }
 
     private void setServiceStatusText(boolean serviceEnabled) {
@@ -294,6 +286,8 @@ public class MainActivity extends AppCompatActivity {
         intentFilter.addAction(Const.Intent.ACTION_SERVICE_STOPPED);
         registerReceiver(mReceiver, intentFilter);
         Log.d("MainActivity", "Registered receiver");
+
+        updateUi();
     }
 
     @Override

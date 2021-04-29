@@ -36,7 +36,12 @@ import androidx.core.graphics.drawable.IconCompat;
 import com.kennyc.textdrawable.TextDrawable;
 import com.kennyc.textdrawable.TextDrawableBuilder;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
 
 import static kyklab.quiet.Utils.extrasToString;
@@ -58,6 +63,11 @@ public class VolumeWatcherService extends Service
             PENDING_REQ_CODE_START_FORCE_MUTE = 10,
             PENDING_REQ_CODE_STOP_FORCE_MUTE = 11,
             PENDING_REQ_CODE_STOP_FORCE_MUTE_USER = 12;
+
+    private static final int SERVICE_RESTART_DELAY = 3000;
+
+    // Check if service is stopped by user or force killed by system
+    private static boolean mStopTriggeredByUser = false;
 
     private PendingIntent mStartForceMuteIntent, mStopForceMuteIntent;
 
@@ -277,6 +287,8 @@ public class VolumeWatcherService extends Service
                 "\nflags:" + flags + "\nstartId:" + startId);
 
         if (TextUtils.equals(action, Const.Intent.ACTION_START_SERVICE)) {
+            Prefs.get().setBoolean(Prefs.Key.SERVICE_ENABLED, true);
+
             // Initialize status
             updateMediaVolume(null);
             updateHeadsetStatus(null);
@@ -621,7 +633,50 @@ public class VolumeWatcherService extends Service
         manager.cancel(Const.Notification.ID_VOLUME_LEVEL);
         manager.cancel(Const.Notification.ID_FORCE_MUTE);
         Toast.makeText(this, R.string.stopping_service, Toast.LENGTH_SHORT).show();
+
+        if (!mStopTriggeredByUser) {
+            // It's not the user that wanted the service to die, so restart it
+            scheduleRestart();
+        }
+        mStopTriggeredByUser = false;
+
         super.onDestroy();
+    }
+
+    @Override
+    public void onTaskRemoved(Intent rootIntent) {
+        super.onTaskRemoved(rootIntent);
+
+        if (!mStopTriggeredByUser) {
+            // It's not the user that wanted the service to die, so restart it
+            scheduleRestart();
+        }
+        mStopTriggeredByUser = false;
+        stopSelf();
+    }
+
+    /**
+     * Restart service after a certain amount of time
+     * Original idea from https://wendys.tistory.com/80
+     */
+    private void scheduleRestart() {
+        if (BuildConfig.DEBUG) {
+            String filename =
+                    getExternalFilesDir(null).toString() + File.separator + new Date() + ".txt";
+            String msg = "Unwanted service kill at " + new Date();
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
+                writer.write(msg);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        long restartSchedule = System.currentTimeMillis() + SERVICE_RESTART_DELAY;
+        Intent intent = new Intent(this, ServiceKilledReceiver.class);
+        intent.setAction(Const.Intent.ACTION_START_SERVICE);
+        PendingIntent pendingIntent =
+                PendingIntent.getBroadcast(this, 0, intent, 0);
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        alarmManager.set(AlarmManager.RTC_WAKEUP, restartSchedule, pendingIntent);
     }
 
     private static TextDrawable getVolumeLevelDrawable(int vol) {
@@ -687,6 +742,7 @@ public class VolumeWatcherService extends Service
     }
 
     public static void stopService(@NonNull Context context) {
+        mStopTriggeredByUser = true;
         startService(context, Const.Intent.ACTION_STOP_SERVICE, null);
     }
 

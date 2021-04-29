@@ -281,9 +281,26 @@ public class VolumeWatcherService extends Service
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        String action = intent.getAction();
+        String action;
+        if (intent == null) {
+            action = Const.Intent.ACTION_START_SERVICE;
+
+            if (BuildConfig.DEBUG) {
+                String filename =
+                        getExternalFilesDir(null).toString() + File.separator + new Date() + " NULL INTENT.txt";
+                String msg = "Null intent received at " + new Date();
+                try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
+                    writer.write(msg);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        } else {
+            action = intent.getAction();
+        }
         Log.d(TAG, "onStartCommand()" +
-                "\nintent action:" + action + "\nintent extras: " + extrasToString(intent) +
+                "\nintent action:" + action +
+                "\nintent extras: " + (intent != null ? extrasToString(intent) : "NULL INTENT") +
                 "\nflags:" + flags + "\nstartId:" + startId);
 
         if (TextUtils.equals(action, Const.Intent.ACTION_START_SERVICE)) {

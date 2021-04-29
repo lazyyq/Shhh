@@ -18,6 +18,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.FrameLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -431,6 +432,7 @@ public class MainActivity extends AppCompatActivity {
                     if (value) {
                         activity.showAd();
                         if (!pref.isChecked()) pref.setChecked(true);
+                        Toast.makeText(activity, "♡", Toast.LENGTH_SHORT).show();
                     } else {
                         activity.hideAd();
                         if (pref.isChecked()) pref.setChecked(false);

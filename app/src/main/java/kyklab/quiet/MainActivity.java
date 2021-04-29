@@ -83,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
 
         SwitchButton switchButton = findViewById(R.id.switchButton);
         Runnable startServiceRunnable = () -> {
-            startWatcherService();
+            VolumeWatcherService.startService(this);
             Prefs.get().setBoolean(Prefs.Key.SERVICE_ENABLED, true);
             runOnUiThread(() -> {
                 setServiceStatusText(true);
@@ -91,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
             });
         };
         Runnable stopServiceRunnable = () -> {
-            stopWatcherService();
+            VolumeWatcherService.stopService(this);
             Prefs.get().setBoolean(Prefs.Key.SERVICE_ENABLED, false);
             runOnUiThread(() -> {
                 setServiceStatusText(false);
@@ -113,8 +113,8 @@ public class MainActivity extends AppCompatActivity {
         if (Prefs.get().getBoolean(Prefs.Key.SERVICE_ENABLED)) {
             switchButton.setCheckedNoEvent(true);
             setServiceStatusText(true);
-            if (!Utils.isServiceRunning(this, VolumeWatcherService.class)) {
-                startWatcherService();
+            if (!VolumeWatcherService.isRunning(this)) {
+                VolumeWatcherService.startService(this);
             }
         }
 
@@ -208,25 +208,6 @@ public class MainActivity extends AppCompatActivity {
         for (NotificationChannel channel : channels) {
             manager.createNotificationChannel(channel);
         }
-    }
-
-    private void startWatcherService() {
-        startWatcherService(Const.Intent.ACTION_START_SERVICE, null);
-    }
-
-    private void startWatcherService(@Nullable String action, @Nullable Bundle extras) {
-        Intent intent = new Intent(this, VolumeWatcherService.class);
-        if (action != null) {
-            intent.setAction(action);
-        }
-        if (extras != null) {
-            intent.putExtras(extras);
-        }
-        ContextCompat.startForegroundService(this, intent);
-    }
-
-    private void stopWatcherService() {
-        startWatcherService(Const.Intent.ACTION_STOP_SERVICE, null);
     }
 
     private void setServiceStatusText(boolean serviceEnabled) {

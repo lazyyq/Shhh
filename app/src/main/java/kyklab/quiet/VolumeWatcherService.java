@@ -26,9 +26,11 @@ import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.DrawableRes;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.IconCompat;
 
 import com.kennyc.textdrawable.TextDrawable;
@@ -669,9 +671,26 @@ public class VolumeWatcherService extends Service
         }
     }
 
-    /*private class VolumeChangedReceiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
+    public static void startService(@NonNull Context context) {
+        startService(context, Const.Intent.ACTION_START_SERVICE, null);
+    }
+
+    public static void startService(@NonNull Context context, @Nullable String action, @Nullable Bundle extras) {
+        Intent intent = new Intent(context, VolumeWatcherService.class);
+        if (action != null) {
+            intent.setAction(action);
         }
-    }*/
+        if (extras != null) {
+            intent.putExtras(extras);
+        }
+        ContextCompat.startForegroundService(context, intent);
+    }
+
+    public static void stopService(@NonNull Context context) {
+        startService(context, Const.Intent.ACTION_STOP_SERVICE, null);
+    }
+
+    public static boolean isRunning(Context context) {
+        return Utils.isServiceRunning(context, VolumeWatcherService.class);
+    }
 }

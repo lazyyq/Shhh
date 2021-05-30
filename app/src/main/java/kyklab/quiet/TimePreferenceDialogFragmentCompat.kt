@@ -1,72 +1,62 @@
-package kyklab.quiet;
+package kyklab.quiet
 
-import android.os.Bundle;
-import android.text.format.DateFormat;
-import android.view.View;
-import android.widget.TimePicker;
+import android.os.Build
+import android.os.Bundle
+import android.text.format.DateFormat
+import android.view.View
+import android.widget.TimePicker
+import androidx.preference.PreferenceDialogFragmentCompat
 
-import androidx.preference.DialogPreference;
-import androidx.preference.PreferenceDialogFragmentCompat;
+class TimePreferenceDialogFragmentCompat : PreferenceDialogFragmentCompat() {
+    private var mTimePicker: TimePicker? = null
 
-public class TimePreferenceDialogFragmentCompat extends PreferenceDialogFragmentCompat {
-
-    private TimePicker mTimePicker;
-
-    public static TimePreferenceDialogFragmentCompat newInstance(String key) {
-        final TimePreferenceDialogFragmentCompat fragment = new TimePreferenceDialogFragmentCompat();
-        final Bundle bundle = new Bundle(1);
-        bundle.putString(ARG_KEY, key);
-        fragment.setArguments(bundle);
-
-        return fragment;
-    }
-
-    @Override
-    protected void onBindDialogView(View view) {
-        super.onBindDialogView(view);
-
-        mTimePicker = view.findViewById(R.id.timePicker);
-        if (mTimePicker == null) {
-            throw new IllegalStateException("Dialog view must contain a TimePicker with id 'timePicker'");
+    override fun onBindDialogView(view: View?) {
+        super.onBindDialogView(view)
+        mTimePicker = view?.findViewById(R.id.timePicker)
+        checkNotNull(mTimePicker) { "Dialog view must contain a TimePicker with id 'timePicker'" }
+        var totalMins: Int? = null
+        val preference = preference
+        if (preference is TimePreference) {
+            totalMins = preference.time
         }
-
-        Integer totalMins = null;
-        DialogPreference preference = getPreference();
-        if (preference instanceof TimePreference) {
-            totalMins = ((TimePreference) preference).getTime();
-        }
-
         if (totalMins != null) {
-            int hours = totalMins / 60;
-            int minutes = totalMins % 60;
-            boolean is24hour = DateFormat.is24HourFormat(getContext());
-
-            mTimePicker.setIs24HourView(is24hour);
-            mTimePicker.setCurrentHour(hours);
-            mTimePicker.setCurrentMinute(minutes);
+            val hours = totalMins / 60
+            val minutes = totalMins % 60
+            val is24hour = DateFormat.is24HourFormat(context)
+            mTimePicker!!.setIs24HourView(is24hour)
+            mTimePicker!!.currentHour = hours
+            mTimePicker!!.currentMinute = minutes
         }
     }
 
-    @Override
-    public void onDialogClosed(boolean positiveResult) {
+    override fun onDialogClosed(positiveResult: Boolean) {
         if (positiveResult) {
-            int hours, minutes, totalMins;
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-                hours = mTimePicker.getHour();
-                minutes = mTimePicker.getMinute();
+            val hours: Int
+            val minutes: Int
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                hours = mTimePicker!!.hour
+                minutes = mTimePicker!!.minute
             } else {
-                hours = mTimePicker.getCurrentHour();
-                minutes = mTimePicker.getCurrentMinute();
+                hours = mTimePicker!!.currentHour
+                minutes = mTimePicker!!.currentMinute
             }
-            totalMins = hours * 60 + minutes;
-
-            DialogPreference preference = getPreference();
-            if (preference instanceof TimePreference) {
-                TimePreference timePreference = (TimePreference) preference;
-                if (timePreference.callChangeListener(totalMins)) {
-                    timePreference.setTime(totalMins);
+            val totalMins = hours * 60 + minutes
+            val preference = preference
+            if (preference is TimePreference) {
+                if (preference.callChangeListener(totalMins)) {
+                    preference.time = totalMins
                 }
             }
+        }
+    }
+
+    companion object {
+        fun newInstance(key: String?): TimePreferenceDialogFragmentCompat {
+            val fragment = TimePreferenceDialogFragmentCompat()
+            val bundle = Bundle(1)
+            bundle.putString(ARG_KEY, key)
+            fragment.arguments = bundle
+            return fragment
         }
     }
 }

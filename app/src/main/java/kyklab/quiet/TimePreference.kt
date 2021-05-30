@@ -1,55 +1,43 @@
-package kyklab.quiet;
+package kyklab.quiet
 
-import android.content.Context;
-import android.content.res.TypedArray;
-import android.util.AttributeSet;
+import android.content.Context
+import android.content.res.TypedArray
+import android.util.AttributeSet
+import androidx.preference.DialogPreference
 
-import androidx.preference.DialogPreference;
+class TimePreference : DialogPreference {
+    private var mTime = 0
 
-public class TimePreference extends DialogPreference {
+    constructor(context: Context) :
+            super(context)
 
-    private int mTime;
+    constructor(context: Context, attrs: AttributeSet) :
+            super(context, attrs, R.attr.dialogPreferenceStyle)
 
-    public TimePreference(Context context) {
-        super(context, null);
+    constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int) :
+            super(context, attrs, defStyleAttr)
+
+    constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int, defStyleRes: Int) :
+            super(context, attrs, defStyleAttr, defStyleRes)
+
+    // Save to Shared Preferences
+    var time: Int
+        get() = mTime
+        set(time) {
+            mTime = time
+            // Save to Shared Preferences
+            persistInt(time)
+        }
+
+    override fun onGetDefaultValue(a: TypedArray?, index: Int): Any {
+        return a?.getInt(index, 0) ?: 0
     }
 
-    public TimePreference(Context context, AttributeSet attrs) {
-        super(context, attrs, R.attr.dialogPreferenceStyle);
+    override fun onSetInitialValue(restorePersistedValue: Boolean, defaultValue: Any?) {
+        time = if (restorePersistedValue) getPersistedInt(mTime) else defaultValue as Int
     }
 
-    public TimePreference(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr, defStyleAttr);
-    }
-
-    public TimePreference(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-        super(context, attrs, defStyleAttr, defStyleRes);
-    }
-
-    public int getTime() {
-        return mTime;
-    }
-
-    public void setTime(int time) {
-        mTime = time;
-        // Save to Shared Preferences
-        persistInt(time);
-    }
-
-    @Override
-    protected Object onGetDefaultValue(TypedArray a, int index) {
-        return a.getInt(index, 0);
-    }
-
-    @Override
-    protected void onSetInitialValue(boolean restorePersistedValue,
-                                     Object defaultValue) {
-        setTime(restorePersistedValue ?
-                getPersistedInt(mTime) : (int) defaultValue);
-    }
-
-    @Override
-    public int getDialogLayoutResource() {
-        return R.layout.pref_timepicker;
+    override fun getDialogLayoutResource(): Int {
+        return R.layout.pref_timepicker
     }
 }

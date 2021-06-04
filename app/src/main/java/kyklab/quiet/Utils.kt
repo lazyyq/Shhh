@@ -7,6 +7,7 @@ import android.content.res.Configuration
 import android.graphics.*
 import android.media.AudioManager
 import android.os.Build
+import android.os.Handler
 import android.telephony.TelephonyManager
 import android.util.Log
 import android.util.TypedValue
@@ -53,6 +54,8 @@ fun Context.muteStreamVolume(streamType: Int) {
 val Context.isDarkMode
     get() = (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
             == Configuration.UI_MODE_NIGHT_YES)
+
+fun Handler.postDelayed(delayMillis: Long, r: Runnable) = postDelayed(r, delayMillis)
 
 fun getBitmapWithText(
     context: Context, width: Int, height: Int,

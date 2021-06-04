@@ -40,7 +40,8 @@ class VolumeWatcherService : Service(), SharedPreferences.OnSharedPreferenceChan
         private const val PENDING_REQ_CODE_STOP_FORCE_MUTE = 11
         private const val PENDING_REQ_CODE_STOP_FORCE_MUTE_USER = 12
 
-        private const val SERVICE_RESTART_DELAY = 3000
+        private const val SERVICE_RESTART_DELAY = 3000L
+        private const val UPDATE_VOLUME_DELAY = 1000L
 
         // Check if service is stopped by user or force killed by system
         private var mStopTriggeredByUser = false
@@ -289,6 +290,13 @@ class VolumeWatcherService : Service(), SharedPreferences.OnSharedPreferenceChan
                         updateMediaVolume()
                         updateHeadsetStatus(intent)
                         updateVolumeNotification()
+
+                        // On Android 11, Samsung One UI 3.1, media volume doesn't always seem to be
+                        // updated immediately. So check for volume once again after some delay.
+                        handler.postDelayed(UPDATE_VOLUME_DELAY) {
+                            updateMediaVolume()
+                            updateVolumeNotification()
+                        }
                     }
                     TelephonyManager.ACTION_PHONE_STATE_CHANGED -> {
                         updateCallStatus(intent)
@@ -430,7 +438,7 @@ class VolumeWatcherService : Service(), SharedPreferences.OnSharedPreferenceChan
         // Our workaround is to trigger notification update 1s after last update
         // to ensure that notification icon is up to date.
         handler.removeCallbacks(notifyVolumeTask)
-        handler.postDelayed(notifyVolumeTask, 1000)
+        handler.postDelayed(notifyVolumeTask, UPDATE_VOLUME_DELAY)
     }
 
     private fun removeOutputDeviceNotification() {

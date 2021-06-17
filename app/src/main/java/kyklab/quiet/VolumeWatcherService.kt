@@ -263,6 +263,7 @@ class VolumeWatcherService : Service(), SharedPreferences.OnSharedPreferenceChan
             addAction(Intent.ACTION_HEADSET_PLUG)
             addAction(BluetoothAdapter.ACTION_CONNECTION_STATE_CHANGED)
             addAction(TelephonyManager.ACTION_PHONE_STATE_CHANGED)
+            priority = 999
         }
         receiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {

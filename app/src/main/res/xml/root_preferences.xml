@@ -56,14 +56,14 @@
             app:title="@string/settings_force_mute_when_title"
             app:useSimpleSummaryProvider="true" />
 
-        <kyklab.quiet.TimePreference
+        <kyklab.quiet.utils.TimePreference
             app:defaultValue="@integer/pref_key_force_mute_from_default"
             app:dependency="@string/pref_key_force_mute"
             app:iconSpaceReserved="false"
             app:key="@string/pref_key_force_mute_from"
             app:title="@string/settings_force_mute_from_title" />
 
-        <kyklab.quiet.TimePreference
+        <kyklab.quiet.utils.TimePreference
             app:defaultValue="@integer/pref_key_force_mute_to_default"
             app:dependency="@string/pref_key_force_mute"
             app:iconSpaceReserved="false"

@@ -1,8 +1,10 @@
-package kyklab.quiet
+package kyklab.quiet.utils
 
 import android.content.SharedPreferences
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import androidx.preference.PreferenceManager
+import kyklab.quiet.App
+import kyklab.quiet.R
 
 object Prefs {
     /* Beginning of common stuffs */

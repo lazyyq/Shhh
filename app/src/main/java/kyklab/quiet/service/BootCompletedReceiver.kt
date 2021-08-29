@@ -1,8 +1,9 @@
-package kyklab.quiet
+package kyklab.quiet.service
 
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import kyklab.quiet.utils.Prefs
 
 class BootCompletedReceiver : BroadcastReceiver() {
     companion object {

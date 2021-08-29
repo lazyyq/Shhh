@@ -1,4 +1,4 @@
-package kyklab.quiet
+package kyklab.quiet.ui
 
 import android.content.Intent
 import android.os.Bundle

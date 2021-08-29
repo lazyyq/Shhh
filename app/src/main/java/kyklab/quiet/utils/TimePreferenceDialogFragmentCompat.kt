@@ -1,4 +1,4 @@
-package kyklab.quiet
+package kyklab.quiet.utils
 
 import android.os.Build
 import android.os.Bundle
@@ -6,6 +6,7 @@ import android.text.format.DateFormat
 import android.view.View
 import android.widget.TimePicker
 import androidx.preference.PreferenceDialogFragmentCompat
+import kyklab.quiet.R
 
 class TimePreferenceDialogFragmentCompat : PreferenceDialogFragmentCompat() {
     private var mTimePicker: TimePicker? = null

@@ -1,4 +1,4 @@
-package kyklab.quiet
+package kyklab.quiet.service
 
 import android.app.AlarmManager
 import android.app.Notification
@@ -18,6 +18,9 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toIcon
+import kyklab.quiet.*
+import kyklab.quiet.ui.MainActivity
+import kyklab.quiet.utils.Prefs
 import java.io.BufferedWriter
 import java.io.File
 import java.io.FileWriter

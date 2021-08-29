@@ -1,9 +1,10 @@
-package kyklab.quiet
+package kyklab.quiet.utils
 
 import android.content.Context
 import android.content.res.TypedArray
 import android.util.AttributeSet
 import androidx.preference.DialogPreference
+import kyklab.quiet.R
 
 class TimePreference : DialogPreference {
     private var mTime = 0

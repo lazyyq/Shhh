@@ -95,7 +95,7 @@
 
     <fragment
         android:id="@+id/fragment"
-        android:name="kyklab.quiet.MainActivity$SettingsFragment"
+        android:name="kyklab.quiet.ui.MainActivity$SettingsFragment"
         android:layout_width="360dp"
         android:layout_height="match_parent" />
 

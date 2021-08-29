@@ -20,7 +20,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".SplashActivity"
+            android:name=".ui.SplashActivity"
             android:theme="@style/SplashTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -30,15 +30,15 @@
         </activity>
 
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.MainActivity"
             android:launchMode="singleTask" />
 
         <service
-            android:name=".VolumeWatcherService"
+            android:name=".service.VolumeWatcherService"
             android:enabled="true"
             android:exported="false" />
         <service
-            android:name=".QsTile"
+            android:name=".service.QsTile"
             android:icon="@drawable/ic_speaker"
             android:label="@string/app_name"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
@@ -48,7 +48,7 @@
         </service>
 
         <receiver
-            android:name=".BootCompletedReceiver"
+            android:name=".service.BootCompletedReceiver"
             android:enabled="true"
             android:exported="false">
             <intent-filter android:priority="999">
@@ -58,7 +58,7 @@
         </receiver>
 
         <receiver
-            android:name=".ServiceKilledReceiver"
+            android:name=".service.ServiceKilledReceiver"
             android:enabled="true"
             android:exported="false" />
 

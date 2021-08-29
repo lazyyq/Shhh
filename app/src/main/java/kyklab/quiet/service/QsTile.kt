@@ -1,10 +1,11 @@
-package kyklab.quiet
+package kyklab.quiet.service
 
 import android.graphics.drawable.Icon
 import android.os.Build
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
 import androidx.annotation.RequiresApi
+import kyklab.quiet.R
 
 @RequiresApi(api = Build.VERSION_CODES.N)
 class QsTile : TileService() {

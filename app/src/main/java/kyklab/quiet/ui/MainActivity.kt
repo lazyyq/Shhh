@@ -1,4 +1,4 @@
-package kyklab.quiet
+package kyklab.quiet.ui
 
 import android.Manifest
 import android.app.NotificationChannel
@@ -31,7 +31,12 @@ import com.google.android.gms.oss.licenses.OssLicensesMenuActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kyklab.quiet.*
 import kyklab.quiet.databinding.ActivityMainBinding
+import kyklab.quiet.service.VolumeWatcherService
+import kyklab.quiet.utils.Prefs
+import kyklab.quiet.utils.TimePreference
+import kyklab.quiet.utils.TimePreferenceDialogFragmentCompat
 import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*

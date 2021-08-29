@@ -51,7 +51,7 @@
             android:name=".BootCompletedReceiver"
             android:enabled="true"
             android:exported="false">
-            <intent-filter>
+            <intent-filter android:priority="999">
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>

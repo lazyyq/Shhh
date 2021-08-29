@@ -6,27 +6,24 @@ import android.app.PendingIntent
 import android.app.Service
 import android.bluetooth.BluetoothAdapter
 import android.content.*
-import android.graphics.Bitmap
-import android.graphics.Color
-import android.graphics.Typeface
-import android.graphics.drawable.Icon
+import android.graphics.*
 import android.media.AudioManager
 import android.os.*
 import android.telephony.TelephonyManager
 import android.util.Log
 import android.widget.Toast
 import androidx.annotation.DrawableRes
+import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
-import androidx.core.graphics.drawable.IconCompat
-import com.kennyc.textdrawable.TextDrawable
-import com.kennyc.textdrawable.TextDrawableBuilder
+import androidx.core.graphics.drawable.toIcon
 import java.io.BufferedWriter
 import java.io.File
 import java.io.FileWriter
 import java.io.IOException
 import java.util.*
+import kotlin.math.max
 
 class VolumeWatcherService : Service(), SharedPreferences.OnSharedPreferenceChangeListener {
     companion object {
@@ -45,26 +42,6 @@ class VolumeWatcherService : Service(), SharedPreferences.OnSharedPreferenceChan
 
         // Check if service is stopped by user or force killed by system
         private var mStopTriggeredByUser = false
-
-        private fun getVolumeLevelDrawable(vol: Int): TextDrawable {
-            return TextDrawableBuilder(TextDrawable.DRAWABLE_SHAPE_OVAL)
-                .setHeight(100)
-                .setWidth(100)
-                .setColor(0x010000000)
-                .setText(vol.toString())
-                .setTextColor(Color.BLACK)
-                .setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD))
-                .setTextSize(90f)
-                .build()
-        }
-
-        private fun getVolumeLevelIcon(vol: Int): Icon {
-            return IconCompat.createWithBitmap(getVolumeLevelDrawable(vol).toBitmap()).toIcon()
-        }
-
-        private fun getVolumeLevelBitmap(vol: Int): Bitmap {
-            return getVolumeLevelDrawable(vol).toBitmap()
-        }
 
         @JvmOverloads
         fun startService(
@@ -449,6 +426,42 @@ class VolumeWatcherService : Service(), SharedPreferences.OnSharedPreferenceChan
         handler.postDelayed(notifyVolumeTask, UPDATE_VOLUME_DELAY)
     }
 
+    // Size of volume level icon in status bar
+    private val volumeLevelIconDefaultSize =
+        App.context.resources.getDimension(R.dimen.status_bar_volume_level_icon_size).toInt()
+
+    // Text Paint for drawing text on volume level icon in status bar
+    @RequiresApi(Build.VERSION_CODES.O)
+    private val volumeLevelIconTextPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = App.context.resources.getColor(android.R.color.black, null)
+        textSize =
+            App.context.resources.getDimension(R.dimen.status_bar_volume_level_icon_text_size)
+        typeface = Typeface.DEFAULT_BOLD
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun createVolumeLevelIconBitmap(): Bitmap {
+        // Get size of text to be placed inside icon
+        val text = vol.toString()
+        val textRect = Rect()
+        volumeLevelIconTextPaint.getTextBounds(text, 0, text.length, textRect)
+        val textWidth = textRect.width()
+        val textHeight = textRect.height()
+
+        val iconSize = max(volumeLevelIconDefaultSize, textWidth)
+        val bitmap = Bitmap.createBitmap(
+            iconSize, iconSize, Bitmap.Config.ARGB_8888
+        )
+        val canvas = Canvas(bitmap)
+
+        val textLeft = (iconSize - textWidth) / 2f
+        val textBottom = (iconSize + textHeight) / 2f
+        // The lower the coordinate locates on screen, the bigger its y value
+        canvas.drawText(text, textLeft, textBottom, volumeLevelIconTextPaint)
+
+        return bitmap
+    }
+
     private fun removeOutputDeviceNotification() {
         NotificationManagerCompat.from(this@VolumeWatcherService)
             .cancel(Const.Notification.ID_OUTPUT_DEVICE)
@@ -503,14 +516,13 @@ class VolumeWatcherService : Service(), SharedPreferences.OnSharedPreferenceChan
             getString(R.string.notification_volume_level_text)
         }
         val notification = if (isOreoOrHigher) {
-            val smallIcon = getVolumeLevelIcon(vol)
             volumeLevelNotiBuilderOreo
                 .setContentTitle(title).setContentText(text)
-                .setSmallIcon(smallIcon).build()
+                .setSmallIcon(createVolumeLevelIconBitmap().toIcon()).build()
         } else {
             volumeLevelNotiBuilder
                 .setContentTitle(title).setContentText(text)
-                .setLargeIcon(getVolumeLevelBitmap(vol))
+                .setLargeIcon(createVolumeLevelIconBitmap())
                 .setSmallIcon(R.drawable.ic_volume_level, vol)
                 .build()
         }

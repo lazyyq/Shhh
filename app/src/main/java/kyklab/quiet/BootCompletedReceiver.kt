@@ -10,8 +10,10 @@ class BootCompletedReceiver : BroadcastReceiver() {
     }
 
     override fun onReceive(context: Context?, intent: Intent?) {
-        if (intent?.action == Intent.ACTION_BOOT_COMPLETED) {
-            // Start service on boot complete
+        if (intent?.action == Intent.ACTION_BOOT_COMPLETED ||
+            intent?.action == Intent.ACTION_MY_PACKAGE_REPLACED
+        ) {
+            // Start service on boot complete or package replaced
             if (context != null && Prefs.serviceEnabled) {
                 VolumeWatcherService.startService(context)
             }

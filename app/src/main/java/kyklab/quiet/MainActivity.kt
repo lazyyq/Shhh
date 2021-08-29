@@ -38,15 +38,19 @@ import java.util.*
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
-    private var receiver = object : BroadcastReceiver() {
+    private val localBroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             when (intent?.action) {
-                Const.Intent.ACTION_SERVICE_STOPPED ->
+                Const.Intents.ACTION_SERVICE_STOPPED ->
                     updateUi(false, true)
-                Const.Intent.ACTION_SERVICE_STARTED ->
+                Const.Intents.ACTION_SERVICE_STARTED ->
                     updateUi(true, true)
             }
         }
+    }
+    private val localIntentFilter = IntentFilter().apply {
+        addAction(Const.Intents.ACTION_SERVICE_STARTED)
+        addAction(Const.Intents.ACTION_SERVICE_STOPPED)
     }
     private var adView: AdView? = null
     private var adInitialized = false
@@ -230,12 +234,12 @@ class MainActivity : AppCompatActivity() {
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
         val isNotificationClicked =
-            intent?.getBooleanExtra(Const.Intent.EXTRA_NOTIFICATION_CLICKED, false) ?: false
+            intent?.getBooleanExtra(Const.Intents.EXTRA_NOTIFICATION_CLICKED, false) ?: false
         if (isNotificationClicked) {
             if (isOreoOrHigher) {
                 showNotificationHelp()
             }
-            this@MainActivity.intent.removeExtra(Const.Intent.EXTRA_NOTIFICATION_CLICKED)
+            this@MainActivity.intent.removeExtra(Const.Intents.EXTRA_NOTIFICATION_CLICKED)
         }
     }
 
@@ -244,21 +248,17 @@ class MainActivity : AppCompatActivity() {
         Log.d("MainActivity", "onResume called")
         Log.d(
             "MainActivity", "intent:" +
-                    intent.getBooleanExtra(Const.Intent.EXTRA_NOTIFICATION_CLICKED, false)
+                    intent.getBooleanExtra(Const.Intents.EXTRA_NOTIFICATION_CLICKED, false)
         )
         val isNotificationClicked =
-            intent.getBooleanExtra(Const.Intent.EXTRA_NOTIFICATION_CLICKED, false)
+            intent.getBooleanExtra(Const.Intents.EXTRA_NOTIFICATION_CLICKED, false)
         if (isNotificationClicked) {
             if (isOreoOrHigher) {
                 showNotificationHelp()
             }
-            intent.removeExtra(Const.Intent.EXTRA_NOTIFICATION_CLICKED)
+            intent.removeExtra(Const.Intents.EXTRA_NOTIFICATION_CLICKED)
         }
-        val intentFilter = IntentFilter().apply {
-            addAction(Const.Intent.ACTION_SERVICE_STARTED)
-            addAction(Const.Intent.ACTION_SERVICE_STOPPED)
-        }
-        registerReceiver(receiver, intentFilter)
+        lbm.registerReceiver(localBroadcastReceiver, localIntentFilter)
         Log.d("MainActivity", "Registered receiver")
         updateUi()
     }
@@ -266,7 +266,7 @@ class MainActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         Log.d("MainActivity", "Unregistered receiver")
-        unregisterReceiver(receiver)
+        lbm.unregisterReceiver(localBroadcastReceiver)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

@@ -15,6 +15,7 @@ import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 
 private const val TAG = "Utils"
 
@@ -56,6 +57,13 @@ val Context.isDarkMode
             == Configuration.UI_MODE_NIGHT_YES)
 
 fun Handler.postDelayed(delayMillis: Long, r: Runnable) = postDelayed(r, delayMillis)
+
+val Context.lbm: LocalBroadcastManager
+    get() = LocalBroadcastManager.getInstance(this)
+
+fun LocalBroadcastManager.sendBroadcast(vararg intents: Intent) {
+    intents.forEach { sendBroadcast(it) }
+}
 
 fun getBitmapWithText(
     context: Context, width: Int, height: Int,

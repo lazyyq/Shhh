@@ -69,7 +69,7 @@ class VolumeWatcherService : Service(), SharedPreferences.OnSharedPreferenceChan
         @JvmOverloads
         fun startService(
             context: Context,
-            action: String? = Const.Intent.ACTION_START_SERVICE,
+            action: String? = Const.Intents.ACTION_START_SERVICE,
             extras: Bundle? = null
         ) {
             val intent = Intent(context, VolumeWatcherService::class.java)
@@ -84,7 +84,7 @@ class VolumeWatcherService : Service(), SharedPreferences.OnSharedPreferenceChan
 
         fun stopService(context: Context) {
             mStopTriggeredByUser = true
-            startService(context, Const.Intent.ACTION_STOP_SERVICE, null)
+            startService(context, Const.Intents.ACTION_STOP_SERVICE, null)
         }
 
         fun isRunning(context: Context): Boolean {
@@ -103,7 +103,7 @@ class VolumeWatcherService : Service(), SharedPreferences.OnSharedPreferenceChan
     private lateinit var volumeLevelNotiBuilderOreo: Notification.Builder
 
     // Receiver for broadcast events (volume changed, headset plugged, etc..)
-    private lateinit var receiver: BroadcastReceiver
+    private lateinit var globalBroadcastReceiver: BroadcastReceiver
 
     private lateinit var handler: Handler
 
@@ -146,7 +146,7 @@ class VolumeWatcherService : Service(), SharedPreferences.OnSharedPreferenceChan
          */
         // Intent for stopping foreground service
         val stopIntent = Intent(this, VolumeWatcherService::class.java)
-        stopIntent.action = Const.Intent.ACTION_STOP_SERVICE
+        stopIntent.action = Const.Intents.ACTION_STOP_SERVICE
         val pendingStopIntent = PendingIntent.getService(
             this, PENDING_REQ_CODE_STOP, stopIntent,
             PendingIntent.FLAG_UPDATE_CURRENT
@@ -154,7 +154,7 @@ class VolumeWatcherService : Service(), SharedPreferences.OnSharedPreferenceChan
 
         // Intent for killing media volume
         val muteIntent = Intent(this, VolumeWatcherService::class.java)
-        muteIntent.action = Const.Intent.ACTION_MUTE_VOLUME
+        muteIntent.action = Const.Intents.ACTION_MUTE_VOLUME
         val pendingMuteIntent = PendingIntent.getService(
             this, PENDING_REQ_CODE_MUTE, muteIntent,
             PendingIntent.FLAG_UPDATE_CURRENT
@@ -228,7 +228,7 @@ class VolumeWatcherService : Service(), SharedPreferences.OnSharedPreferenceChan
             // Notification for foreground service
             val notificationIntent = Intent(this, MainActivity::class.java)
             //notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            notificationIntent.putExtra(Const.Intent.EXTRA_NOTIFICATION_CLICKED, true)
+            notificationIntent.putExtra(Const.Intents.EXTRA_NOTIFICATION_CLICKED, true)
             val pendingIntent = PendingIntent.getActivity(
                 this, PENDING_REQ_CODE_FOREGROUND, notificationIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT
@@ -242,7 +242,7 @@ class VolumeWatcherService : Service(), SharedPreferences.OnSharedPreferenceChan
          * Force mute mode notification
          */
         val stopForceMuteIntent = Intent(this, VolumeWatcherService::class.java)
-        stopForceMuteIntent.action = Const.Intent.ACTION_STOP_FORCE_MUTE_USER
+        stopForceMuteIntent.action = Const.Intents.ACTION_STOP_FORCE_MUTE_USER
         val pendingStopForceMuteIntent = PendingIntent.getService(
             this, PENDING_REQ_CODE_STOP_FORCE_MUTE_USER,
             stopForceMuteIntent, PendingIntent.FLAG_UPDATE_CURRENT
@@ -257,59 +257,8 @@ class VolumeWatcherService : Service(), SharedPreferences.OnSharedPreferenceChan
                 .setOngoing(true)
 
 
-        // Receiver for volume change, headset connection detection
-        val intentFilter = IntentFilter().apply {
-            addAction(Const.Intent.ACTION_VOLUME_CHANGED)
-            addAction(Intent.ACTION_HEADSET_PLUG)
-            addAction(BluetoothAdapter.ACTION_CONNECTION_STATE_CHANGED)
-            addAction(TelephonyManager.ACTION_PHONE_STATE_CHANGED)
-            priority = 999
-        }
-        receiver = object : BroadcastReceiver() {
-            override fun onReceive(context: Context?, intent: Intent?) {
-                Log.d(TAG, "Receiver triggered")
-                Log.d(
-                    TAG,
-                    "intent action: ${intent?.action}\nintent extras: ${intent?.extrasToString()}"
-                )
-                when (intent?.action) {
-                    Const.Intent.ACTION_VOLUME_CHANGED -> {
-                        val extras = intent.extras
-                        if (extras != null &&
-                            extras.getInt(Const.Intent.EXTRA_VOLUME_STREAM_TYPE, -1)
-                            == AudioManager.STREAM_MUSIC
-                        ) {
-                            updateMediaVolume(intent)
-                            if (forceMute && !headsetConnected && isMediaVolumeOn) {
-                                muteStreamVolume(AudioManager.STREAM_MUSIC)
-                            } else {
-                                updateVolumeNotification()
-                            }
-                        }
-                    }
-                    Intent.ACTION_HEADSET_PLUG, BluetoothAdapter.ACTION_CONNECTION_STATE_CHANGED -> {
-                        updateMediaVolume()
-                        updateHeadsetStatus(intent)
-                        updateVolumeNotification()
+        registerReceivers()
 
-                        // On Android 11, Samsung One UI 3.1, media volume doesn't always seem to be
-                        // updated immediately. So check for volume once again after some delay.
-                        handler.postDelayed(UPDATE_VOLUME_DELAY) {
-                            updateMediaVolume()
-                            updateVolumeNotification()
-                        }
-                    }
-                    TelephonyManager.ACTION_PHONE_STATE_CHANGED -> {
-                        updateCallStatus(intent)
-                        updateVolumeNotification()
-                    }
-                    Const.Intent.ACTION_UPDATE_FORCE_MUTE_ALARMS -> {
-                        updateForceMuteAlarms()
-                    }
-                }
-            }
-        }
-        registerReceiver(receiver, intentFilter)
         handler = Handler(mainLooper)
         notifyVolumeTask = task@{
 
@@ -342,7 +291,7 @@ class VolumeWatcherService : Service(), SharedPreferences.OnSharedPreferenceChan
         var action: String? = null
         if (intent == null) {
             if (Prefs.serviceEnabled) {
-                action = Const.Intent.ACTION_START_SERVICE
+                action = Const.Intents.ACTION_START_SERVICE
             }
             if (BuildConfig.DEBUG) {
                 val filename =
@@ -370,7 +319,7 @@ class VolumeWatcherService : Service(), SharedPreferences.OnSharedPreferenceChan
      """.trimIndent()
         )
         when (action) {
-            Const.Intent.ACTION_START_SERVICE -> {
+            Const.Intents.ACTION_START_SERVICE -> {
                 Prefs.serviceEnabled = true
 
                 // Initialize status
@@ -381,7 +330,7 @@ class VolumeWatcherService : Service(), SharedPreferences.OnSharedPreferenceChan
                 updateForceMuteAlarms()
 
                 // Notify we started service
-                sendBroadcast(Intent(Const.Intent.ACTION_SERVICE_STARTED))
+                lbm.sendBroadcast(Intent(Const.Intents.ACTION_SERVICE_STARTED))
                 // Start foreground service
                 enableOnHeadset = Prefs.enableOnHeadset
                 showNotiOutputDevice = Prefs.showNotiOutputDevice
@@ -405,31 +354,89 @@ class VolumeWatcherService : Service(), SharedPreferences.OnSharedPreferenceChan
                 updateVolumeNotification()
                 Prefs.registerPrefChangeListener(this)
             }
-            Const.Intent.ACTION_STOP_SERVICE -> {
+            Const.Intents.ACTION_STOP_SERVICE -> {
                 // Stop service button in notification clicked
                 Log.d(TAG, "Stopping service on notification click")
                 Prefs.serviceEnabled = false
-                sendBroadcast(Intent(Const.Intent.ACTION_SERVICE_STOPPED))
+                lbm.sendBroadcast(Intent(Const.Intents.ACTION_SERVICE_STOPPED))
                 stopForeground(true)
                 stopSelf()
             }
-            Const.Intent.ACTION_MUTE_VOLUME -> {
+            Const.Intents.ACTION_MUTE_VOLUME -> {
                 muteStreamVolume(AudioManager.STREAM_MUSIC)
             }
-            Const.Intent.ACTION_START_FORCE_MUTE -> {
+            Const.Intents.ACTION_START_FORCE_MUTE -> {
                 updateForceMuteStatus(true)
                 Log.d(TAG, "start alarm triggered")
             }
-            Const.Intent.ACTION_STOP_FORCE_MUTE -> {
+            Const.Intents.ACTION_STOP_FORCE_MUTE -> {
                 updateForceMuteStatus(false)
                 Log.d(TAG, "stop alarm triggered")
             }
-            Const.Intent.ACTION_STOP_FORCE_MUTE_USER -> {
+            Const.Intents.ACTION_STOP_FORCE_MUTE_USER -> {
                 updateForceMuteStatus(false)
                 Log.d(TAG, "stop by user")
             }
         }
         return START_STICKY
+    }
+
+    private fun registerReceivers() {
+        // Receiver for volume change, headset connection detection
+        val globalIntentFilter = IntentFilter().apply {
+            addAction(Const.Intents.ACTION_VOLUME_CHANGED)
+            addAction(Intent.ACTION_HEADSET_PLUG)
+            addAction(BluetoothAdapter.ACTION_CONNECTION_STATE_CHANGED)
+            addAction(TelephonyManager.ACTION_PHONE_STATE_CHANGED)
+            priority = 999
+        }
+        globalBroadcastReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                Log.d(TAG, "Receiver triggered")
+                Log.d(
+                    TAG,
+                    "intent action: ${intent?.action}\nintent extras: ${intent?.extrasToString()}"
+                )
+                when (intent?.action) {
+                    Const.Intents.ACTION_VOLUME_CHANGED -> {
+                        val extras = intent.extras
+                        if (extras != null &&
+                            extras.getInt(Const.Intents.EXTRA_VOLUME_STREAM_TYPE, -1)
+                            == AudioManager.STREAM_MUSIC
+                        ) {
+                            updateMediaVolume(intent)
+                            if (forceMute && !headsetConnected && isMediaVolumeOn) {
+                                muteStreamVolume(AudioManager.STREAM_MUSIC)
+                            } else {
+                                updateVolumeNotification()
+                            }
+                        }
+                    }
+                    Intent.ACTION_HEADSET_PLUG, BluetoothAdapter.ACTION_CONNECTION_STATE_CHANGED -> {
+                        updateMediaVolume()
+                        updateHeadsetStatus(intent)
+                        updateVolumeNotification()
+
+                        // On Android 11, Samsung One UI 3.1, media volume doesn't always seem to be
+                        // updated immediately. So check for volume once again after some delay.
+                        handler.postDelayed(UPDATE_VOLUME_DELAY) {
+                            updateMediaVolume()
+                            updateVolumeNotification()
+                        }
+                    }
+                    TelephonyManager.ACTION_PHONE_STATE_CHANGED -> {
+                        updateCallStatus(intent)
+                        updateVolumeNotification()
+                    }
+
+                    // TODO: Check why this is here
+                    Const.Intents.ACTION_UPDATE_FORCE_MUTE_ALARMS -> {
+                        updateForceMuteAlarms()
+                    }
+                }
+            }
+        }
+        registerReceiver(globalBroadcastReceiver, globalIntentFilter)
     }
 
     private fun updateVolumeNotification() {
@@ -520,9 +527,9 @@ class VolumeWatcherService : Service(), SharedPreferences.OnSharedPreferenceChan
         if (intent == null) {
             vol = getStreamVolume(AudioManager.STREAM_MUSIC)
         } else {
-            val streamType = intent.getIntExtra(Const.Intent.EXTRA_VOLUME_STREAM_TYPE, -1)
+            val streamType = intent.getIntExtra(Const.Intents.EXTRA_VOLUME_STREAM_TYPE, -1)
             if (streamType == AudioManager.STREAM_MUSIC) {
-                vol = intent.getIntExtra(Const.Intent.EXTRA_VOLUME_STREAM_VALUE, -1)
+                vol = intent.getIntExtra(Const.Intents.EXTRA_VOLUME_STREAM_VALUE, -1)
             }
         }
     }
@@ -646,7 +653,7 @@ class VolumeWatcherService : Service(), SharedPreferences.OnSharedPreferenceChan
             cal.add(Calendar.DAY_OF_YEAR, 1)
         }
         intent = Intent(this, VolumeWatcherService::class.java).apply {
-            action = Const.Intent.ACTION_START_FORCE_MUTE
+            action = Const.Intents.ACTION_START_FORCE_MUTE
             if (debug) {
                 putExtra(
                     "triggered",
@@ -678,7 +685,7 @@ class VolumeWatcherService : Service(), SharedPreferences.OnSharedPreferenceChan
             cal.add(Calendar.DAY_OF_YEAR, 1)
         }
         intent = Intent(this, VolumeWatcherService::class.java).apply {
-            action = Const.Intent.ACTION_STOP_FORCE_MUTE
+            action = Const.Intents.ACTION_STOP_FORCE_MUTE
             if (debug) {
                 putExtra(
                     "triggered",
@@ -708,7 +715,7 @@ class VolumeWatcherService : Service(), SharedPreferences.OnSharedPreferenceChan
     }
 
     override fun onDestroy() {
-        unregisterReceiver(receiver)
+        unregisterReceiver(globalBroadcastReceiver)
         Prefs.unregisterPrefChangeListener(this)
         handler.removeCallbacks(notifyVolumeTask)
         cancelForceMuteAlarms()
@@ -753,7 +760,7 @@ class VolumeWatcherService : Service(), SharedPreferences.OnSharedPreferenceChan
         }
         val restartSchedule = System.currentTimeMillis() + SERVICE_RESTART_DELAY
         val intent = Intent(this, ServiceKilledReceiver::class.java)
-        intent.action = Const.Intent.ACTION_START_SERVICE
+        intent.action = Const.Intents.ACTION_START_SERVICE
         val pendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0)
         val alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
         alarmManager.set(AlarmManager.RTC_WAKEUP, restartSchedule, pendingIntent)

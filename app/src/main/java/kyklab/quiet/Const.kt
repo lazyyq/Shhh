@@ -19,7 +19,7 @@ object Const {
         const val ID_FORCE_MUTE = 5
     }
 
-    object Intent {
+    object Intents {
         // Actions
         const val ACTION_START_SERVICE = "kyklab.quiet.action.START_SERVICE"
         const val ACTION_STOP_SERVICE = "kyklab.quiet.action.STOP_SERVICE"

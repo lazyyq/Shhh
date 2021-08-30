@@ -440,27 +440,26 @@ class VolumeWatcherService : Service(), SharedPreferences.OnSharedPreferenceChan
         textSize =
             App.context.resources.getDimension(R.dimen.status_bar_volume_level_icon_text_size)
         typeface = Typeface.DEFAULT_BOLD
+        textAlign = Paint.Align.CENTER
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun createVolumeLevelIconBitmap(): Bitmap {
-        // Get size of text to be placed inside icon
         val text = vol.toString()
+
+        // Get size of text to be placed inside icon
         val textRect = Rect()
         volumeLevelIconTextPaint.getTextBounds(text, 0, text.length, textRect)
         val textWidth = textRect.width()
         val textHeight = textRect.height()
 
         val iconSize = max(volumeLevelIconDefaultSize, textWidth)
-        val bitmap = Bitmap.createBitmap(
-            iconSize, iconSize, Bitmap.Config.ARGB_8888
-        )
+        val bitmap = Bitmap.createBitmap(iconSize, iconSize, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
 
-        val textLeft = (iconSize - textWidth) / 2f
         val textBottom = (iconSize + textHeight) / 2f
         // The lower the coordinate locates on screen, the bigger its y value
-        canvas.drawText(text, textLeft, textBottom, volumeLevelIconTextPaint)
+        canvas.drawText(text, iconSize / 2f, textBottom, volumeLevelIconTextPaint)
 
         return bitmap
     }

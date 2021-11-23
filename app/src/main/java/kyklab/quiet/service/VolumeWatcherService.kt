@@ -5,6 +5,7 @@ import android.app.Notification
 import android.app.PendingIntent
 import android.app.Service
 import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothDevice
 import android.content.*
 import android.graphics.*
 import android.media.AudioManager
@@ -367,6 +368,9 @@ class VolumeWatcherService : Service(), SharedPreferences.OnSharedPreferenceChan
             addAction(Const.Intents.ACTION_VOLUME_CHANGED)
             addAction(Intent.ACTION_HEADSET_PLUG)
             addAction(BluetoothAdapter.ACTION_CONNECTION_STATE_CHANGED)
+            addAction(BluetoothDevice.ACTION_ACL_CONNECTED)
+            addAction(BluetoothDevice.ACTION_ACL_DISCONNECT_REQUESTED)
+            addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED)
             addAction(TelephonyManager.ACTION_PHONE_STATE_CHANGED)
             priority = 999
         }
@@ -392,7 +396,11 @@ class VolumeWatcherService : Service(), SharedPreferences.OnSharedPreferenceChan
                             }
                         }
                     }
-                    Intent.ACTION_HEADSET_PLUG, BluetoothAdapter.ACTION_CONNECTION_STATE_CHANGED -> {
+                    Intent.ACTION_HEADSET_PLUG,
+                    BluetoothAdapter.ACTION_CONNECTION_STATE_CHANGED,
+                    BluetoothDevice.ACTION_ACL_CONNECTED,
+                    BluetoothDevice.ACTION_ACL_DISCONNECT_REQUESTED,
+                    BluetoothDevice.ACTION_ACL_DISCONNECTED -> {
                         updateMediaVolume()
                         updateHeadsetStatus(intent)
                         updateVolumeNotification()

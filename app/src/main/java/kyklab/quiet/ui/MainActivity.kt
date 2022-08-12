@@ -118,7 +118,7 @@ class MainActivity : AppCompatActivity() {
     private fun showAd() {
         if (adView == null) {
             adView = AdView(this).apply {
-                adSize = AdSize.BANNER
+                setAdSize(AdSize.BANNER)
                 adUnitId = getString(
                     if (debug) R.string.banner_ad_unit_debug_id else R.string.banner_ad_unit_id
                 )
@@ -274,7 +274,7 @@ class MainActivity : AppCompatActivity() {
         lbm.unregisterReceiver(localBroadcastReceiver)
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_main, menu)
         return true
     }
@@ -365,7 +365,7 @@ class MainActivity : AppCompatActivity() {
             updateForceMuteScheduleVisibility()
         }
 
-        override fun onPreferenceClick(preference: Preference?): Boolean {
+        override fun onPreferenceClick(preference: Preference): Boolean {
             if (preference === openNotiSettings) {
                 if (isOreoOrHigher) {
                     val intent = Intent().apply {
@@ -434,7 +434,7 @@ class MainActivity : AppCompatActivity() {
             forceMuteTo?.isVisible = visible
         }
 
-        override fun onDisplayPreferenceDialog(preference: Preference?) {
+        override fun onDisplayPreferenceDialog(preference: Preference) {
             var dialogFragment: DialogFragment? = null
             if (preference is TimePreference) {
                 dialogFragment = TimePreferenceDialogFragmentCompat.newInstance(preference.getKey())

@@ -30,8 +30,8 @@ class TimePreference : DialogPreference {
             persistInt(time)
         }
 
-    override fun onGetDefaultValue(a: TypedArray?, index: Int): Any {
-        return a?.getInt(index, 0) ?: 0
+    override fun onGetDefaultValue(a: TypedArray, index: Int): Any {
+        return a.getInt(index, 0) ?: 0
     }
 
     override fun onSetInitialValue(restorePersistedValue: Boolean, defaultValue: Any?) {

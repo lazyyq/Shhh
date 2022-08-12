@@ -130,7 +130,7 @@ class VolumeWatcherService : Service(), SharedPreferences.OnSharedPreferenceChan
         stopIntent.action = Const.Intents.ACTION_STOP_SERVICE
         val pendingStopIntent = PendingIntent.getService(
             this, PENDING_REQ_CODE_STOP, stopIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
         // Intent for killing media volume
@@ -138,14 +138,14 @@ class VolumeWatcherService : Service(), SharedPreferences.OnSharedPreferenceChan
         muteIntent.action = Const.Intents.ACTION_MUTE_VOLUME
         val pendingMuteIntent = PendingIntent.getService(
             this, PENDING_REQ_CODE_MUTE, muteIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
         // Notification for actions for output device / volume level notification
         val pendingOpenAppIntent: PendingIntent = PendingIntent.getActivity(
             this, PENDING_REQ_CODE_OPEN_APP,
             Intent(this, MainActivity::class.java),
-            PendingIntent.FLAG_UPDATE_CURRENT
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
         if (isOreoOrHigher) {
             // Notification action is actually compatible with API >= 23(M)
@@ -212,7 +212,7 @@ class VolumeWatcherService : Service(), SharedPreferences.OnSharedPreferenceChan
             notificationIntent.putExtra(Const.Intents.EXTRA_NOTIFICATION_CLICKED, true)
             val pendingIntent = PendingIntent.getActivity(
                 this, PENDING_REQ_CODE_FOREGROUND, notificationIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
             foregroundNotiBuilder
                 .setContentText(getString(R.string.notification_foreground_service_text))
@@ -226,7 +226,7 @@ class VolumeWatcherService : Service(), SharedPreferences.OnSharedPreferenceChan
         stopForceMuteIntent.action = Const.Intents.ACTION_STOP_FORCE_MUTE_USER
         val pendingStopForceMuteIntent = PendingIntent.getService(
             this, PENDING_REQ_CODE_STOP_FORCE_MUTE_USER,
-            stopForceMuteIntent, PendingIntent.FLAG_UPDATE_CURRENT
+            stopForceMuteIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
         forceMuteNotiBuiler =
             NotificationCompat.Builder(this, Const.Notification.CHANNEL_FORCE_MUTE)
@@ -685,8 +685,8 @@ class VolumeWatcherService : Service(), SharedPreferences.OnSharedPreferenceChan
             }
         }
         startForceMuteIntent = PendingIntent.getService(
-            this,
-            PENDING_REQ_CODE_START_FORCE_MUTE, intent, PendingIntent.FLAG_UPDATE_CURRENT
+            this, PENDING_REQ_CODE_START_FORCE_MUTE, intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             alarmManager.setInexactRepeating(
@@ -717,8 +717,8 @@ class VolumeWatcherService : Service(), SharedPreferences.OnSharedPreferenceChan
             }
         }
         stopForceMuteIntent = PendingIntent.getService(
-            this,
-            PENDING_REQ_CODE_STOP_FORCE_MUTE, intent, PendingIntent.FLAG_UPDATE_CURRENT
+            this, PENDING_REQ_CODE_STOP_FORCE_MUTE, intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             alarmManager.setInexactRepeating(
@@ -783,7 +783,7 @@ class VolumeWatcherService : Service(), SharedPreferences.OnSharedPreferenceChan
         val restartSchedule = System.currentTimeMillis() + SERVICE_RESTART_DELAY
         val intent = Intent(this, ServiceKilledReceiver::class.java)
         intent.action = Const.Intents.ACTION_START_SERVICE
-        val pendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0)
+        val pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
         val alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
         alarmManager.set(AlarmManager.RTC_WAKEUP, restartSchedule, pendingIntent)
     }

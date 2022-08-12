@@ -11,9 +11,9 @@ import kyklab.quiet.R
 class TimePreferenceDialogFragmentCompat : PreferenceDialogFragmentCompat() {
     private var mTimePicker: TimePicker? = null
 
-    override fun onBindDialogView(view: View?) {
+    override fun onBindDialogView(view: View) {
         super.onBindDialogView(view)
-        mTimePicker = view?.findViewById(R.id.timePicker)
+        mTimePicker = view.findViewById(R.id.timePicker)
         checkNotNull(mTimePicker) { "Dialog view must contain a TimePicker with id 'timePicker'" }
         var totalMins: Int? = null
         val preference = preference

@@ -6,13 +6,20 @@ import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
 import androidx.annotation.RequiresApi
 import kyklab.quiet.R
+import kyklab.quiet.utils.PermissionManager
 
 @RequiresApi(api = Build.VERSION_CODES.N)
 class QsTile : TileService() {
     override fun onStartListening() {
         super.onStartListening()
-        if (VolumeWatcherService.isRunning(this)) {
-            setTileActive()
+        if (PermissionManager.checkPermission(this)) {
+            if (VolumeWatcherService.isRunning(this)) {
+                setTileActive()
+            } else {
+                setTileInactive()
+            }
+        } else {
+            setTileUnavailable()
         }
     }
 
@@ -39,6 +46,14 @@ class QsTile : TileService() {
         qsTile.apply {
             icon = Icon.createWithResource(this@QsTile, R.drawable.ic_speaker)
             state = Tile.STATE_INACTIVE
+            updateTile()
+        }
+    }
+
+    private fun setTileUnavailable() {
+        qsTile.apply {
+            icon = Icon.createWithResource(this@QsTile, R.drawable.ic_speaker_mute)
+            state = Tile.STATE_UNAVAILABLE
             updateTile()
         }
     }

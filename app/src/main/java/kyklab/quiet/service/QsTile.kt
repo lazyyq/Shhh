@@ -1,36 +1,41 @@
 package kyklab.quiet.service
 
+import android.content.Intent
 import android.graphics.drawable.Icon
 import android.os.Build
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import kyklab.quiet.R
+import kyklab.quiet.openAppSettings
 import kyklab.quiet.utils.PermissionManager
+
 
 @RequiresApi(api = Build.VERSION_CODES.N)
 class QsTile : TileService() {
     override fun onStartListening() {
         super.onStartListening()
-        if (PermissionManager.checkPermission(this)) {
-            if (VolumeWatcherService.isRunning(this)) {
-                setTileActive()
-            } else {
-                setTileInactive()
-            }
+        if (VolumeWatcherService.isRunning(this)) {
+            setTileActive()
         } else {
-            setTileUnavailable()
+            setTileInactive()
         }
     }
 
     override fun onClick() {
         super.onClick()
-        if (!VolumeWatcherService.isRunning(this)) {
-            VolumeWatcherService.startService(this)
-            setTileActive()
+        if (PermissionManager.checkPermission(this)) {
+            if (!VolumeWatcherService.isRunning(this)) {
+                VolumeWatcherService.startService(this)
+                setTileActive()
+            } else {
+                VolumeWatcherService.stopService(this)
+                setTileInactive()
+            }
         } else {
-            VolumeWatcherService.stopService(this)
-            setTileInactive()
+            Toast.makeText(this, R.string.msg_necessary_permission_missing, Toast.LENGTH_SHORT).show()
+            openAppSettings() // TODO: FIX
         }
     }
 

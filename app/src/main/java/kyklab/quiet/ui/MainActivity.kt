@@ -34,6 +34,7 @@ import kotlinx.coroutines.launch
 import kyklab.quiet.*
 import kyklab.quiet.databinding.ActivityMainBinding
 import kyklab.quiet.service.VolumeWatcherService
+import kyklab.quiet.utils.PermissionManager
 import kyklab.quiet.utils.Prefs
 import kyklab.quiet.utils.TimePreference
 import kyklab.quiet.utils.TimePreferenceDialogFragmentCompat
@@ -59,7 +60,6 @@ class MainActivity : AppCompatActivity() {
     }
     private var adView: AdView? = null
     private var adInitialized = false
-    private var permissionGranted = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -73,12 +73,14 @@ class MainActivity : AppCompatActivity() {
         }
 
         initAd()
-        checkPermission()
+        if (!PermissionManager.checkPermission(this)) {
+            requestPermissions(REQ_CODE_APP_LAUNCH)
+        }
 
         binding.switchButton.setOnCheckedChangeListener { buttonView, isChecked ->
             if (isChecked) {
                 VolumeWatcherService.startService(this)
-                updateUi(true, false)
+                updateUi(VolumeWatcherService.isRunning(this), false)
             } else {
                 VolumeWatcherService.stopService(this)
                 updateUi(false, false)
@@ -88,8 +90,10 @@ class MainActivity : AppCompatActivity() {
 
         // Resume service if it was originally running
         if (Prefs.serviceEnabled) {
-            if (!VolumeWatcherService.isRunning(this)) {
+            if (!VolumeWatcherService.isRunning(this) && PermissionManager.checkPermission(this)) {
                 VolumeWatcherService.startService(this)
+            } else {
+                Prefs.serviceEnabled = false;
             }
         }
         Prefs.firstLaunch = false
@@ -187,38 +191,27 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun checkPermission() {
-        val permission = Manifest.permission.READ_PHONE_STATE
+    private fun requestPermissions(reqCode: Int = REQ_CODE_NORMAL) {
+        val rationale =
+            PermissionManager.permissions.any { ActivityCompat.shouldShowRequestPermissionRationale(this, it) }
 
-        // Check if permission is already granted
-        permissionGranted = if (ContextCompat.checkSelfPermission(this, permission)
-            == PackageManager.PERMISSION_GRANTED
-        ) {
-            Log.d("checkPermission()", "Permission all granted")
-            true
+        if (rationale) {
+            MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.dialog_permission_request_title)
+                .setMessage(R.string.dialog_permission_request_message)
+                .setCancelable(false)
+                .setPositiveButton(
+                    android.R.string.ok
+                ) { dialog1, which ->
+                    ActivityCompat.requestPermissions(
+                        this, PermissionManager.permissions, reqCode
+                    )
+                }
+                .show()
         } else {
-            // Check if we should show permission request explanation
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this, permission)) {
-                MaterialAlertDialogBuilder(this)
-                    .setTitle(R.string.dialog_permission_request_title)
-                    .setMessage(R.string.dialog_permission_request_message)
-                    .setNegativeButton(android.R.string.cancel, null)
-                    .setPositiveButton(
-                        android.R.string.ok
-                    ) { dialog1, which ->
-                        ActivityCompat.requestPermissions(
-                            this, arrayOf(permission),
-                            PERMISSION_REQUEST_READ_PHONE_STATE
-                        )
-                    }
-                    .show()
-            } else {
-                ActivityCompat.requestPermissions(
-                    this, arrayOf(permission),
-                    PERMISSION_REQUEST_READ_PHONE_STATE
-                )
-            }
-            false
+            ActivityCompat.requestPermissions(
+                this, PermissionManager.permissions, reqCode
+            )
         }
     }
 
@@ -227,10 +220,12 @@ class MainActivity : AppCompatActivity() {
         permissions: Array<out String>,
         grantResults: IntArray
     ) {
-        if (requestCode == PERMISSION_REQUEST_READ_PHONE_STATE) {
-            if (grantResults.size > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                permissionGranted = true
+        if (requestCode == REQ_CODE_NORMAL) {
+            if (grantResults.isNotEmpty() && grantResults.none { it != PackageManager.PERMISSION_GRANTED}) {
+                Toast.makeText(this, R.string.msg_permission_all_granted, Toast.LENGTH_SHORT).show()
             }
+        } else if (requestCode == REQ_CODE_APP_LAUNCH) {
+            Toast.makeText(this, R.string.msg_necessary_permission_missing, Toast.LENGTH_SHORT).show()
         } else {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         }
@@ -288,12 +283,20 @@ class MainActivity : AppCompatActivity() {
                 )
             )
             R.id.menu_check_permission -> {
-                checkPermission()
-                if (permissionGranted) {
+                if (PermissionManager.checkPermission(this)) {
                     MaterialAlertDialogBuilder(this)
                         .setTitle(R.string.dialog_permission_already_granted_title)
                         .setMessage(R.string.dialog_permission_already_granted_message)
                         .setPositiveButton(android.R.string.ok, null)
+                        .show()
+                } else {
+                    MaterialAlertDialogBuilder(this)
+                        .setTitle(R.string.dialog_permission_missing_allow_in_following_title)
+                        .setMessage(R.string.dialog_permission_missing_allow_in_following_message)
+                        .setNegativeButton(android.R.string.cancel, null)
+                        .setPositiveButton(android.R.string.ok) { _, _ ->
+                            openAppSettings()
+                        }
                         .show()
                 }
             }
@@ -474,6 +477,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object {
-        private const val PERMISSION_REQUEST_READ_PHONE_STATE = 100
+        private const val REQ_CODE_NORMAL = 100
+        private const val REQ_CODE_APP_LAUNCH = 101
     }
 }

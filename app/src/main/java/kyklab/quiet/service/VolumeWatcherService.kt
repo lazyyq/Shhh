@@ -21,6 +21,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toIcon
 import kyklab.quiet.*
 import kyklab.quiet.ui.MainActivity
+import kyklab.quiet.utils.PermissionManager
 import kyklab.quiet.utils.Prefs
 import java.io.BufferedWriter
 import java.io.File
@@ -52,7 +53,13 @@ class VolumeWatcherService : Service(), SharedPreferences.OnSharedPreferenceChan
             context: Context,
             action: String? = Const.Intents.ACTION_START_SERVICE,
             extras: Bundle? = null
-        ) {
+        ): Boolean {
+            if (action == Const.Intents.ACTION_START_SERVICE &&
+                !PermissionManager.checkPermission(context)) {
+                Toast.makeText(context, R.string.msg_necessary_permission_missing, Toast.LENGTH_SHORT).show()
+                return false
+            }
+
             val intent = Intent(context, VolumeWatcherService::class.java)
             if (action != null) {
                 intent.action = action
@@ -61,6 +68,8 @@ class VolumeWatcherService : Service(), SharedPreferences.OnSharedPreferenceChan
                 intent.putExtras(extras)
             }
             ContextCompat.startForegroundService(context, intent)
+
+            return true
         }
 
         fun stopService(context: Context) {

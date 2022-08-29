@@ -6,8 +6,10 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.*
 import android.media.AudioManager
+import android.net.Uri
 import android.os.Build
 import android.os.Handler
+import android.provider.Settings
 import android.telephony.TelephonyManager
 import android.util.Log
 import android.util.TypedValue
@@ -113,4 +115,12 @@ fun Intent.extrasToString(): String {
         sb.append("$key:${extras!![key]}, ")
     }
     return sb.toString()
+}
+
+fun Context.openAppSettings() {
+    val uri = Uri.fromParts("package", this@openAppSettings.packageName, null)
+    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+        data = uri
+    }
+    startActivity(intent)
 }

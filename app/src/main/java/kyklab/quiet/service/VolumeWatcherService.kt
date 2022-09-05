@@ -8,8 +8,6 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.content.*
 import android.graphics.*
-import android.media.AudioDeviceCallback
-import android.media.AudioDeviceInfo
 import android.media.AudioManager
 import android.os.*
 import android.telephony.TelephonyManager
@@ -96,17 +94,6 @@ class VolumeWatcherService : Service(), SharedPreferences.OnSharedPreferenceChan
 
     // Receiver for broadcast events (volume changed, headset plugged, etc..)
     private lateinit var globalBroadcastReceiver: BroadcastReceiver
-
-    @RequiresApi(Build.VERSION_CODES.M)
-    private val audioDeviceCallback = object: AudioDeviceCallback() {
-        override fun onAudioDevicesAdded(addedDevices: Array<out AudioDeviceInfo>?) {
-            Log.d("AudioDeviceCallback", "Added:"+addedDevices?.map { "\n"+it.toString() })
-        }
-
-        override fun onAudioDevicesRemoved(removedDevices: Array<out AudioDeviceInfo>?) {
-            Log.d("AudioDeviceCallback", "Removed:"+removedDevices?.map { "\n"+it.toString() })
-        }
-    }
 
     private lateinit var handler: Handler
 
@@ -276,7 +263,6 @@ class VolumeWatcherService : Service(), SharedPreferences.OnSharedPreferenceChan
 
 
         registerReceivers()
-        registerAudioDeviceCallback()
 
         handler = Handler(mainLooper)
         notifyVolumeTask = task@{
@@ -463,18 +449,6 @@ class VolumeWatcherService : Service(), SharedPreferences.OnSharedPreferenceChan
             }
         }
         registerReceiver(globalBroadcastReceiver, globalIntentFilter)
-    }
-
-    private fun registerAudioDeviceCallback() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            audioManager.registerAudioDeviceCallback(audioDeviceCallback, null)
-        }
-    }
-
-    private fun unregisterAudioDeviceCallback() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            audioManager.unregisterAudioDeviceCallback(audioDeviceCallback)
-        }
     }
 
     private fun updateVolumeNotification() {
@@ -794,7 +768,6 @@ class VolumeWatcherService : Service(), SharedPreferences.OnSharedPreferenceChan
 
     override fun onDestroy() {
         unregisterReceiver(globalBroadcastReceiver)
-        unregisterAudioDeviceCallback()
         Prefs.unregisterPrefChangeListener(this)
         handler.removeCallbacks(notifyVolumeTask)
         cancelForceMuteAlarms()

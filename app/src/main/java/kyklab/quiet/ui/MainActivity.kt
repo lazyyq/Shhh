@@ -1,6 +1,5 @@
 package kyklab.quiet.ui
 
-import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.*
@@ -16,7 +15,6 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.Preference
@@ -34,10 +32,7 @@ import kotlinx.coroutines.launch
 import kyklab.quiet.*
 import kyklab.quiet.databinding.ActivityMainBinding
 import kyklab.quiet.service.VolumeWatcherService
-import kyklab.quiet.utils.PermissionManager
-import kyklab.quiet.utils.Prefs
-import kyklab.quiet.utils.TimePreference
-import kyklab.quiet.utils.TimePreferenceDialogFragmentCompat
+import kyklab.quiet.utils.*
 import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*

@@ -21,8 +21,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toIcon
 import kyklab.quiet.*
 import kyklab.quiet.ui.MainActivity
-import kyklab.quiet.utils.PermissionManager
-import kyklab.quiet.utils.Prefs
+import kyklab.quiet.utils.*
 import java.io.BufferedWriter
 import java.io.File
 import java.io.FileWriter

@@ -1,4 +1,4 @@
-package kyklab.quiet
+package kyklab.quiet.utils
 
 import android.app.ActivityManager
 import android.content.Context
@@ -18,6 +18,7 @@ import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import kyklab.quiet.BuildConfig
 
 private const val TAG = "Utils"
 

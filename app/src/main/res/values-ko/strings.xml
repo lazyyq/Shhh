@@ -28,6 +28,7 @@
     <string name="msg_permission_all_granted">필요한 권한이 전부 부여되었습니다!</string>
     <string name="msg_necessary_permission_missing">일부 권한은 앱 구동에 반드시 필요합니다. 확인 후 허가해주세요.</string>
 
+    <string name="settings_category_headset">헤드셋</string>
     <string name="settings_category_notification">알림</string>
     <string name="settings_category_force_mute">강제 음소거</string>
     <string name="settings_category_app">애플리케이션</string>

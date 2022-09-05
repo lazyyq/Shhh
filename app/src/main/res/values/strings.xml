@@ -28,6 +28,7 @@ Would you allow us to show you an ad?"</string>
     <string name="msg_permission_all_granted">All necessary permissions have been successfully granted!</string>
     <string name="msg_necessary_permission_missing">Some permissions are necessary for running the app, please check out and allow them.</string>
 
+    <string name="settings_category_headset">Headset</string>
     <string name="settings_category_notification">Notification</string>
     <string name="settings_category_force_mute">Force mute</string>
     <string name="settings_category_app">Application</string>

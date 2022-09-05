@@ -1,12 +1,17 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <SwitchPreferenceCompat
-        app:defaultValue="@bool/pref_key_enable_on_headset_default"
-        app:iconSpaceReserved="false"
-        app:key="@string/pref_key_enable_on_headset"
-        app:summary="@string/settings_enable_on_headset_summary"
-        app:title="@string/settings_enable_on_headset_title" />
+    <PreferenceCategory
+        android:title="@string/settings_category_headset"
+        app:iconSpaceReserved="false">
+
+        <SwitchPreferenceCompat
+            app:defaultValue="@bool/pref_key_enable_on_headset_default"
+            app:iconSpaceReserved="false"
+            app:key="@string/pref_key_enable_on_headset"
+            app:summary="@string/settings_enable_on_headset_summary"
+            app:title="@string/settings_enable_on_headset_title" />
+    </PreferenceCategory>
 
     <PreferenceCategory
         android:title="@string/settings_category_notification"

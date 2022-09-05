@@ -29,9 +29,9 @@ val Context.audioManager get() = getSystemService(Context.AUDIO_SERVICE) as Audi
 val Context.telephonyManager get() = getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
 
 fun Context.isServiceRunning(serviceClass: Class<*>): Boolean {
-    return activityManager.getRunningServices(Int.MAX_VALUE).find {
+    return activityManager.getRunningServices(Int.MAX_VALUE).any {
         it.service.className == serviceClass.name
-    } != null
+    }
 }
 
 val Context.isHeadsetConnected

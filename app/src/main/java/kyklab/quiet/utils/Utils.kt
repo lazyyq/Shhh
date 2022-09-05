@@ -9,12 +9,14 @@ import android.media.AudioManager
 import android.net.Uri
 import android.os.Build
 import android.os.Handler
+import android.os.PowerManager
 import android.provider.Settings
 import android.telephony.TelephonyManager
 import android.util.Log
 import android.util.TypedValue
 import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
+import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
@@ -28,6 +30,7 @@ val isOreoOrHigher = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
 val Context.activityManager get() = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
 val Context.audioManager get() = getSystemService(Context.AUDIO_SERVICE) as AudioManager
 val Context.telephonyManager get() = getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+val Context.powerManager get() = getSystemService(Context.POWER_SERVICE) as PowerManager
 
 fun Context.isServiceRunning(serviceClass: Class<*>): Boolean {
     return activityManager.getRunningServices(Int.MAX_VALUE).any {
@@ -123,5 +126,15 @@ fun Context.openAppSettings() {
     val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
         data = uri
     }
+    startActivity(intent)
+}
+
+val Context.isBatteryOptimizationEnabled
+    @RequiresApi(Build.VERSION_CODES.M)
+    get() = !powerManager.isIgnoringBatteryOptimizations(packageName)
+
+@RequiresApi(Build.VERSION_CODES.M)
+fun Context.openIgnoreBatteryOptimizationsSettings() {
+    val intent = Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
     startActivity(intent)
 }

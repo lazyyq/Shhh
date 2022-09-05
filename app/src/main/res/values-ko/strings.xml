@@ -24,15 +24,20 @@
     <string name="dialog_show_ad_message">"광고를 표시하는 것은 앱 개발자에게 큰 도움이 됩니다. 하지만 무엇보다 당신의 쾌적한 사용 경험이 우선이기에 선택권은 당신에게 있어야 합니다.
 만약 광고를 표시하는 것을 허락해 주신다면 앱을 실행 중일 때에만 화면 하단에 작은 광고 배너가 표시되며, 광고를 보는 것을 원치 않으시면 허락 없이는 다시는 광고를 표시하지 않을 것입니다.
 광고를 표시해도 될까요?"</string>
+    <string name="dialog_battery_optimization_title">배터리 최적화 비활성화</string>
+    <string name="dialog_battery_optimization_message">배터리 최적화가 설정되어 있으면 앱을 계속 중단시켜서 정상적으로 동작하지 못할 수 있습니다. 다음 화면에서 이 앱을 배터리 최적화에서 제외시켜 주세요.</string>
 
     <string name="msg_permission_all_granted">필요한 권한이 전부 부여되었습니다!</string>
     <string name="msg_necessary_permission_missing">일부 권한은 앱 구동에 반드시 필요합니다. 확인 후 허가해주세요.</string>
 
+    <string name="settings_category_app_setup">앱 설정</string>
     <string name="settings_category_headset">헤드셋</string>
     <string name="settings_category_notification">알림</string>
     <string name="settings_category_force_mute">강제 음소거</string>
     <string name="settings_category_app">애플리케이션</string>
 
+    <string name="settings_ignore_battery_optimization_title">배터리 최적화 비활성화</string>
+    <string name="settings_ignore_battery_optimization_summary">배터리 최적화가 설정되어 있으면 앱을 계속 중단시켜서 정상적으로 동작하지 못할 수 있습니다. 이 앱을 배터리 최적화에서 제외시켜 주세요.</string>
     <string name="settings_enable_on_headset_title">헤드셋이 연결되어 있을 때도 활성화</string>
     <string name="settings_enable_on_headset_summary">헤드셋(유선이나 블루투스)이 연결되어 있을 때도 볼륨이 켜져 있으면 경고합니다.</string>
     <string name="settings_show_noti_output_device_title">볼륨 출력 장치 표시</string>

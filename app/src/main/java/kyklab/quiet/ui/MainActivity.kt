@@ -83,6 +83,11 @@ class MainActivity : AppCompatActivity() {
         }
         binding.mainLayout.setOnClickListener { v -> binding.switchButton.toggle() }
 
+        // Check if battery optimization is properly turned off
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            checkBatteryOptimization()
+        }
+
         // Resume service if it was originally running
         if (Prefs.serviceEnabled) {
             if (!VolumeWatcherService.isRunning(this) && PermissionManager.checkPermission(this)) {
@@ -210,6 +215,21 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.M)
+    private fun checkBatteryOptimization() {
+        if (isBatteryOptimizationEnabled) {
+            MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.dialog_battery_optimization_title)
+                .setMessage(R.string.dialog_battery_optimization_message)
+                .setCancelable(false)
+                .setNegativeButton(android.R.string.cancel) { _, _ -> }
+                .setPositiveButton(android.R.string.ok) { _, _ ->
+                    openIgnoreBatteryOptimizationsSettings()
+                }
+                .show()
+        }
+    }
+
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -324,6 +344,7 @@ class MainActivity : AppCompatActivity() {
         private val forceMuteFrom: TimePreference? by lazy { findPreference(Prefs.Key.FORCE_MUTE_FROM) }
         private val forceMuteTo: TimePreference? by lazy { findPreference(Prefs.Key.FORCE_MUTE_TO) }
         private val showAd: SwitchPreferenceCompat? by lazy { findPreference(Prefs.Key.SHOW_AD) }
+        private var batteryOptimizationCategory: PreferenceCategory? = null
 
         override fun onPause() {
             Prefs.unregisterPrefChangeListener(this)
@@ -353,6 +374,28 @@ class MainActivity : AppCompatActivity() {
                 }
                 preferenceScreen.addPreference(preference)
             }
+
+            // Preference for opening battery optimization settings
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                batteryOptimizationCategory = PreferenceCategory(requireContext()).apply {
+                    title = getString(R.string.settings_category_app_setup)
+                    order = 0
+                    isIconSpaceReserved = false
+                    isVisible = false
+                }
+                val preference = Preference(requireContext()).apply {
+                    title = getString(R.string.settings_ignore_battery_optimization_title)
+                    summary = getString(R.string.settings_ignore_battery_optimization_summary)
+                    isIconSpaceReserved = false
+                    onPreferenceClickListener =
+                        Preference.OnPreferenceClickListener { p: Preference ->
+                            context.openIgnoreBatteryOptimizationsSettings()
+                            true
+                        }
+                }
+                preferenceScreen.addPreference(batteryOptimizationCategory!!)
+                batteryOptimizationCategory!!.addPreference(preference)
+            }
         }
 
         override fun onResume() {
@@ -361,6 +404,11 @@ class MainActivity : AppCompatActivity() {
             updateForceMuteFromSummary()
             updateForceMuteToSummary()
             updateForceMuteScheduleVisibility()
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                batteryOptimizationCategory?.isVisible =
+                    context?.isBatteryOptimizationEnabled == true
+            }
         }
 
         override fun onPreferenceClick(preference: Preference): Boolean {

@@ -24,15 +24,20 @@
     <string name="dialog_show_ad_message">"Showing ads can be a great help to the developer. However since your pleasant user experience with this app is the top priority, you should be the one to have a choice.
 If you allow us to show you an ad, a small ad banner will be displayed at the bottom of the screen only when the app is running, and if you refuse, we\'ll never show you an ad again without your permission.
 Would you allow us to show you an ad?"</string>
+    <string name="dialog_battery_optimization_title">Turn off battery optimization</string>
+    <string name="dialog_battery_optimization_message">Battery optimization keeps stopping the app, thus preventing it from working properly. Please exclude this app from battery optimization settings in the following screen.</string>
 
     <string name="msg_permission_all_granted">All necessary permissions have been successfully granted!</string>
     <string name="msg_necessary_permission_missing">Some permissions are necessary for running the app, please check out and allow them.</string>
 
+    <string name="settings_category_app_setup">App setup</string>
     <string name="settings_category_headset">Headset</string>
     <string name="settings_category_notification">Notification</string>
     <string name="settings_category_force_mute">Force mute</string>
     <string name="settings_category_app">Application</string>
 
+    <string name="settings_ignore_battery_optimization_title">Turn off battery optimization</string>
+    <string name="settings_ignore_battery_optimization_summary">Battery optimization keeps stopping the app, thus preventing it from working properly. Please exclude this app from battery optimization settings.</string>
     <string name="settings_enable_on_headset_title">Enable when headset is connected</string>
     <string name="settings_enable_on_headset_summary">Warn about media volume even when headset(wired or bluetooth) is connected.</string>
     <string name="settings_show_noti_output_device_title">Show volume output device</string>

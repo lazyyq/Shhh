@@ -89,12 +89,12 @@ class MainActivity : AppCompatActivity() {
         }
 
         // Resume service if it was originally running
-        if (Prefs.serviceEnabled) {
-            if (!VolumeWatcherService.isRunning(this) && PermissionManager.checkPermission(this)) {
+        if (Prefs.serviceEnabled && PermissionManager.checkPermission(this)) {
+            if (!VolumeWatcherService.isRunning(this)) {
                 VolumeWatcherService.startService(this)
-            } else {
-                Prefs.serviceEnabled = false;
             }
+        } else {
+            Prefs.serviceEnabled = false;
         }
         Prefs.firstLaunch = false
     }

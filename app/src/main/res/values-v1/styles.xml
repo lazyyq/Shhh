@@ -5,10 +5,9 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
 
-        <item name="actionBarPopupTheme">@style/ThemeOverlay.MaterialComponents</item>
-        <item name="actionBarStyle">@style/Widget.MaterialComponents.ActionBar.Surface</item>
-        <item name="actionBarTheme">@style/ThemeOverlay.MaterialComponents.ActionBar.Surface</item>
-        <item name="actionOverflowMenuStyle">@style/Widget.MaterialComponents.PopupMenu.Overflow
+        <item name="actionBarPopupTheme">@style/ThemeOverlay.Material3</item>
+        <item name="actionBarStyle">@style/Widget.Material3.ActionBar.Solid</item>
+        <item name="actionOverflowMenuStyle">@style/Widget.Material3.PopupMenu.Overflow
         </item>
     </style>
 

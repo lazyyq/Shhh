@@ -2,6 +2,7 @@ package kyklab.quiet
 
 import android.app.Application
 import android.content.Context
+import com.google.android.material.color.DynamicColors
 
 class App : Application() {
     companion object {
@@ -14,5 +15,7 @@ class App : Application() {
         super.onCreate()
 
         application = this
+
+        DynamicColors.applyToActivitiesIfAvailable(this)
     }
 }
